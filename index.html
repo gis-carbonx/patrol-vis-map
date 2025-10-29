@@ -1,121 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>test</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-  <style>
-    #map { height: 100vh; }
-    .legend {
-      background: white;
-      line-height: 1.5em;
-      padding: 6px;
-      font-size: 12px;
-    }
-    .legend i {
-      width: 18px;
-      height: 18px;
-      float: left;
-      margin-right: 8px;
-      opacity: 0.7;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Peta Patroli Hutan</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
+  <div id="title-box">Peta Hasil Patroli Hutan</div>
   <div id="map"></div>
+  <div id="legend-box">
+    <h4>Legenda & Statistik</h4>
+    <div id="legend"></div>
+    <div id="stats"></div>
+  </div>
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script>
-
-    var map = L.map('map').setView([0, 115], 5);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    var landCoverColors = {
-      "Cleared / Bare Land": "#B3B3B3",
-      "Forest": "#1E4D1E",
-      "Mixed Dryland Agriculture": "#FFFFB2",
-      "Oil Palm": "#E68A00",
-      "Old Shrubs": "#66FF33",
-      "Road": "#000000",
-      "Shrubs": "#CCFF66",
-      "Water": "#99B3CC"
-    };
-
-    function styleLC23(feature) {
-      var c = feature.properties.Class23;
-      var color = landCoverColors[c] || "grey";
-      return { color: color, weight: 1, fillColor: color, fillOpacity: 0.6 };
-    }
-
-    function styleLC13(feature) {
-      var c = feature.properties.Class13;
-      var color = landCoverColors[c] || "grey";
-      return { color: color, weight: 1, fillColor: color, fillOpacity: 0.6 };
-    }
-
-    function loadAndCombine(urls, style, classField) {
-      var group = L.layerGroup();
-      urls.forEach(url => {
-        fetch(url)
-          .then(res => res.json())
-          .then(data => {
-            L.geoJSON(data, {
-              style: style,
-              onEachFeature: function (feature, layer) {
-                var val = feature.properties[classField];
-                layer.bindPopup("<b>Class:</b> " + val);
-              }
-            }).addTo(group);
-          });
-      });
-      return group;
-    }
-
-    var eligibleLayer = loadAndCombine([
-      "data/Eligible_B1.geojson",
-      "data/Eligible_B2.geojson"
-    ], function() { return { color: "green", weight: 2, fillOpacity: 0.2 }; }, null);
-
-    var lc23Layer = loadAndCombine([
-      "data/LC23_B1.geojson",
-      "data/LC23_B2.geojson"
-    ], styleLC23, "Class23");
-
-    var lc13Layer = loadAndCombine([
-      "data/LC13_B1.geojson",
-      "data/LC13_B2.geojson"
-    ], styleLC13, "Class13");
-
-    var villageLayer = loadAndCombine([
-      "data/VillageBoundaries.geojson"
-    ], function() { return { color: "red", weight: 1, fillOpacity: 0 }; }, null);
-
-    var overlays = {
-      "Eligible Area": eligibleLayer,
-      "Land Cover 2023": lc23Layer,
-      "Land Cover 2013": lc13Layer,
-      "Village Boundaries": villageLayer
-    };
-    L.control.layers(null, overlays).addTo(map);
-
-    eligibleLayer.addTo(map);
-    villageLayer.addTo(map);
-
-    var legend = L.control({position: 'bottomright'});
-    legend.onAdd = function (map) {
-      var div = L.DomUtil.create('div', 'legend');
-      div.innerHTML = "<b>Land Cover</b><br>";
-      for (var key in landCoverColors) {
-        div.innerHTML +=
-          '<i style="background:' + landCoverColors[key] + '"></i> ' +
-          key + '<br>';
-      }
-      return div;
-    };
-    legend.addTo(map);
-  </script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
