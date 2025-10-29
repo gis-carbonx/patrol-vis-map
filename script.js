@@ -1,4 +1,3 @@
-// link google sheet
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 
 const map = L.map('map').setView([0.8, 110.3], 10);
@@ -49,14 +48,19 @@ Papa.parse(sheetURL, {
       count++;
     });
 
-
     document.getElementById('stats').innerHTML = `
       <p><b>Total Titik:</b> ${count}</p>
     `;
-
     document.getElementById('legend').innerHTML = `
       <p><span style="background: #4A90E2; width: 12px; height: 12px; display:inline-block; margin-right:5px;"></span>
       Titik Patroli</p>
     `;
   }
+});
+
+const sliderBox = document.getElementById('slider-box');
+const toggleBtn = document.getElementById('toggle-btn');
+
+toggleBtn.addEventListener('click', () => {
+  sliderBox.classList.toggle('active');
 });
