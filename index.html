@@ -3,24 +3,86 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Peta v1</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Survey Map</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #map { height: 100vh; }
+    .popup-content img {
+      width: 100%;
+      max-width: 250px;
+      margin-top: 8px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .popup-content h4 {
+      margin: 0;
+      font-size: 16px;
+      color: #2a4d69;
+    }
+    .popup-content p {
+      margin: 4px 0;
+      font-size: 13px;
+    }
+  </style>
 </head>
 <body>
-  <div id="title-box">Peta Hasil Patroli Hutan</div>
   <div id="map"></div>
-
-  <div id="toggle-btn">☰</div>
-
-  <div id="slider-box">
-    <h4>Legenda & Statistik</h4>
-    <div id="legend"></div>
-    <div id="stats"></div>
-  </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="script.js"></script>
+
+  <script>
+
+    const map = L.map('map').setView([0.8, 110.325], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
+
+    Papa.parse(sheetURL, {
+      download: true,
+      header: true,
+      complete: function(results) {
+        const data = results.data;
+        data.forEach(row => {
+          if (row['data-coordinate']) {
+            const coords = row['data-coordinate'].split(',');
+            const lat = parseFloat(coords[0]);
+            const lon = parseFloat(coords[1]);
+            if (isNaN(lat) || isNaN(lon)) return;
+
+            const img1 = convertGoogleDriveLink(row['data-documentation-image_1']);
+            const img2 = convertGoogleDriveLink(row['data-documentation-image_2']);
+
+            const popupContent = `
+              <div class="popup-content">
+                <h4>${row['data-survey-categ'] || ''} - ${row['data-survey-finding'] || ''}</h4>
+                <p><b>Surveyor:</b> ${row['data-base_info-nama'] || ''}</p>
+                <p><b>Description:</b> ${row['data-survey-description'] || ''}</p>
+                <p><b>Date:</b> ${row['data-start_date'] || ''}</p>
+                ${img1 ? `<img src="${img1}" alt="Photo 1"/>` : ''}
+                ${img2 ? `<img src="${img2}" alt="Photo 2"/>` : ''}
+              </div>
+            `;
+
+            L.marker([lat, lon])
+              .bindPopup(popupContent)
+              .addTo(map);
+          }
+        });
+      }
+    });
+
+    function convertGoogleDriveLink(url) {
+      if (!url) return null;
+      const match = url.match(/[-\w]{25,}/);
+      if (match) {
+        return `https://drive.google.com/uc?export=view&id=${match[0]}`;
+      }
+      return null;
+    }
+  </script>
 </body>
 </html>
