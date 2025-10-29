@@ -75,14 +75,15 @@
       }
     });
 
-    function convertGoogleDriveLink(url) {
-      if (!url) return null;
-      const match = url.match(/[-\w]{25,}/);
-      if (match) {
-        return `https://drive.google.com/uc?export=view&id=${match[0]}`;
-      }
-      return null;
-    }
+function convertGoogleDriveLink(url) {
+  if (!url) return null;
+  const match = url.match(/[-\w]{25,}/);
+  if (match) {
+    return `https://drive.google.com/uc?export=view&id=${match[0]}`;
+  }
+  return null;
+}
+
   </script>
 </body>
 </html>
