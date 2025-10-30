@@ -1,182 +1,234 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>Patrol Data Visualization</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-<style>
-  html, body, #map { height: 100%; margin: 0; padding: 0; }
-  .title {
-    position: absolute;
-    top: 10px;
-    left: 60px;
-    z-index: 1000;
-    background: rgba(255,255,255,0.85);
-    padding: 8px 16px;
-    border-radius: 10px;
-    font-weight: bold;
-    font-size: 16px;
-    box-shadow: 0 0 6px rgba(0,0,0,0.3);
-  }
-  .panel {
-    position: absolute;
-    top: 60px;
-    left: 10px;
-    z-index: 1000;
-    background: rgba(255,255,255,0.9);
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.3);
-    width: 220px;
-  }
-  .panel h4 { margin: 6px 0; }
-  .panel label { font-size: 13px; }
-  .toggle-btn {
-    background: #5b7bd5;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 5px 10px;
-    cursor: pointer;
-    margin-bottom: 6px;
-  }
-  .leaflet-popup-content img {
-    width: 250px;
-    height: 150px;
-    object-fit: cover;
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Survey Map with Filter & Boundary</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    #map { height: 100%; width: 100%; }
+
+    .popup-content img {
+      width: 100%;
+      max-width: 250px;
+      margin-top: 8px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .popup-content img:hover { transform: scale(1.03); }
+    .popup-content h4 { margin: 0; font-size: 16px; color: #2a4d69; }
+    .popup-content p { margin: 4px 0; font-size: 13px; }
+
+    .img-modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.85);
+      justify-content: center;
+      align-items: center;
+    }
+    .img-modal img {
+      max-width: 90%; max-height: 90%;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+    .img-modal span {
+      position: absolute;
+      top: 20px; right: 40px;
+      color: white; font-size: 40px; font-weight: bold;
+      cursor: pointer; transition: 0.3s;
+    }
+    .img-modal span:hover { color: #bbb; }
+
+    .control-panel {
+      position: absolute;
+      top: 70px; left: 10px;
+      z-index: 1000;
+      background: rgba(255,255,255,0.95);
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      width: 230px;
+    }
+    .toggle-btn {
+      background: #2a4d69; color: white;
+      border: none; border-radius: 6px;
+      padding: 5px 10px; cursor: pointer;
+      width: 100%;
+    }
+    .toggle-btn:hover { background: #355f8a; }
+    .control-content { display: none; margin-top: 8px; }
+    .control-content label { font-size: 13px; }
+    .control-content input, select {
+      width: 100%; margin-bottom: 6px;
+    }
+
+    .title-box {
+      position: absolute;
+      top: 10px;
+      left: 70px;
+      z-index: 1000;
+      background: rgba(255,255,255,0.9);
+      padding: 8px 14px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-<div class="title">Patrol Data</div>
+  <div id="map"></div>
 
-<div class="panel" id="controlPanel">
-  <button class="toggle-btn" onclick="togglePanel()">☰ Controls</button>
-  <div id="panelContent" style="display:none">
-    <h4>🗺 Basemap</h4>
-    <select id="basemapSelect">
-      <option value="osm">OpenStreetMap</option>
-      <option value="satellite">Satellite</option>
-      <option value="topo">Topographic</option>
-    </select>
+  <div class="title-box">Survey Map Visualization</div>
 
-    <h4>Filter</h4>
-    <label>Start Date:</label><br>
-    <input type="date" id="startDate"><br>
-    <label>End Date:</label><br>
-    <input type="date" id="endDate"><br>
-    <label>Surveyor:</label><br>
-    <input type="text" id="surveyor" placeholder="Type name"><br>
-    <button class="toggle-btn" style="margin-top:6px;" onclick="applyFilter()">Apply Filter</button>
-    <button class="toggle-btn" style="background:#777;" onclick="resetFilter()">Reset</button>
+  <div class="control-panel">
+    <button class="toggle-btn" onclick="togglePanel()">☰ Controls</button>
+    <div class="control-content" id="controlContent">
+      <label><b>🗺 Basemap:</b></label>
+      <select id="basemapSelect">
+        <option value="osm">OpenStreetMap</option>
+        <option value="satellite">Satellite</option>
+        <option value="topo">Topographic</option>
+        <option value="terrain">Terrain</option>
+      </select>
+
+      <label><b>📅 Start Date:</b></label>
+      <input type="date" id="startDate">
+      <label><b>📅 End Date:</b></label>
+      <input type="date" id="endDate">
+      <label><b>👤 Surveyor:</b></label>
+      <input type="text" id="surveyor" placeholder="Type name">
+
+      <button class="toggle-btn" style="background:#4CAF50;margin-top:6px;" onclick="applyFilter()">Apply</button>
+      <button class="toggle-btn" style="background:#777;" onclick="resetFilter()">Reset</button>
+    </div>
   </div>
-</div>
 
-<div id="map"></div>
+  <div id="imageModal" class="img-modal">
+    <span id="closeModal">&times;</span>
+    <img id="modalImage" src="">
+  </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-let map = L.map('map').setView([-2.2, 112.9], 6);
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
-const baseLayers = {
-  "osm": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }),
-  "satellite": L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-      maxZoom: 20,
-      subdomains: ['mt0','mt1','mt2','mt3']
-  }),
-  "topo": L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 })
-};
-baseLayers["osm"].addTo(map);
+  <script>
 
-document.getElementById("basemapSelect").addEventListener("change", (e) => {
-  Object.values(baseLayers).forEach(layer => map.removeLayer(layer));
-  baseLayers[e.target.value].addTo(map);
-});
+    const baseLayers = {
+      osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19}),
+      satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
+      topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {maxZoom:17}),
+      terrain: L.tileLayer('https://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.jpg', {maxZoom:18})
+    };
 
-const pinIcon = L.divIcon({
-  html: `<div style="position:relative;width:2px;height:20px;background:#e74c3c;margin:0 auto;">
-           <div style="width:12px;height:12px;background:#e74c3c;border-radius:50%;position:absolute;top:-8px;left:-5px;border:2px solid white;"></div>
-         </div>`,
-  className: '',
-  iconAnchor: [5, 20],
-  popupAnchor: [0, -20]
-});
+    const map = L.map('map', {
+      center: [0.8, 110.325],
+      zoom: 13,
+      layers: [baseLayers.osm]
+    });
 
-let markers = [];
-let patrolData = [];
+    document.getElementById("basemapSelect").addEventListener("change", (e) => {
+      Object.values(baseLayers).forEach(layer => map.removeLayer(layer));
+      baseLayers[e.target.value].addTo(map);
+    });
 
-fetch('https://opensheet.elk.sh/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2o')
-  .then(res => res.json())
-  .then(data => {
-    patrolData = data;
-    renderMarkers(patrolData);
-  });
+    fetch('data/CMI.json')
+      .then(res => res.json())
+      .then(json => {
+        const boundary = L.geoJSON(json, {
+          style: {color:"purple",weight:2,fillColor:"purple",fillOpacity:0.15}
+        }).addTo(map);
+        map.fitBounds(boundary.getBounds());
+      });
 
-fetch('data/CMI.json')
-  .then(res => res.json())
-  .then(json => {
-    L.geoJSON(json, {
-      style: {
-        color: 'purple',
-        weight: 2,
-        fillColor: 'purple',
-        fillOpacity: 0.15
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
+    let allData = [], markers = [];
+
+    Papa.parse(sheetURL, {
+      download: true,
+      header: true,
+      complete: res => {
+        allData = res.data.filter(d => d['data-coordinate']);
+        renderMarkers(allData);
       }
-    }).addTo(map);
-  });
+    });
 
-function renderMarkers(data) {
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
+    function renderMarkers(data) {
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
 
-  data.forEach(row => {
-    if (!row.Latitude || !row.Longitude) return;
-    let lat = parseFloat(row.Latitude);
-    let lon = parseFloat(row.Longitude);
+      data.forEach(row => {
+        const coords = row['data-coordinate'].split(',');
+        const lat = parseFloat(coords[0]);
+        const lon = parseFloat(coords[1]);
+        if (isNaN(lat) || isNaN(lon)) return;
 
-    let marker = L.marker([lat, lon], { icon: pinIcon });
-    let imgURL = row.Photo ? row.Photo.replace('/open?', '/uc?export=view&') : '';
-    let popupHTML = `
-      <b>${row.Title || '(No Title)'}</b><br>
-      Surveyor: ${row.Surveyor || '-'}<br>
-      Date: ${row.Date || '-'}<br>
-      <img src="${imgURL}" alt="photo" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found'">
-    `;
-    marker.bindPopup(popupHTML);
-    marker.addTo(map);
-    markers.push(marker);
-  });
-}
+        const img1 = convertDrive(row['data-documentation-image_1']);
+        const img2 = convertDrive(row['data-documentation-image_2']);
 
-function applyFilter() {
-  const start = document.getElementById('startDate').value;
-  const end = document.getElementById('endDate').value;
-  const surveyor = document.getElementById('surveyor').value.trim().toLowerCase();
+        const html = `
+          <div class="popup-content">
+            <h4>${row['data-survey-categ'] || ''} - ${row['data-survey-finding'] || ''}</h4>
+            <p><b>Surveyor:</b> ${row['data-base_info-nama'] || ''}</p>
+            <p><b>Description:</b> ${row['data-survey-description'] || ''}</p>
+            <p><b>Date:</b> ${row['data-start_date'] || ''}</p>
+            ${img1 ? `<img src="${img1}" onclick="openModal('${img1}')"
+              onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
+            ${img2 ? `<img src="${img2}" onclick="openModal('${img2}')"
+              onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
+          </div>`;
+        const marker = L.marker([lat, lon]).bindPopup(html);
+        marker.addTo(map);
+        markers.push(marker);
+      });
+    }
 
-  const filtered = patrolData.filter(row => {
-    let date = row.Date ? new Date(row.Date) : null;
-    let validDate = (!start || (date && date >= new Date(start))) &&
-                    (!end || (date && date <= new Date(end)));
-    let validSurveyor = !surveyor || (row.Surveyor && row.Surveyor.toLowerCase().includes(surveyor));
-    return validDate && validSurveyor;
-  });
+    function applyFilter() {
+      const start = document.getElementById('startDate').value;
+      const end = document.getElementById('endDate').value;
+      const surveyor = document.getElementById('surveyor').value.trim().toLowerCase();
 
-  renderMarkers(filtered);
-}
+      const filtered = allData.filter(row => {
+        const date = new Date(row['data-start_date']);
+        const inRange = (!start || date >= new Date(start)) && (!end || date <= new Date(end));
+        const nameMatch = !surveyor || (row['data-base_info-nama'] && row['data-base_info-nama'].toLowerCase().includes(surveyor));
+        return inRange && nameMatch;
+      });
+      renderMarkers(filtered);
+    }
 
-function resetFilter() {
-  document.getElementById('startDate').value = '';
-  document.getElementById('endDate').value = '';
-  document.getElementById('surveyor').value = '';
-  renderMarkers(patrolData);
-}
+    function resetFilter() {
+      document.getElementById('startDate').value = '';
+      document.getElementById('endDate').value = '';
+      document.getElementById('surveyor').value = '';
+      renderMarkers(allData);
+    }
 
-function togglePanel() {
-  let content = document.getElementById("panelContent");
-  content.style.display = (content.style.display === "none") ? "block" : "none";
-}
-</script>
+    function convertDrive(url) {
+      if (!url) return null;
+      const match = url.match(/[-\w]{25,}/);
+      return match ? `https://drive.google.com/thumbnail?id=${match[0]}&sz=w1000` : null;
+    }
+
+    const modal = document.getElementById("imageModal");
+    const modalImg = document.getElementById("modalImage");
+    document.getElementById("closeModal").onclick = () => modal.style.display = "none";
+    modal.onclick = e => { if (e.target === modal) modal.style.display = "none"; };
+
+    function openModal(src) {
+      modal.style.display = "flex";
+      modalImg.src = src;
+    }
+
+    function togglePanel() {
+      const content = document.getElementById("controlContent");
+      content.style.display = content.style.display === "none" ? "block" : "none";
+    }
+  </script>
 </body>
 </html>
