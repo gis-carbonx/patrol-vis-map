@@ -3,11 +3,34 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Survey Map with Filter & Boundary</title>
+  <title>Patrol Data Visualization</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    html, body { height: 100%; margin: 0; overflow: hidden; }
-    #map { height: 100%; width: 100%; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+
+    #map-title {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.2);
+    }
 
     .popup-content img {
       width: 100%;
@@ -18,96 +41,93 @@
       cursor: pointer;
       transition: transform 0.2s;
     }
-    .popup-content img:hover { transform: scale(1.03); }
-    .popup-content h4 { margin: 0; font-size: 16px; color: #2a4d69; }
-    .popup-content p { margin: 4px 0; font-size: 13px; }
+
+    .popup-content img:hover {
+      transform: scale(1.02);
+    }
+
+    .popup-content h4 {
+      margin: 0;
+      font-size: 16px;
+      color: #2a4d69;
+    }
+
+    .popup-content p {
+      margin: 4px 0;
+      font-size: 13px;
+    }
 
     .img-modal {
       display: none;
       position: fixed;
       z-index: 9999;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
-      background-color: rgba(0,0,0,0.85);
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.8);
       justify-content: center;
       align-items: center;
     }
+
     .img-modal img {
-      max-width: 90%; max-height: 90%;
+      max-width: 90%;
+      max-height: 90%;
       border-radius: 10px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
+
     .img-modal span {
       position: absolute;
-      top: 20px; right: 40px;
-      color: white; font-size: 40px; font-weight: bold;
-      cursor: pointer; transition: 0.3s;
+      top: 20px;
+      right: 40px;
+      color: white;
+      font-size: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
     }
-    .img-modal span:hover { color: #bbb; }
 
-    .control-panel {
+    .img-modal span:hover {
+      color: #bbb;
+    }
+
+    .pin-marker {
+      position: relative;
+      width: 10px;
+      height: 24px;
+      background: transparent;
+    }
+
+    .pin-marker:before {
+      content: '';
       position: absolute;
-      top: 70px; left: 10px;
-      z-index: 1000;
-      background: rgba(255,255,255,0.95);
-      padding: 10px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      width: 230px;
-    }
-    .toggle-btn {
-      background: #2a4d69; color: white;
-      border: none; border-radius: 6px;
-      padding: 5px 10px; cursor: pointer;
-      width: 100%;
-    }
-    .toggle-btn:hover { background: #355f8a; }
-    .control-content { display: none; margin-top: 8px; }
-    .control-content label { font-size: 13px; }
-    .control-content input, select {
-      width: 100%; margin-bottom: 6px;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 12px;
+      height: 12px;
+      background: #ff3333;
+      border: 2px solid white;
+      border-radius: 50%;
+      box-shadow: 0 0 3px rgba(0,0,0,0.4);
     }
 
-    .title-box {
+    .pin-marker:after {
+      content: '';
       position: absolute;
       top: 10px;
-      left: 70px;
-      z-index: 1000;
-      background: rgba(255,255,255,0.9);
-      padding: 8px 14px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      font-weight: bold;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 14px;
+      background: #ff3333;
     }
   </style>
 </head>
 <body>
   <div id="map"></div>
-
-  <div class="title-box">Survey Map Visualization</div>
-
-  <div class="control-panel">
-    <button class="toggle-btn" onclick="togglePanel()">☰ Controls</button>
-    <div class="control-content" id="controlContent">
-      <label><b>🗺 Basemap:</b></label>
-      <select id="basemapSelect">
-        <option value="osm">OpenStreetMap</option>
-        <option value="satellite">Satellite</option>
-        <option value="topo">Topographic</option>
-        <option value="terrain">Terrain</option>
-      </select>
-
-      <label><b>📅 Start Date:</b></label>
-      <input type="date" id="startDate">
-      <label><b>📅 End Date:</b></label>
-      <input type="date" id="endDate">
-      <label><b>👤 Surveyor:</b></label>
-      <input type="text" id="surveyor" placeholder="Type name">
-
-      <button class="toggle-btn" style="background:#4CAF50;margin-top:6px;" onclick="applyFilter()">Apply</button>
-      <button class="toggle-btn" style="background:#777;" onclick="resetFilter()">Reset</button>
-    </div>
-  </div>
+  <div id="map-title">🛰️ Patrol Data Visualization</div>
 
   <div id="imageModal" class="img-modal">
     <span id="closeModal">&times;</span>
@@ -118,117 +138,127 @@
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
   <script>
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    });
 
-    const baseLayers = {
-      osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19}),
-      satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
-      topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {maxZoom:17}),
-      terrain: L.tileLayer('https://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.jpg', {maxZoom:18})
-    };
+    const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles © Esri & contributors'
+    });
+
+    const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      maxZoom: 17,
+      attribution: '© OpenTopoMap contributors'
+    });
+
+    const terrain = L.tileLayer('https://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.jpg', {
+      maxZoom: 18,
+      attribution: 'Map tiles by Stamen Terrain'
+    });
+
 
     const map = L.map('map', {
       center: [0.8, 110.325],
       zoom: 13,
-      layers: [baseLayers.osm]
+      layers: [osm]
     });
 
-    document.getElementById("basemapSelect").addEventListener("change", (e) => {
-      Object.values(baseLayers).forEach(layer => map.removeLayer(layer));
-      baseLayers[e.target.value].addTo(map);
-    });
+    const baseMaps = {
+      "OpenStreetMap": osm,
+      "Satellite": satellite,
+      "Topographic": topo,
+      "Terrain": terrain
+    };
+
+    L.control.layers(baseMaps, null, { position: 'topright', collapsed: true }).addTo(map);
 
     fetch('data/CMI.json')
-      .then(res => res.json())
+      .then(response => response.json())
       .then(json => {
         const boundary = L.geoJSON(json, {
-          style: {color:"purple",weight:2,fillColor:"purple",fillOpacity:0.15}
+          style: {
+            color: "purple",
+            weight: 2,
+            fillColor: "purple",
+            fillOpacity: 0.1
+          }
         }).addTo(map);
         map.fitBounds(boundary.getBounds());
-      });
+      })
+      .catch(err => console.error("Gagal memuat CMI.json:", err));
 
     const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
-    let allData = [], markers = [];
 
     Papa.parse(sheetURL, {
       download: true,
       header: true,
-      complete: res => {
-        allData = res.data.filter(d => d['data-coordinate']);
-        renderMarkers(allData);
+      complete: function(results) {
+        const data = results.data;
+        data.forEach(row => {
+          if (row['data-coordinate']) {
+            const coords = row['data-coordinate'].split(',');
+            const lat = parseFloat(coords[0]);
+            const lon = parseFloat(coords[1]);
+            if (isNaN(lat) || isNaN(lon)) return;
+
+            const img1 = convertGoogleDriveLink(row['data-documentation-image_1']);
+            const img2 = convertGoogleDriveLink(row['data-documentation-image_2']);
+
+            const popupContent = `
+              <div class="popup-content">
+                <h4>${row['data-survey-categ'] || ''} - ${row['data-survey-finding'] || ''}</h4>
+                <p><b>Surveyor:</b> ${row['data-base_info-nama'] || ''}</p>
+                <p><b>Description:</b> ${row['data-survey-description'] || ''}</p>
+                <p><b>Date:</b> ${row['data-start_date'] || ''}</p>
+                ${img1 ? `<img src="${img1}" alt="Photo 1" onclick="openModal('${img1}')"
+                onerror="this.onerror=null;this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';"/>` : ''}
+                ${img2 ? `<img src="${img2}" alt="Photo 2" onclick="openModal('${img2}')"
+                onerror="this.onerror=null;this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';"/>` : ''}
+              </div>
+            `;
+
+            const pinIcon = L.divIcon({
+              className: 'pin-marker',
+              iconSize: [12, 24],
+              iconAnchor: [6, 24],
+              popupAnchor: [0, -24]
+            });
+
+            L.marker([lat, lon], { icon: pinIcon })
+              .bindPopup(popupContent)
+              .addTo(map);
+          }
+        });
       }
     });
 
-    function renderMarkers(data) {
-      markers.forEach(m => map.removeLayer(m));
-      markers = [];
-
-      data.forEach(row => {
-        const coords = row['data-coordinate'].split(',');
-        const lat = parseFloat(coords[0]);
-        const lon = parseFloat(coords[1]);
-        if (isNaN(lat) || isNaN(lon)) return;
-
-        const img1 = convertDrive(row['data-documentation-image_1']);
-        const img2 = convertDrive(row['data-documentation-image_2']);
-
-        const html = `
-          <div class="popup-content">
-            <h4>${row['data-survey-categ'] || ''} - ${row['data-survey-finding'] || ''}</h4>
-            <p><b>Surveyor:</b> ${row['data-base_info-nama'] || ''}</p>
-            <p><b>Description:</b> ${row['data-survey-description'] || ''}</p>
-            <p><b>Date:</b> ${row['data-start_date'] || ''}</p>
-            ${img1 ? `<img src="${img1}" onclick="openModal('${img1}')"
-              onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
-            ${img2 ? `<img src="${img2}" onclick="openModal('${img2}')"
-              onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
-          </div>`;
-        const marker = L.marker([lat, lon]).bindPopup(html);
-        marker.addTo(map);
-        markers.push(marker);
-      });
-    }
-
-    function applyFilter() {
-      const start = document.getElementById('startDate').value;
-      const end = document.getElementById('endDate').value;
-      const surveyor = document.getElementById('surveyor').value.trim().toLowerCase();
-
-      const filtered = allData.filter(row => {
-        const date = new Date(row['data-start_date']);
-        const inRange = (!start || date >= new Date(start)) && (!end || date <= new Date(end));
-        const nameMatch = !surveyor || (row['data-base_info-nama'] && row['data-base_info-nama'].toLowerCase().includes(surveyor));
-        return inRange && nameMatch;
-      });
-      renderMarkers(filtered);
-    }
-
-    function resetFilter() {
-      document.getElementById('startDate').value = '';
-      document.getElementById('endDate').value = '';
-      document.getElementById('surveyor').value = '';
-      renderMarkers(allData);
-    }
-
-    function convertDrive(url) {
+    function convertGoogleDriveLink(url) {
       if (!url) return null;
+      url = url.trim();
       const match = url.match(/[-\w]{25,}/);
-      return match ? `https://drive.google.com/thumbnail?id=${match[0]}&sz=w1000` : null;
+      if (match) {
+        return `https://drive.google.com/thumbnail?id=${match[0]}&sz=w1000`;
+      }
+      return null;
     }
 
     const modal = document.getElementById("imageModal");
     const modalImg = document.getElementById("modalImage");
-    document.getElementById("closeModal").onclick = () => modal.style.display = "none";
-    modal.onclick = e => { if (e.target === modal) modal.style.display = "none"; };
+    const closeBtn = document.getElementById("closeModal");
 
     function openModal(src) {
       modal.style.display = "flex";
       modalImg.src = src;
     }
 
-    function togglePanel() {
-      const content = document.getElementById("controlContent");
-      content.style.display = content.style.display === "none" ? "block" : "none";
-    }
+    closeBtn.onclick = function() {
+      modal.style.display = "none";
+    };
+
+    modal.onclick = function(e) {
+      if (e.target === modal) modal.style.display = "none";
+    };
   </script>
 </body>
 </html>
