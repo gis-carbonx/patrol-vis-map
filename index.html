@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Patrol Data Visualization</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
   <style>
     html, body {
       height: 100%;
@@ -136,8 +137,14 @@
       height: 14px;
       background: #ff3333;
     }
+
+    .leaflet-control-zoom {
+      margin-bottom: 20px !important;
+      margin-right: 15px !important;
+    }
   </style>
 </head>
+
 <body>
   <div id="map"></div>
 
@@ -169,7 +176,7 @@
       attribution: '© OpenTopoMap contributors'
     });
 
-    const terrain = L.tileLayer('https://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.jpg', {
+    const terrain = L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg', {
       maxZoom: 18,
       attribution: 'Map tiles by Stamen Terrain'
     });
@@ -177,8 +184,11 @@
     const map = L.map('map', {
       center: [0.8, 110.325],
       zoom: 13,
-      layers: [osm]
+      layers: [osm],
+      zoomControl: false
     });
+
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
 
     const baseMaps = {
       "OpenStreetMap": osm,
@@ -186,14 +196,18 @@
       "Topographic": topo,
       "Terrain": terrain
     };
-
     L.control.layers(baseMaps, null, { position: 'topright', collapsed: true }).addTo(map);
 
     fetch('data/CMI.json')
       .then(res => res.json())
       .then(json => {
         const boundary = L.geoJSON(json, {
-          style: { color: "purple", weight: 2, fillColor: "purple", fillOpacity: 0.1 }
+          style: {
+            color: "purple",
+            weight: 2,
+            fillColor: "purple",
+            fillOpacity: 0.1
+          }
         }).addTo(map);
         map.fitBounds(boundary.getBounds());
       })
@@ -244,7 +258,7 @@
       const match = url.trim().match(/[-\w]{25,}/);
       return match ? `https://drive.google.com/thumbnail?id=${match[0]}&sz=w1000` : null;
     }
-    
+
     const modal = document.getElementById("imageModal");
     const modalImg = document.getElementById("modalImage");
     const closeBtn = document.getElementById("closeModal");
