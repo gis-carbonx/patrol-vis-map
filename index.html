@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Survey Map</title>
+  <title>Survey 1 Map</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     #map { height: 100vh; }
@@ -37,11 +37,6 @@
       maxZoom: 19,
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
-
-    L.marker([0.8, 110.325]).addTo(map)
-  .bindPopup(`
-    <img src="https://drive.google.com/uc?export=view&id=1DNlgUN3SKjYLfue-dHU8fZbB6ZfC6LO4" width="250">
-  `);
 
     const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 
@@ -82,16 +77,10 @@
     function convertGoogleDriveLink(url) {
       if (!url) return null;
       url = url.trim();
-
-      if (url.includes("googleusercontent.com")) {
-        return url;
-      }
-
       const match = url.match(/[-\w]{25,}/);
       if (match) {
-        return `https://drive.google.com/uc?export=view&id=${match[0]}`;
+        return `https://drive.google.com/thumbnail?id=${match[0]}&sz=w1000`;
       }
-
       return null;
     }
   </script>
