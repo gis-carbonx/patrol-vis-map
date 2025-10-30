@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Patrol Data Visualization</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     html, body {
       height: 100%;
       margin: 0;
       overflow: hidden;
+      font-family: 'Segoe UI', sans-serif;
     }
 
     #map {
@@ -26,15 +28,11 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      font-family: 'Segoe UI', sans-serif;
       font-size: 32px;
       font-weight: 800;
       color: black;
-      text-shadow:
-        -2px -2px 0 white,
-         2px -2px 0 white,
-        -2px  2px 0 white,
-         2px  2px 0 white;
+      text-shadow: -2px -2px 0 white, 2px -2px 0 white,
+                   -2px  2px 0 white, 2px  2px 0 white;
       pointer-events: none;
       user-select: none;
     }
@@ -42,8 +40,57 @@
     #map-title img {
       height: 45px;
       width: auto;
-      pointer-events: none;
-      user-select: none;
+    }
+
+    #side-panel {
+      position: absolute;
+      top: 70px;
+      right: 10px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 10px;
+      padding: 10px;
+      width: 320px;
+      max-height: 85%;
+      overflow-y: auto;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease;
+    }
+
+    #side-panel.collapsed {
+      transform: translateX(105%);
+    }
+
+    #toggle-panel {
+      position: absolute;
+      top: 70px;
+      right: 340px;
+      background: #333;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 8px 0 0 8px;
+      cursor: pointer;
+      z-index: 1001;
+      font-size: 14px;
+    }
+
+    h3 {
+      margin-top: 10px;
+      margin-bottom: 5px;
+      font-size: 16px;
+      text-align: center;
+      border-bottom: 2px solid #444;
+      padding-bottom: 3px;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 180px !important;
+    }
+
+    .leaflet-control-zoom {
+      margin-bottom: 20px !important;
+      margin-right: 15px !important;
     }
 
     .popup-content img {
@@ -60,59 +107,6 @@
       transform: scale(1.02);
     }
 
-    .popup-content h4 {
-      margin: 0;
-      font-size: 16px;
-      color: #2a4d69;
-    }
-
-    .popup-content p {
-      margin: 4px 0;
-      font-size: 13px;
-    }
-
-    .img-modal {
-      display: none;
-      position: fixed;
-      z-index: 9999;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.8);
-      justify-content: center;
-      align-items: center;
-    }
-
-    .img-modal img {
-      max-width: 90%;
-      max-height: 90%;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    }
-
-    .img-modal span {
-      position: absolute;
-      top: 20px;
-      right: 40px;
-      color: white;
-      font-size: 40px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .img-modal span:hover {
-      color: #bbb;
-    }
-
-    .pin-marker {
-      position: relative;
-      width: 10px;
-      height: 24px;
-      background: transparent;
-    }
-
     .pin-marker:before {
       content: '';
       position: absolute;
@@ -126,22 +120,6 @@
       border-radius: 50%;
       box-shadow: 0 0 3px rgba(0,0,0,0.4);
     }
-
-    .pin-marker:after {
-      content: '';
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 2px;
-      height: 14px;
-      background: #ff3333;
-    }
-
-    .leaflet-control-zoom {
-      margin-bottom: 20px !important;
-      margin-right: 15px !important;
-    }
   </style>
 </head>
 
@@ -153,33 +131,26 @@
     <span>Patrol Data Visualization</span>
   </div>
 
-  <div id="imageModal" class="img-modal">
-    <span id="closeModal">&times;</span>
-    <img id="modalImage" src="">
+  <div id="toggle-panel">☰ Panel</div>
+
+  <div id="side-panel" class="collapsed">
+    <h3>Statistik Temuan</h3>
+    <p><b>Total Titik Temuan:</b> <span id="totalPoints">0</span></p>
+    <canvas id="categoryChart"></canvas>
+    <canvas id="dateChart"></canvas>
+
+    <h3>Basemap</h3>
+    <div id="basemap-container"></div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
   <script>
-    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap contributors'
-    });
-
-    const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'Tiles © Esri & contributors'
-    });
-
-    const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-      maxZoom: 17,
-      attribution: '© OpenTopoMap contributors'
-    });
-
-    const terrain = L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg', {
-      maxZoom: 18,
-      attribution: 'Map tiles by Stamen Terrain'
-    });
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' });
+    const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
+    const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png');
+    const terrain = L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg');
 
     const map = L.map('map', {
       center: [0.8, 110.325],
@@ -196,80 +167,97 @@
       "Topographic": topo,
       "Terrain": terrain
     };
-    L.control.layers(baseMaps, null, { position: 'topright', collapsed: true }).addTo(map);
+    const layerControl = L.control.layers(baseMaps, null, { collapsed: true });
+    layerControl.addTo(map);
+    document.getElementById('basemap-container').appendChild(layerControl.getContainer());
 
     fetch('data/CMI.json')
-      .then(res => res.json())
-      .then(json => {
-        const boundary = L.geoJSON(json, {
-          style: {
-            color: "purple",
-            weight: 2,
-            fillColor: "purple",
-            fillOpacity: 0.1
-          }
+      .then(r => r.json())
+      .then(j => {
+        const b = L.geoJSON(j, {
+          style: { color: "purple", weight: 2, fillColor: "purple", fillOpacity: 0.1 }
         }).addTo(map);
-        map.fitBounds(boundary.getBounds());
-      })
-      .catch(err => console.error("Gagal memuat CMI.json:", err));
+        map.fitBounds(b.getBounds());
+      });
 
     const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
+    const categoryCount = {};
+    const dateCount = {};
+    let totalPoints = 0;
 
     Papa.parse(sheetURL, {
       download: true,
       header: true,
       complete: (results) => {
         results.data.forEach(row => {
-          if (!row['data-coordinate']) return;
-          const coords = row['data-coordinate'].split(',');
+          const coords = row['data-coordinate']?.split(',');
+          if (!coords || coords.length < 2) return;
           const lat = parseFloat(coords[0]);
           const lon = parseFloat(coords[1]);
           if (isNaN(lat) || isNaN(lon)) return;
+
+          totalPoints++;
+
+          const category = row['data-survey-categ'] || "Unknown";
+          categoryCount[category] = (categoryCount[category] || 0) + 1;
+
+          const date = row['data-start_date'] || "No Date";
+          dateCount[date] = (dateCount[date] || 0) + 1;
 
           const img1 = convertGoogleDriveLink(row['data-documentation-image_1']);
           const img2 = convertGoogleDriveLink(row['data-documentation-image_2']);
 
           const popup = `
             <div class="popup-content">
-              <h4>${row['data-survey-categ'] || ''} - ${row['data-survey-finding'] || ''}</h4>
+              <h4>${category} - ${row['data-survey-finding'] || ''}</h4>
               <p><b>Surveyor:</b> ${row['data-base_info-nama'] || ''}</p>
               <p><b>Description:</b> ${row['data-survey-description'] || ''}</p>
-              <p><b>Date:</b> ${row['data-start_date'] || ''}</p>
-              ${img1 ? `<img src="${img1}" onclick="openModal('${img1}')"
-                onerror="this.onerror=null;this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
-              ${img2 ? `<img src="${img2}" onclick="openModal('${img2}')"
-                onerror="this.onerror=null;this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
+              <p><b>Date:</b> ${date}</p>
+              ${img1 ? `<img src="${img1}" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
+              ${img2 ? `<img src="${img2}" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
             </div>`;
 
-          const pinIcon = L.divIcon({
-            className: 'pin-marker',
-            iconSize: [12, 24],
-            iconAnchor: [6, 24],
-            popupAnchor: [0, -24]
-          });
-
+          const pinIcon = L.divIcon({ className: 'pin-marker', iconSize: [12, 24], iconAnchor: [6, 24], popupAnchor: [0, -24] });
           L.marker([lat, lon], { icon: pinIcon }).bindPopup(popup).addTo(map);
         });
+
+        document.getElementById('totalPoints').textContent = totalPoints;
+
+        renderCharts();
       }
     });
 
     function convertGoogleDriveLink(url) {
       if (!url) return null;
-      const match = url.trim().match(/[-\w]{25,}/);
+      const match = url.match(/[-\w]{25,}/);
       return match ? `https://drive.google.com/thumbnail?id=${match[0]}&sz=w1000` : null;
     }
 
-    const modal = document.getElementById("imageModal");
-    const modalImg = document.getElementById("modalImage");
-    const closeBtn = document.getElementById("closeModal");
+    function renderCharts() {
+      const catCtx = document.getElementById('categoryChart');
+      const dateCtx = document.getElementById('dateChart');
 
-    function openModal(src) {
-      modal.style.display = "flex";
-      modalImg.src = src;
+      new Chart(catCtx, {
+        type: 'pie',
+        data: {
+          labels: Object.keys(categoryCount),
+          datasets: [{ data: Object.values(categoryCount), backgroundColor: ['#ff6384','#36a2eb','#ffce56','#8bc34a','#9c27b0','#ff9800'] }]
+        },
+        options: { plugins: { legend: { position: 'bottom' } } }
+      });
+
+      new Chart(dateCtx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(dateCount),
+          datasets: [{ label: 'Jumlah Temuan', data: Object.values(dateCount), backgroundColor: '#36a2eb' }]
+        },
+        options: { scales: { x: { ticks: { autoSkip: false } } } }
+      });
     }
 
-    closeBtn.onclick = () => modal.style.display = "none";
-    modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
+    const panel = document.getElementById('side-panel');
+    document.getElementById('toggle-panel').onclick = () => panel.classList.toggle('collapsed');
   </script>
 </body>
 </html>
