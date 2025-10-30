@@ -38,6 +38,11 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
+    L.marker([0.8, 110.325]).addTo(map)
+  .bindPopup(`
+    <img src="https://drive.google.com/uc?export=view&id=1DNlgUN3SKjYLfue-dHU8fZbB6ZfC6LO4" width="250">
+  `);
+
     const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 
     Papa.parse(sheetURL, {
