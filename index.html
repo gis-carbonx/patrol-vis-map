@@ -58,20 +58,18 @@
       transform: translateX(-50%); width: 2px; height: 14px; background: #ff3333;
     }
 
-    .leaflet-control-zoom { margin-bottom: 20px !important; margin-right: 15px !important; }
-
     #infoPanel {
       position: absolute;
-      top: 80px;
-      right: 10px;
+      top: 15px;
+      right: 15px;
       z-index: 1000;
       background: rgba(255,255,255,0.95);
       padding: 10px;
       border-radius: 10px;
-      width: 300px;
+      width: 320px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
       font-family: 'Segoe UI', sans-serif;
-      max-height: 80%;
+      max-height: 85%;
       overflow-y: auto;
     }
     #infoHeader {
@@ -87,6 +85,17 @@
     }
     #infoContent { display: none; }
     #infoContent canvas { margin-top: 10px; }
+    #resetFilter {
+      background: #555;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+      cursor: pointer;
+      width: 100%;
+    }
+    #resetFilter:hover { background: #333; }
   </style>
 </head>
 
@@ -104,9 +113,10 @@
       <h4>🗺 Basemap</h4>
       <div id="basemapOptions"></div>
       <hr>
-      <h4>Statistik</h4>
+      <h4>📊 Statistik</h4>
       <p id="totalPoints">Total titik temuan: -</p>
       <canvas id="categoryChart" width="250" height="250"></canvas>
+      <button id="resetFilter">Show All</button>
       <canvas id="dateChart" width="250" height="200"></canvas>
     </div>
   </div>
@@ -120,7 +130,6 @@
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
   <script>
-
     const basemaps = {
       "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
       "Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
@@ -134,7 +143,6 @@
       layers: [basemaps["OpenStreetMap"]],
       zoomControl: false
     });
-
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
     fetch('data/CMI.json')
@@ -170,6 +178,7 @@
     let categoryCount = {};
     let dateCount = {};
     let total = 0;
+    let markers = [];
 
     Papa.parse(sheetURL, {
       download: true,
@@ -182,7 +191,8 @@
           total++;
 
           const cat = row['data-survey-categ'] || "Unknown";
-          const date = row['data-start_date'] || "Unknown";
+          const dateRaw = row['data-start_date'] || "Unknown";
+          const date = dateRaw.split("T")[0];
 
           categoryCount[cat] = (categoryCount[cat] || 0) + 1;
           dateCount[date] = (dateCount[date] || 0) + 1;
@@ -201,25 +211,51 @@
             </div>`;
 
           const pinIcon = L.divIcon({ className: 'pin-marker', iconSize: [12, 24], iconAnchor: [6, 24] });
-          L.marker([lat, lon], { icon: pinIcon }).bindPopup(popup).addTo(map);
+          const marker = L.marker([lat, lon], { icon: pinIcon })
+            .bindPopup(popup)
+            .addTo(map);
+          marker.category = cat;
+          markers.push(marker);
         });
 
         document.getElementById("totalPoints").textContent = `Total titik temuan: ${total}`;
 
-        new Chart(document.getElementById("categoryChart"), {
+        const pieChart = new Chart(document.getElementById("categoryChart"), {
           type: 'pie',
           data: {
             labels: Object.keys(categoryCount),
-            datasets: [{ data: Object.values(categoryCount), backgroundColor: ['#ff6666', '#66b3ff', '#99ff99', '#ffcc99', '#c299ff', '#ff99c2'] }]
+            datasets: [{ 
+              data: Object.values(categoryCount),
+              backgroundColor: ['#ff6666', '#66b3ff', '#99ff99', '#ffcc99', '#c299ff', '#ff99c2']
+            }]
           },
-          options: { plugins: { legend: { position: 'bottom' } } }
+          options: {
+            plugins: { legend: { position: 'bottom' } },
+            onClick: (evt, elements) => {
+              if (elements.length > 0) {
+                const index = elements[0].index;
+                const selectedCategory = pieChart.data.labels[index];
+                markers.forEach(m => {
+                  if (m.category === selectedCategory) {
+                    map.addLayer(m);
+                  } else {
+                    map.removeLayer(m);
+                  }
+                });
+              }
+            }
+          }
         });
+
+        document.getElementById('resetFilter').onclick = () => {
+          markers.forEach(m => map.addLayer(m));
+        };
 
         new Chart(document.getElementById("dateChart"), {
           type: 'bar',
           data: {
             labels: Object.keys(dateCount),
-            datasets: [{ label: 'Jumlah Temuan', data: Object.values(dateCount) }]
+            datasets: [{ label: 'Jumlah Temuan', data: Object.values(dateCount), backgroundColor: '#66b3ff' }]
           },
           options: {
             scales: { x: { ticks: { autoSkip: false } } },
@@ -228,13 +264,11 @@
         });
       }
     });
-
     function convertGoogleDriveLink(url) {
       if (!url) return null;
       const match = url.match(/[-\w]{25,}/);
       return match ? `https://drive.google.com/thumbnail?id=${match[0]}&sz=w1000` : null;
     }
-
     const modal = document.getElementById("imageModal");
     const modalImg = document.getElementById("modalImage");
     document.getElementById("closeModal").onclick = () => modal.style.display = "none";
