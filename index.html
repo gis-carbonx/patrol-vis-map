@@ -6,6 +6,9 @@
   <title>Patrol Data Visualization 2</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-measure@3.3.0/dist/leaflet-measure.css" />
+  <script src="https://cdn.jsdelivr.net/npm/leaflet-measure@3.3.0/dist/leaflet-measure.min.js"></script>
+
   <style>
     html, body { height: 100%; margin: 0; overflow: hidden; }
     #map { height: 100%; width: 100%; }
@@ -119,6 +122,16 @@ const basemaps = {
 const map = L.map('map', { center: [0.8, 110.325], zoom: 13, layers: [basemaps["Hillshade"]], zoomControl: false });
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 
+L.control.measure({
+  position: 'bottomleft',
+  primaryLengthUnit: 'meters',
+  secondaryLengthUnit: 'kilometers',
+  primaryAreaUnit: 'sqmeters',
+  secondaryAreaUnit: 'hectares',
+  activeColor: '#ff3333',
+  completedColor: '#2d7dd2'
+}).addTo(map);
+
 let currentBase = basemaps["Hillshade"], boundaryLayer = null, markers = [];
 
 fetch('data/CMI.json')
@@ -224,7 +237,6 @@ function generateColors(n) {
   if (n <= base.length) return base.slice(0,n);
   return Array.from({length:n},(_,i)=>`hsl(${(i*360/n).toFixed(0)} 70% 60%)`);
 }
-
 
 const modal = document.getElementById("imageModal"), modalImg = document.getElementById("modalImage");
 document.getElementById("closeModal").onclick = () => modal.style.display = "none";
