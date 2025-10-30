@@ -32,7 +32,6 @@
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
   <script>
-
     const map = L.map('map').setView([0.8, 110.325], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
@@ -62,8 +61,8 @@
                 <p><b>Surveyor:</b> ${row['data-base_info-nama'] || ''}</p>
                 <p><b>Description:</b> ${row['data-survey-description'] || ''}</p>
                 <p><b>Date:</b> ${row['data-start_date'] || ''}</p>
-                ${img1 ? `<img src="${img1}" alt="Photo 1"/>` : ''}
-                ${img2 ? `<img src="${img2}" alt="Photo 2"/>` : ''}
+                ${img1 ? `<img src="${img1}" alt="Photo 1" onerror="this.onerror=null;this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';"/>` : ''}
+                ${img2 ? `<img src="${img2}" alt="Photo 2" onerror="this.onerror=null;this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';"/>` : ''}
               </div>
             `;
 
@@ -75,15 +74,21 @@
       }
     });
 
-function convertGoogleDriveLink(url) {
-  if (!url) return null;
-  const match = url.match(/[-\w]{25,}/);
-  if (match) {
-    return `https://drive.google.com/uc?export=view&id=${match[0]}`;
-  }
-  return null;
-}
+    function convertGoogleDriveLink(url) {
+      if (!url) return null;
+      url = url.trim();
 
+      if (url.includes("googleusercontent.com")) {
+        return url;
+      }
+
+      const match = url.match(/[-\w]{25,}/);
+      if (match) {
+        return `https://drive.google.com/uc?export=view&id=${match[0]}`;
+      }
+
+      return null;
+    }
   </script>
 </body>
 </html>
