@@ -3,17 +3,25 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Survey 1 Map</title>
+  <title>Survey Map</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     #map { height: 100vh; }
+
     .popup-content img {
       width: 100%;
       max-width: 250px;
       margin-top: 8px;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      cursor: pointer;
+      transition: transform 0.2s;
     }
+
+    .popup-content img:hover {
+      transform: scale(1.02);
+    }
+
     .popup-content h4 {
       margin: 0;
       font-size: 16px;
@@ -23,10 +31,50 @@
       margin: 4px 0;
       font-size: 13px;
     }
+
+    .img-modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .img-modal img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    .img-modal span {
+      position: absolute;
+      top: 20px;
+      right: 40px;
+      color: white;
+      font-size: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .img-modal span:hover {
+      color: #bbb;
+    }
   </style>
 </head>
 <body>
   <div id="map"></div>
+
+  <div id="imageModal" class="img-modal">
+    <span id="closeModal">&times;</span>
+    <img id="modalImage" src="">
+  </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
@@ -37,7 +85,7 @@
       maxZoom: 19,
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
-
+    
     const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 
     Papa.parse(sheetURL, {
@@ -61,8 +109,10 @@
                 <p><b>Surveyor:</b> ${row['data-base_info-nama'] || ''}</p>
                 <p><b>Description:</b> ${row['data-survey-description'] || ''}</p>
                 <p><b>Date:</b> ${row['data-start_date'] || ''}</p>
-                ${img1 ? `<img src="${img1}" alt="Photo 1" onerror="this.onerror=null;this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';"/>` : ''}
-                ${img2 ? `<img src="${img2}" alt="Photo 2" onerror="this.onerror=null;this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';"/>` : ''}
+                ${img1 ? `<img src="${img1}" alt="Photo 1" onclick="openModal('${img1}')"
+                onerror="this.onerror=null;this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';"/>` : ''}
+                ${img2 ? `<img src="${img2}" alt="Photo 2" onclick="openModal('${img2}')"
+                onerror="this.onerror=null;this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';"/>` : ''}
               </div>
             `;
 
@@ -83,6 +133,23 @@
       }
       return null;
     }
+
+    const modal = document.getElementById("imageModal");
+    const modalImg = document.getElementById("modalImage");
+    const closeBtn = document.getElementById("closeModal");
+
+    function openModal(src) {
+      modal.style.display = "flex";
+      modalImg.src = src;
+    }
+
+    closeBtn.onclick = function() {
+      modal.style.display = "none";
+    };
+
+    modal.onclick = function(e) {
+      if (e.target === modal) modal.style.display = "none";
+    };
   </script>
 </body>
 </html>
