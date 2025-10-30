@@ -150,19 +150,17 @@ const basemaps = {
   "OSM": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
   "Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
   "Hillshade": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}'),
-  "Terrain": L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}.jpg'),
   "Topo": L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'),
-  "Relief": L.tileLayer('https://basemap.nationalmap.gov/ArcGIS/rest/services/USGSShadedReliefOnly/MapServer/tile/{z}/{y}/{x}')
 };
 
 const map = L.map('map', {
-  center: [0.8, 110.325], zoom: 13, layers: [basemaps["OSM"]], zoomControl: false
+  center: [0.8, 110.325], zoom: 13, layers: [basemaps["Hillshade"]], zoomControl: false
 });
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 L.control.layers(basemaps, null, { collapsed: true }).addTo(map);
 
 
-    let currentBase = basemaps["OpenStreetMap"];
+    let currentBase = basemaps["Hillshade"];
     let boundaryLayer = null;
     const markers = []; 
 
