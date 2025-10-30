@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Patrol Data Visualization 2</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-measure/dist/leaflet-measure.css" /> <!-- 🔹 Tambahan -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-measure@3.3.0/dist/leaflet-measure.css" />
-  <script src="https://cdn.jsdelivr.net/npm/leaflet-measure@3.3.0/dist/leaflet-measure.min.js"></script>
-
   <style>
     html, body { height: 100%; margin: 0; overflow: hidden; }
     #map { height: 100%; width: 100%; }
@@ -80,6 +78,13 @@
     .basemap-btn:hover { background: #eee; }
 
     .leaflet-control-zoom { margin-bottom: 20px !important; margin-right: 15px !important; }
+
+    /* 🔹 Styling tambahan untuk tombol ukur */
+    .leaflet-control-measure-toggle {
+      background-color: #444 !important;
+      color: white !important;
+      border-radius: 6px !important;
+    }
   </style>
 </head>
 
@@ -111,6 +116,7 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://unpkg.com/leaflet-measure/dist/leaflet-measure.js"></script> <!-- 🔹 Tambahan plugin -->
 
   <script>
 const basemaps = {
@@ -122,17 +128,18 @@ const basemaps = {
 const map = L.map('map', { center: [0.8, 110.325], zoom: 13, layers: [basemaps["Hillshade"]], zoomControl: false });
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 
+let currentBase = basemaps["Hillshade"], boundaryLayer = null, markers = [];
+
+// 🔹 Tambah kontrol pengukuran (panjang & luas)
 L.control.measure({
   position: 'bottomleft',
-  primaryLengthUnit: 'meters',
-  secondaryLengthUnit: 'kilometers',
-  primaryAreaUnit: 'sqmeters',
-  secondaryAreaUnit: 'hectares',
-  activeColor: '#ff3333',
-  completedColor: '#2d7dd2'
+  primaryLengthUnit: 'kilometers',
+  secondaryLengthUnit: 'meters',
+  primaryAreaUnit: 'hectares',
+  secondaryAreaUnit: 'sqmeters',
+  activeColor: '#e53935',
+  completedColor: '#43a047'
 }).addTo(map);
-
-let currentBase = basemaps["Hillshade"], boundaryLayer = null, markers = [];
 
 fetch('data/CMI.json')
   .then(res => res.json())
