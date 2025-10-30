@@ -5,11 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Patrol Data Visualization</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
   <style>
     html, body {
       height: 100%;
       margin: 0;
       overflow: hidden;
+      font-family: Arial, sans-serif;
     }
 
     #map {
@@ -17,49 +19,45 @@
       width: 100%;
     }
 
-    #header {
+    .map-title {
       position: absolute;
       top: 10px;
-      left: 10px;
-      background: rgba(255,255,255,0.95);
-      padding: 10px 14px;
-      border-radius: 12px;
+      left: 15px;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      color: #333;
+      z-index: 1000;
+      font-size: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .filter-panel {
+      position: absolute;
+      top: 60px;
+      left: 15px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px;
+      border-radius: 6px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
       z-index: 1000;
-      font-family: "Segoe UI", Arial, sans-serif;
-      width: 260px;
+      font-size: 13px;
+      max-width: 220px;
     }
 
-    #header h2 {
-      margin: 0 0 8px;
-      font-size: 16px;
-      color: #2c3e50;
-      font-weight: 600;
-      text-align: center;
+    .filter-panel label {
+      display: block;
+      margin-top: 5px;
+      font-weight: bold;
     }
 
-    #filters label {
-      font-size: 12px;
-      color: #333;
-    }
-
-    #filters input, #filters select, #filters button {
+    .filter-panel input, .filter-panel select, .filter-panel button {
       width: 100%;
+      margin-top: 3px;
       margin-bottom: 6px;
       padding: 4px;
-      font-size: 12px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-
-    #filters button {
-      background-color: #4CAF50;
-      color: white;
-      cursor: pointer;
-    }
-
-    #filters button:hover {
-      background-color: #45a049;
+      font-size: 13px;
     }
 
     .popup-content img {
@@ -71,56 +69,75 @@
       cursor: pointer;
       transition: transform 0.2s;
     }
-    .popup-content img:hover { transform: scale(1.03); }
 
-    .popup-content h4 { margin: 0; font-size: 15px; color: #2a4d69; }
-    .popup-content p { margin: 4px 0; font-size: 12px; }
+    .popup-content img:hover {
+      transform: scale(1.03);
+    }
+
+    .popup-content h4 {
+      margin: 0;
+      font-size: 15px;
+      color: #2a4d69;
+    }
+
+    .popup-content p {
+      margin: 4px 0;
+      font-size: 12px;
+    }
 
     .img-modal {
       display: none;
       position: fixed;
       z-index: 9999;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
       background-color: rgba(0,0,0,0.8);
       justify-content: center;
       align-items: center;
     }
+
     .img-modal img {
-      max-width: 90%; max-height: 90%;
+      max-width: 90%;
+      max-height: 90%;
       border-radius: 10px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
+
     .img-modal span {
       position: absolute;
-      top: 20px; right: 40px;
-      color: white; font-size: 40px;
-      font-weight: bold; cursor: pointer;
+      top: 20px;
+      right: 40px;
+      color: white;
+      font-size: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
     }
-    .img-modal span:hover { color: #bbb; }
+
+    .img-modal span:hover {
+      color: #bbb;
+    }
   </style>
 </head>
 <body>
-  <div id="header">
-    <h2>Patrol Data Visualization</h2>
-    <div id="filters">
-      <label for="filterName">Surveyor:</label>
-      <select id="filterName">
-        <option value="">All</option>
-      </select>
-
-      <label for="filterStart">Start Date:</label>
-      <input type="date" id="filterStart">
-
-      <label for="filterEnd">End Date:</label>
-      <input type="date" id="filterEnd">
-
-      <button id="applyFilter">Apply Filter</button>
-      <button id="resetFilter" style="background-color:#f44336;">Reset</button>
-    </div>
-  </div>
 
   <div id="map"></div>
+  <div class="map-title">🛰️ Patrol Data Visualization</div>
+  
+  <div class="filter-panel">
+    <label for="filterDate">Filter by Date:</label>
+    <input type="date" id="filterDate">
+
+    <label for="filterSurveyor">Filter by Surveyor:</label>
+    <select id="filterSurveyor">
+      <option value="">All Surveyors</option>
+    </select>
+
+    <button id="applyFilter">Apply Filter</button>
+    <button id="resetFilter">Reset</button>
+  </div>
 
   <div id="imageModal" class="img-modal">
     <span id="closeModal">&times;</span>
@@ -131,129 +148,140 @@
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
   <script>
-
     const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
-    const sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {});
+    const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
     const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 });
     const terrain = L.tileLayer('https://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.jpg', { maxZoom: 18 });
 
     const map = L.map('map', { center: [0.8, 110.325], zoom: 13, layers: [osm] });
-    const baseMaps = { "OpenStreetMap": osm, "Satellite": sat, "Topographic": topo, "Terrain": terrain };
-    L.control.layers(baseMaps, null, { collapsed: true, position: 'topright' }).addTo(map);
+    const baseMaps = { "OpenStreetMap": osm, "Satellite": satellite, "Topographic": topo, "Terrain": terrain };
+    L.control.layers(baseMaps, null, { position: 'topright', collapsed: true }).addTo(map);
 
     fetch('data/CMI.json')
       .then(r => r.json())
       .then(json => {
-        const b = L.geoJSON(json, {
-          style: { color: 'purple', weight: 2, fillColor: 'purple', fillOpacity: 0.1 }
+        const boundary = L.geoJSON(json, {
+          style: { color: "purple", weight: 2, fillColor: "purple", fillOpacity: 0.1 }
         }).addTo(map);
-        map.fitBounds(b.getBounds());
+        map.fitBounds(boundary.getBounds());
       });
 
-    const pinIcon = L.divIcon({
-      html: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="36" viewBox="0 0 24 36">
-        <line x1="12" y1="20" x2="12" y2="35" stroke="red" stroke-width="2"/>
-        <circle cx="12" cy="12" r="8" fill="red" stroke="white" stroke-width="2"/>
-      </svg>`,
-      className: '',
-      iconAnchor: [12, 35],
-      popupAnchor: [0, -30]
-    });
-
     let allMarkers = [];
-    const markersLayer = L.layerGroup().addTo(map);
+    const markerLayer = L.layerGroup().addTo(map);
 
     const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
-    let allData = [];
 
     Papa.parse(sheetURL, {
-      download: true, header: true,
-      complete: function(res) {
-        allData = res.data;
-        populateFilterNames();
-        renderMarkers(allData);
+      download: true,
+      header: true,
+      complete: function(results) {
+        const data = results.data;
+        const surveyors = new Set();
+
+        data.forEach(row => {
+          if (row['data-coordinate']) {
+            const coords = row['data-coordinate'].split(',');
+            const lat = parseFloat(coords[0]);
+            const lon = parseFloat(coords[1]);
+            if (isNaN(lat) || isNaN(lon)) return;
+
+            const surveyor = row['data-base_info-nama'] || '';
+            if (surveyor) surveyors.add(surveyor);
+
+            const marker = createMarker(lat, lon, row);
+            markerLayer.addLayer(marker);
+            allMarkers.push({ marker, row });
+          }
+        });
+
+        const select = document.getElementById('filterSurveyor');
+        surveyors.forEach(name => {
+          const opt = document.createElement('option');
+          opt.value = name;
+          opt.textContent = name;
+          select.appendChild(opt);
+        });
       }
     });
 
-    function populateFilterNames() {
-      const nameSet = new Set(allData.map(d => d['data-base_info-nama']).filter(Boolean));
-      const select = document.getElementById('filterName');
-      nameSet.forEach(n => {
-        const opt = document.createElement('option');
-        opt.value = n;
-        opt.textContent = n;
-        select.appendChild(opt);
+    function createMarker(lat, lon, row) {
+      const pinIcon = L.divIcon({
+        className: 'custom-pin',
+        html: `<div style="
+          position: relative;
+          width: 14px; height: 14px;
+          background: red;
+          border-radius: 50%;
+          border: 2px solid white;
+          box-shadow: 0 0 3px rgba(0,0,0,0.5);
+        "></div>
+        <div style="
+          position: absolute;
+          top: 14px;
+          left: 6px;
+          width: 2px; height: 12px;
+          background: red;
+        "></div>`,
+        iconSize: [14, 26],
+        iconAnchor: [7, 26]
       });
+
+      const img1 = convertGoogleDriveLink(row['data-documentation-image_1']);
+      const img2 = convertGoogleDriveLink(row['data-documentation-image_2']);
+
+      const popupContent = `
+        <div class="popup-content">
+          <h4>${row['data-survey-categ'] || ''} - ${row['data-survey-finding'] || ''}</h4>
+          <p><b>Surveyor:</b> ${row['data-base_info-nama'] || ''}</p>
+          <p><b>Description:</b> ${row['data-survey-description'] || ''}</p>
+          <p><b>Date:</b> ${row['data-start_date'] || ''}</p>
+          ${img1 ? `<img src="${img1}" alt="Photo 1" onclick="openModal('${img1}')">` : ''}
+          ${img2 ? `<img src="${img2}" alt="Photo 2" onclick="openModal('${img2}')">` : ''}
+        </div>
+      `;
+
+      return L.marker([lat, lon], { icon: pinIcon }).bindPopup(popupContent);
     }
 
-    function renderMarkers(data) {
-      markersLayer.clearLayers();
-      allMarkers = [];
-
-      data.forEach(row => {
-        if (!row['data-coordinate']) return;
-        const [lat, lon] = row['data-coordinate'].split(',').map(Number);
-        if (isNaN(lat) || isNaN(lon)) return;
-
-        const img1 = convertDrive(row['data-documentation-image_1']);
-        const img2 = convertDrive(row['data-documentation-image_2']);
-        const popup = `
-          <div class="popup-content">
-            <h4>${row['data-survey-categ'] || ''} - ${row['data-survey-finding'] || ''}</h4>
-            <p><b>Surveyor:</b> ${row['data-base_info-nama'] || ''}</p>
-            <p><b>Date:</b> ${row['data-start_date'] || ''}</p>
-            <p><b>Description:</b> ${row['data-survey-description'] || ''}</p>
-            ${img1 ? `<img src="${img1}" onclick="openModal('${img1}')"
-            onerror="this.onerror=null;this.src='https://via.placeholder.com/250x150?text=Not+Found';"/>` : ''}
-            ${img2 ? `<img src="${img2}" onclick="openModal('${img2}')"
-            onerror="this.onerror=null;this.src='https://via.placeholder.com/250x150?text=Not+Found';"/>` : ''}
-          </div>`;
-        const marker = L.marker([lat, lon], { icon: pinIcon }).bindPopup(popup);
-        marker.addTo(markersLayer);
-        allMarkers.push(marker);
-      });
-    }
-
-    function convertDrive(url) {
+    function convertGoogleDriveLink(url) {
       if (!url) return null;
       const match = url.match(/[-\w]{25,}/);
       return match ? `https://drive.google.com/thumbnail?id=${match[0]}&sz=w1000` : null;
     }
 
-    document.getElementById('applyFilter').onclick = () => {
-      const nameVal = document.getElementById('filterName').value.trim();
-      const startVal = document.getElementById('filterStart').value;
-      const endVal = document.getElementById('filterEnd').value;
-
-      const filtered = allData.filter(r => {
-        const nameOK = nameVal ? r['data-base_info-nama'] === nameVal : true;
-        const date = r['data-start_date'] || '';
-        const dateOK =
-          (!startVal || date >= startVal) &&
-          (!endVal || date <= endVal);
-        return nameOK && dateOK;
-      });
-      renderMarkers(filtered);
-    };
-
-    document.getElementById('resetFilter').onclick = () => {
-      document.getElementById('filterName').value = '';
-      document.getElementById('filterStart').value = '';
-      document.getElementById('filterEnd').value = '';
-      renderMarkers(allData);
-    };
-
     const modal = document.getElementById("imageModal");
     const modalImg = document.getElementById("modalImage");
-    const closeModal = document.getElementById("closeModal");
-
+    const closeBtn = document.getElementById("closeModal");
     function openModal(src) {
       modal.style.display = "flex";
       modalImg.src = src;
     }
+    closeBtn.onclick = () => modal.style.display = "none";
+    modal.onclick = e => { if (e.target === modal) modal.style.display = "none"; };
 
-    closeModal.onclick = () => { modal.style.display = "none"; };
-    modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
+    document.getElementById('applyFilter').addEventListener('click', () => {
+      const dateFilter = document.getElementById('filterDate').value;
+      const surveyorFilter = document.getElementById('filterSurveyor').value;
+
+      markerLayer.clearLayers();
+      allMarkers.forEach(({ marker, row }) => {
+        const date = row['data-start_date'] || '';
+        const surveyor = row['data-base_info-nama'] || '';
+        if (
+          (!dateFilter || date.includes(dateFilter)) &&
+          (!surveyorFilter || surveyor === surveyorFilter)
+        ) {
+          markerLayer.addLayer(marker);
+        }
+      });
+    });
+
+    document.getElementById('resetFilter').addEventListener('click', () => {
+      document.getElementById('filterDate').value = '';
+      document.getElementById('filterSurveyor').value = '';
+      markerLayer.clearLayers();
+      allMarkers.forEach(({ marker }) => markerLayer.addLayer(marker));
+    });
   </script>
 </body>
 </html>
