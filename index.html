@@ -22,6 +22,9 @@
       top: 15px;
       left: 20px;
       z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
       font-family: 'Segoe UI', sans-serif;
       font-size: 32px;
       font-weight: 800;
@@ -31,6 +34,13 @@
          2px -2px 0 white,
         -2px  2px 0 white,
          2px  2px 0 white;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    #map-title img {
+      height: 45px;
+      width: auto;
       pointer-events: none;
       user-select: none;
     }
@@ -130,7 +140,11 @@
 </head>
 <body>
   <div id="map"></div>
-  <div id="map-title">Patrol Data Visualization</div>
+
+  <div id="map-title">
+    <img src="data/CMI-Brandmark-FullColor-BlackBG.png" alt="Logo CMI">
+    <span>Patrol Data Visualization</span>
+  </div>
 
   <div id="imageModal" class="img-modal">
     <span id="closeModal">&times;</span>
@@ -141,7 +155,6 @@
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
   <script>
-
     const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap contributors'
@@ -174,19 +187,13 @@
       "Terrain": terrain
     };
 
-    const layerControl = L.control.layers(baseMaps, null, { position: 'topright', collapsed: true });
-    layerControl.addTo(map);
+    L.control.layers(baseMaps, null, { position: 'topright', collapsed: true }).addTo(map);
 
     fetch('data/CMI.json')
-      .then(response => response.json())
+      .then(res => res.json())
       .then(json => {
         const boundary = L.geoJSON(json, {
-          style: {
-            color: "purple",
-            weight: 2,
-            fillColor: "purple",
-            fillOpacity: 0.1
-          }
+          style: { color: "purple", weight: 2, fillColor: "purple", fillOpacity: 0.1 }
         }).addTo(map);
         map.fitBounds(boundary.getBounds());
       })
@@ -197,56 +204,47 @@
     Papa.parse(sheetURL, {
       download: true,
       header: true,
-      complete: function(results) {
-        const data = results.data;
-        data.forEach(row => {
-          if (row['data-coordinate']) {
-            const coords = row['data-coordinate'].split(',');
-            const lat = parseFloat(coords[0]);
-            const lon = parseFloat(coords[1]);
-            if (isNaN(lat) || isNaN(lon)) return;
+      complete: (results) => {
+        results.data.forEach(row => {
+          if (!row['data-coordinate']) return;
+          const coords = row['data-coordinate'].split(',');
+          const lat = parseFloat(coords[0]);
+          const lon = parseFloat(coords[1]);
+          if (isNaN(lat) || isNaN(lon)) return;
 
-            const img1 = convertGoogleDriveLink(row['data-documentation-image_1']);
-            const img2 = convertGoogleDriveLink(row['data-documentation-image_2']);
+          const img1 = convertGoogleDriveLink(row['data-documentation-image_1']);
+          const img2 = convertGoogleDriveLink(row['data-documentation-image_2']);
 
-            const popupContent = `
-              <div class="popup-content">
-                <h4>${row['data-survey-categ'] || ''} - ${row['data-survey-finding'] || ''}</h4>
-                <p><b>Surveyor:</b> ${row['data-base_info-nama'] || ''}</p>
-                <p><b>Description:</b> ${row['data-survey-description'] || ''}</p>
-                <p><b>Date:</b> ${row['data-start_date'] || ''}</p>
-                ${img1 ? `<img src="${img1}" alt="Photo 1" onclick="openModal('${img1}')"
-                onerror="this.onerror=null;this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';"/>` : ''}
-                ${img2 ? `<img src="${img2}" alt="Photo 2" onclick="openModal('${img2}')"
-                onerror="this.onerror=null;this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';"/>` : ''}
-              </div>
-            `;
+          const popup = `
+            <div class="popup-content">
+              <h4>${row['data-survey-categ'] || ''} - ${row['data-survey-finding'] || ''}</h4>
+              <p><b>Surveyor:</b> ${row['data-base_info-nama'] || ''}</p>
+              <p><b>Description:</b> ${row['data-survey-description'] || ''}</p>
+              <p><b>Date:</b> ${row['data-start_date'] || ''}</p>
+              ${img1 ? `<img src="${img1}" onclick="openModal('${img1}')"
+                onerror="this.onerror=null;this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
+              ${img2 ? `<img src="${img2}" onclick="openModal('${img2}')"
+                onerror="this.onerror=null;this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
+            </div>`;
 
-            const pinIcon = L.divIcon({
-              className: 'pin-marker',
-              iconSize: [12, 24],
-              iconAnchor: [6, 24],
-              popupAnchor: [0, -24]
-            });
+          const pinIcon = L.divIcon({
+            className: 'pin-marker',
+            iconSize: [12, 24],
+            iconAnchor: [6, 24],
+            popupAnchor: [0, -24]
+          });
 
-            L.marker([lat, lon], { icon: pinIcon })
-              .bindPopup(popupContent)
-              .addTo(map);
-          }
+          L.marker([lat, lon], { icon: pinIcon }).bindPopup(popup).addTo(map);
         });
       }
     });
 
     function convertGoogleDriveLink(url) {
       if (!url) return null;
-      url = url.trim();
-      const match = url.match(/[-\w]{25,}/);
-      if (match) {
-        return `https://drive.google.com/thumbnail?id=${match[0]}&sz=w1000`;
-      }
-      return null;
+      const match = url.trim().match(/[-\w]{25,}/);
+      return match ? `https://drive.google.com/thumbnail?id=${match[0]}&sz=w1000` : null;
     }
-
+    
     const modal = document.getElementById("imageModal");
     const modalImg = document.getElementById("modalImage");
     const closeBtn = document.getElementById("closeModal");
@@ -256,13 +254,8 @@
       modalImg.src = src;
     }
 
-    closeBtn.onclick = function() {
-      modal.style.display = "none";
-    };
-
-    modal.onclick = function(e) {
-      if (e.target === modal) modal.style.display = "none";
-    };
+    closeBtn.onclick = () => modal.style.display = "none";
+    modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
   </script>
 </body>
 </html>
