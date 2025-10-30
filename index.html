@@ -3,10 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Survey Map with Basemap & Boundary</title>
+  <title>Survey Map with Boundary & Collapsible Basemap</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    #map { height: 100vh; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+    }
 
     .popup-content img {
       width: 100%;
@@ -81,7 +90,6 @@
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
   <script>
-
     const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap contributors'
@@ -114,7 +122,7 @@
       "Terrain": terrain
     };
 
-    L.control.layers(baseMaps, null, { position: 'topright', collapsed: false }).addTo(map);
+    L.control.layers(baseMaps, null, { position: 'topright', collapsed: true }).addTo(map);
 
     fetch('data/CMI.json')
       .then(response => response.json())
