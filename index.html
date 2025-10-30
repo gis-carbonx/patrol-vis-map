@@ -96,6 +96,21 @@
       width: 100%;
     }
     #resetFilter:hover { background: #333; }
+
+    .basemap-btn {
+      display: block;
+      width: 100%;
+      margin: 3px 0;
+      padding: 6px;
+      text-align: left;
+      cursor: pointer;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      background: #f7f7f7;
+    }
+    .basemap-btn:hover { background: #eee; }
+
+    .leaflet-control-zoom { margin-bottom: 20px !important; margin-right: 15px !important; }
   </style>
 </head>
 
@@ -110,14 +125,14 @@
   <div id="infoPanel">
     <div id="infoHeader">Map Tools & Statistics ▼</div>
     <div id="infoContent">
-      <h4>🗺 Basemap</h4>
+      <h4>Basemap</h4>
       <div id="basemapOptions"></div>
       <hr>
-      <h4>📊 Statistik</h4>
+      <h4>Statistik</h4>
       <p id="totalPoints">Total titik temuan: -</p>
       <canvas id="categoryChart" width="250" height="250"></canvas>
       <button id="resetFilter">Show All</button>
-      <canvas id="dateChart" width="250" height="200"></canvas>
+
     </div>
   </div>
 
@@ -130,6 +145,7 @@
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
   <script>
+
     const basemaps = {
       "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
       "Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
@@ -137,33 +153,43 @@
       "Terrain": L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg')
     };
 
+    const initialBase = basemaps["OpenStreetMap"];
     const map = L.map('map', {
       center: [0.8, 110.325],
       zoom: 13,
-      layers: [basemaps["OpenStreetMap"]],
+      layers: [initialBase],
       zoomControl: false
     });
+    let currentBase = initialBase;
+
     L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    let boundaryLayer = null;
+    const markers = []; 
 
     fetch('data/CMI.json')
       .then(res => res.json())
       .then(json => {
-        const boundary = L.geoJSON(json, {
+        boundaryLayer = L.geoJSON(json, {
           style: { color: "purple", weight: 2, fillColor: "purple", fillOpacity: 0.1 }
         }).addTo(map);
-        map.fitBounds(boundary.getBounds());
-      });
+        if (boundaryLayer.getBounds) map.fitBounds(boundaryLayer.getBounds());
+      })
+      .catch(err => console.error("Gagal memuat CMI.json:", err));
 
     const baseDiv = document.getElementById("basemapOptions");
     Object.keys(basemaps).forEach(name => {
       const btn = document.createElement("button");
       btn.textContent = name;
-      btn.style.display = "block";
-      btn.style.width = "100%";
-      btn.style.margin = "3px 0";
+      btn.className = 'basemap-btn';
       btn.onclick = () => {
-        map.eachLayer(layer => map.removeLayer(layer));
-        basemaps[name].addTo(map);
+
+        if (currentBase) map.removeLayer(currentBase);
+        currentBase = basemaps[name];
+        currentBase.addTo(map);
+
+        if (boundaryLayer && !map.hasLayer(boundaryLayer)) map.addLayer(boundaryLayer);
+        markers.forEach(m => { if (!map.hasLayer(m)) map.addLayer(m); });
       };
       baseDiv.appendChild(btn);
     });
@@ -176,26 +202,26 @@
     const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 
     let categoryCount = {};
-    let dateCount = {};
     let total = 0;
-    let markers = [];
 
     Papa.parse(sheetURL, {
       download: true,
       header: true,
       complete: (results) => {
+
+        if (!results || !results.data) return;
+
         results.data.forEach(row => {
           if (!row['data-coordinate']) return;
-          const [lat, lon] = row['data-coordinate'].split(',').map(parseFloat);
+          const parts = row['data-coordinate'].split(',').map(s => s.trim());
+          const lat = parseFloat(parts[0]);
+          const lon = parseFloat(parts[1]);
           if (isNaN(lat) || isNaN(lon)) return;
-          total++;
 
+          total++;
           const cat = row['data-survey-categ'] || "Unknown";
-          const dateRaw = row['data-start_date'] || "Unknown";
-          const date = dateRaw.split("T")[0];
 
           categoryCount[cat] = (categoryCount[cat] || 0) + 1;
-          dateCount[date] = (dateCount[date] || 0) + 1;
 
           const img1 = convertGoogleDriveLink(row['data-documentation-image_1']);
           const img2 = convertGoogleDriveLink(row['data-documentation-image_2']);
@@ -205,7 +231,7 @@
               <h4>${cat} - ${row['data-survey-finding'] || ''}</h4>
               <p><b>Surveyor:</b> ${row['data-base_info-nama'] || ''}</p>
               <p><b>Description:</b> ${row['data-survey-description'] || ''}</p>
-              <p><b>Date:</b> ${date}</p>
+              <p><b>Date:</b> ${row['data-start_date'] || ''}</p>
               ${img1 ? `<img src="${img1}" onclick="openModal('${img1}')" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
               ${img2 ? `<img src="${img2}" onclick="openModal('${img2}')" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
             </div>`;
@@ -214,61 +240,65 @@
           const marker = L.marker([lat, lon], { icon: pinIcon })
             .bindPopup(popup)
             .addTo(map);
+
           marker.category = cat;
           markers.push(marker);
         });
 
         document.getElementById("totalPoints").textContent = `Total titik temuan: ${total}`;
 
-        const pieChart = new Chart(document.getElementById("categoryChart"), {
+        const categoryLabels = Object.keys(categoryCount);
+        const categoryValues = Object.values(categoryCount);
+        const colors = generateColors(categoryLabels.length);
+
+        const pieCtx = document.getElementById("categoryChart");
+        const pieChart = new Chart(pieCtx, {
           type: 'pie',
           data: {
-            labels: Object.keys(categoryCount),
-            datasets: [{ 
-              data: Object.values(categoryCount),
-              backgroundColor: ['#ff6666', '#66b3ff', '#99ff99', '#ffcc99', '#c299ff', '#ff99c2']
-            }]
+            labels: categoryLabels,
+            datasets: [{ data: categoryValues, backgroundColor: colors }]
           },
           options: {
             plugins: { legend: { position: 'bottom' } },
             onClick: (evt, elements) => {
               if (elements.length > 0) {
-                const index = elements[0].index;
-                const selectedCategory = pieChart.data.labels[index];
+                const idx = elements[0].index;
+                const selected = pieChart.data.labels[idx];
+
                 markers.forEach(m => {
-                  if (m.category === selectedCategory) {
-                    map.addLayer(m);
+                  if (m.category === selected) {
+                    if (!map.hasLayer(m)) map.addLayer(m);
                   } else {
-                    map.removeLayer(m);
+                    if (map.hasLayer(m)) map.removeLayer(m);
                   }
                 });
+
+                if (boundaryLayer && !map.hasLayer(boundaryLayer)) map.addLayer(boundaryLayer);
               }
             }
           }
         });
 
         document.getElementById('resetFilter').onclick = () => {
-          markers.forEach(m => map.addLayer(m));
+          markers.forEach(m => { if (!map.hasLayer(m)) map.addLayer(m); });
         };
-
-        new Chart(document.getElementById("dateChart"), {
-          type: 'bar',
-          data: {
-            labels: Object.keys(dateCount),
-            datasets: [{ label: 'Jumlah Temuan', data: Object.values(dateCount), backgroundColor: '#66b3ff' }]
-          },
-          options: {
-            scales: { x: { ticks: { autoSkip: false } } },
-            plugins: { legend: { display: false } }
-          }
-        });
       }
     });
+    
     function convertGoogleDriveLink(url) {
       if (!url) return null;
-      const match = url.match(/[-\w]{25,}/);
+      const match = url.trim().match(/[-\w]{25,}/);
       return match ? `https://drive.google.com/thumbnail?id=${match[0]}&sz=w1000` : null;
     }
+
+    function generateColors(n) {
+      const base = ['#ff6666','#66b3ff','#99ff99','#ffcc99','#c299ff','#ff99c2','#ffd966','#a1cfff','#b8ffb0','#ffc2d6'];
+      if (n <= base.length) return base.slice(0,n);
+      const out = [];
+      for (let i=0;i<n;i++) out.push(`hsl(${(i*360/n).toFixed(0)} 70% 60%)`);
+      return out;
+    }
+
     const modal = document.getElementById("imageModal");
     const modalImg = document.getElementById("modalImage");
     document.getElementById("closeModal").onclick = () => modal.style.display = "none";
