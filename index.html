@@ -91,36 +91,36 @@
 </head>
 
 <body>
-  <div id="map"></div>
-  <div id="map-title">
-    <img src="data/CMI-Brandmark-FullColor-BlackBG.png" alt="Logo CMI">
-    <span>Patrol Data Visualization</span>
+<div id="map"></div>
+<div id="map-title">
+  <img src="data/CMI-Brandmark-FullColor-BlackBG.png" alt="Logo CMI">
+  <span>Patrol Data Visualization</span>
+</div>
+
+<div id="infoPanel" class="panel">
+  <div class="panel-header" onclick="togglePanel('infoContent')">Map Statistics ▼</div>
+  <div id="infoContent" class="panel-content">
+    <p id="totalPoints">Total titik temuan: -</p>
+    <canvas id="categoryChart" width="250" height="250"></canvas>
+    <button id="resetFilter">Show All</button>
   </div>
+</div>
 
-  <div id="infoPanel" class="panel">
-    <div class="panel-header" onclick="togglePanel('infoContent')">Map Statistics ▼</div>
-    <div id="infoContent" class="panel-content">
-      <p id="totalPoints">Total titik temuan: -</p>
-      <canvas id="categoryChart" width="250" height="250"></canvas>
-      <button id="resetFilter">Show All</button>
-    </div>
-  </div>
+<div id="basemapPanel" class="panel">
+  <div class="panel-header" onclick="togglePanel('basemapContent')">Basemap ▼</div>
+  <div id="basemapContent" class="panel-content"></div>
+</div>
 
-  <div id="basemapPanel" class="panel">
-    <div class="panel-header" onclick="togglePanel('basemapContent')">Basemap ▼</div>
-    <div id="basemapContent" class="panel-content"></div>
-  </div>
+<div id="imageModal" class="img-modal">
+  <span id="closeModal">&times;</span>
+  <img id="modalImage" src="">
+</div>
 
-  <div id="imageModal" class="img-modal">
-    <span id="closeModal">&times;</span>
-    <img id="modalImage" src="">
-  </div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://unpkg.com/leaflet-measure/dist/leaflet-measure.js"></script>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="https://unpkg.com/leaflet-measure/dist/leaflet-measure.js"></script>
-
-  <script>
+<script>
 const basemaps = {
   "OSM": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
   "Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
@@ -236,10 +236,11 @@ Papa.parse(sheetURL, {
 
 function createMarker(latlng, cat, popup) {
   const icon = L.divIcon({ className: 'pin-marker', iconSize: [12, 24], iconAnchor: [6, 24] });
-  const marker = L.marker(latlng, { icon }).bindPopup(popup).addTo(map);
+  const marker = L.marker(latlng, { icon }).bindPopup(popup, { autoPan: false }).addTo(map);
   marker.category = cat;
   return marker;
 }
+
 function highlightMarkers(category) {
   markers.forEach(m => {
     const color = (!category || m.category === category) ? '#ff3333' : '#888';
@@ -247,11 +248,13 @@ function highlightMarkers(category) {
     if (category && m.category !== category) m.closePopup();
   });
 }
+
 function convertGoogleDriveLink(url) {
   if (!url) return null;
   const id = url.match(/[-\w]{25,}/);
   return id ? `https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000` : null;
 }
+
 function generateColors(n) {
   const base = ['#ff6666','#66b3ff','#99ff99','#ffcc99','#c299ff','#ff99c2','#ffd966','#a1cfff','#b8ffb0','#ffc2d6'];
   if (n <= base.length) return base.slice(0,n);
@@ -262,6 +265,6 @@ const modal = document.getElementById("imageModal"), modalImg = document.getElem
 document.getElementById("closeModal").onclick = () => modal.style.display = "none";
 modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
 function openModal(src) { modal.style.display = "flex"; modalImg.src = src; }
-  </script>
+</script>
 </body>
 </html>
