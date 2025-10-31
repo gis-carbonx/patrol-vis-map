@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Patrol Data</title>
+<title>Patrol Data 1</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
@@ -225,15 +225,25 @@ const drawControl = new L.Control.Draw({
 });
 map.addControl(drawControl);
 
+function showMeasurementPopup(layer, text) {
+  const center = layer.getBounds ? layer.getBounds().getCenter() : layer.getLatLngs()[0];
+  L.popup({ closeOnClick: false, autoClose: false })
+   .setLatLng(center)
+   .setContent(text)
+   .openOn(map);
+}
+
 map.on(L.Draw.Event.CREATED, function(e){
   const layer = e.layer;
   drawnItems.addLayer(layer);
+
   if(layer instanceof L.Polyline && !(layer instanceof L.Polygon)){
     const distance = L.GeometryUtil.geodesicLength(layer.getLatLngs());
-    alert("Jarak: " + (distance/1000).toFixed(2) + " km");
-  } else if(layer instanceof L.Polygon){
-    const area = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]);
-    alert("Luas: " + (area/10000).toFixed(2) + " ha");
+    showMeasurementPopup(layer, `<b>Jarak:</b> ${(distance/1000).toFixed(2)} km`);
+  } else if(layer instanceof L.Polygon || layer instanceof L.Rectangle){
+    const latlngs = layer.getLatLngs ? layer.getLatLngs()[0] : [];
+    const area = L.GeometryUtil.geodesicArea(latlngs);
+    showMeasurementPopup(layer, `<b>Luas:</b> ${(area/10000).toFixed(2)} ha`);
   }
 });
 </script>
