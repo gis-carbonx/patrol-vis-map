@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patrol1</title>
+  <title>Patrol2</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-measure/dist/leaflet-measure.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -136,38 +136,42 @@ const map = L.map('map', {
 });
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-L.Measure = {
-  linearMeasurement: "Distance measurement",
-  areaMeasurement: "Area measurement",
-  start: "Start",
-  meter: "m",
-  kilometer: "km",
-  squareMeter: "m²",
-  squareKilometers: "km²"
-};
-L.control.measure({
-  position: 'bottomright',
-  primaryLengthUnit: 'kilometers',
-  secondaryLengthUnit: 'meters',
-  primaryAreaUnit: 'hectares',
-  secondaryAreaUnit: 'sqmeters',
-  activeColor: '#f44336',
-  completedColor: '#4caf50'
-}).addTo(map);
-
+map.whenReady(() => {
+  map.invalidateSize();
+  L.Measure = {
+    linearMeasurement: "Distance measurement",
+    areaMeasurement: "Area measurement",
+    start: "Start",
+    meter: "m",
+    kilometer: "km",
+    squareMeter: "m²",
+    squareKilometers: "km²"
+  };
+  L.control.measure({
+    position: 'bottomright',
+    primaryLengthUnit: 'kilometers',
+    secondaryLengthUnit: 'meters',
+    primaryAreaUnit: 'hectares',
+    secondaryAreaUnit: 'sqmeters',
+    activeColor: '#f44336',
+    completedColor: '#4caf50'
+  }).addTo(map);
+});
 
 let currentBase = basemaps["Hillshade"], boundaryLayer = null, markers = [];
-
 map._hasFitted = false;
 
 fetch('data/CMI.json')
   .then(res => res.json())
   .then(json => {
     boundaryLayer = L.geoJSON(json, { style: { color: "purple", weight: 2, fillOpacity: 0.1 } }).addTo(map);
-    if (!map._hasFitted && boundaryLayer.getBounds) {
-      map.fitBounds(boundaryLayer.getBounds());
-      map._hasFitted = true;
-    }
+    map.whenReady(() => {
+      if (!map._hasFitted && boundaryLayer.getBounds) {
+        map.fitBounds(boundaryLayer.getBounds());
+        map.invalidateSize();
+        map._hasFitted = true;
+      }
+    });
   });
 
 const baseDiv = document.getElementById("basemapContent");
