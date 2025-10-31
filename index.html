@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patrol Data Vis</title>
+  <title>Patrol Data</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -200,7 +200,7 @@ Papa.parse(sheetURL, {
       const img2 = convertGoogleDriveLink(row['data-documentation-image_2']);
       const popup = `<div class="popup-content">
         <h4>${cat} - ${row['data-survey-finding'] || ''}</h4>
-        <p><b>Surveyor:</b> ${row['data-base_info-nama'] || ''}</p>
+        <p><b>Officer:</b> ${row['data-base_info-nama'] || ''}</p>
         <p><b>Description:</b> ${row['data-survey-description'] || ''}</p>
         <p><b>Date:</b> ${row['data-start_date'] || ''}</p>
         ${img1 ? `<img src="${img1}" onclick="openModal('${img1}')" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
@@ -250,23 +250,34 @@ function highlightMarkers(category) {
 }
 
 const deforestSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRY1oLCvdfaMj2T63s2tHUwKm3uZw0ml8CVTiiNut2o0Utr6FHCYbrsPU9zGsaNNvDAUNEXE7o0i3tI/pub?output=csv";
-Papa.parse(deforestSheetURL, { download:true, header:true, complete: (results)=>{
-  results.data.forEach(row=>{
-    const lat = parseFloat(row.latitude);
-    const lon = parseFloat(row.longitude);
-    if(isNaN(lat)||isNaN(lon)) return;
-    const popup = `<div class="popup-content">
-      <h4>Deforestation Detected</h4>
-      <p><b>Date:</b> ${row.gfw_integr}</p>
-      <p><b>Month:</b> ${row.month}</p>
-      <p><b>GFW Integr:</b> ${row.gfw_integr}</p>
-      <p><b>UMD GLAD:</b> ${row.umd_glad_l} / ${row.umd_glad_s}</p>
-      <p><b>WUR/RADD:</b> ${row.wur_radd_a}</p>
-    </div>`;
-    const marker = L.circleMarker([lat, lon], { radius:2, color:'green', fillColor:'green', fillOpacity:0.8 }).bindPopup(popup).addTo(map);
-    deforestMarkers.push(marker);
-  });
-}});
+
+Papa.parse(deforestSheetURL, { 
+  download: true, header: true, 
+  complete: (results) => {
+    results.data.forEach(row => {
+      const lat = parseFloat(row.latitude);
+      const lon = parseFloat(row.longitude);
+      if (isNaN(lat) || isNaN(lon)) return;
+
+      const popup = `<div class="popup-content">
+        <h4>Deforestation Detected</h4>
+        <p><b>Date:</b> ${row.gfw_integr}</p>
+        <p><b>Month:</b> ${row.month}</p>
+        <p><b>GFW Integr:</b> ${row.gfw_inte_1 || '-'}</p>
+        <p><b>UMD GLAD:</b> ${row.umd_glad_l || 'not_detected'} / ${row.umd_glad_s || 'not_detected'}</p>
+        <p><b>WUR/RADD:</b> ${row.wur_radd_a || '-'}</p>
+        <p><b>Class:</b> ${row.Class23 || '-'}</p>
+      </div>`;
+
+      const marker = L.circleMarker([lat, lon], { 
+        radius: 3, color: 'green', fillColor: 'green', fillOpacity: 0.3 
+      }).bindPopup(popup).addTo(map);
+
+      deforestMarkers.push(marker);
+    });
+  }
+});
+
 
 function convertGoogleDriveLink(url) {
   if (!url) return null;
