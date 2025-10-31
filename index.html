@@ -100,7 +100,7 @@
       <ul style="list-style:none; padding-left:0; font-size:14px;">
         <li><img src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png" 
                  style="width:16px;height:26px;vertical-align:middle;margin-right:6px;"> Survey Points</li>
-        <li><span style="display:inline-block;width:12px;height:12px;background:blue;margin-right:6px;"></span> Forest Deforestation</li>
+        <li><span style="display:inline-block;width:12px;height:12px;background:orange;margin-right:6px;"></span> Forest Deforestation</li>
         <li><span style="display:inline-block;width:12px;height:12px;background:gray;margin-right:6px;"></span> Non-Forest Deforestation</li>
       </ul>
     </div>
@@ -121,7 +121,6 @@
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
 <script>
-
 const basemaps = {
   "OSM": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
   "Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
@@ -173,16 +172,6 @@ function togglePanel(id) {
   el.style.display = el.style.display === "none" ? "block" : "none";
 }
 
-const orangeIcon = new L.Icon({
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 let categoryCount = {}, total = 0;
 
@@ -209,7 +198,7 @@ Papa.parse(sheetURL, {
         ${img2 ? `<img src="${img2}" onclick="openModal('${img2}')" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
       </div>`;
       
-      const marker = L.marker([lat, lon], { icon: orangeIcon }).bindPopup(popup).addTo(map);
+      const marker = L.marker([lat, lon]).bindPopup(popup).addTo(map);
       marker.category = cat;
       markers.push(marker);
     });
@@ -265,7 +254,7 @@ Papa.parse(deforestSheetURL, {
         <p><b>Class:</b> ${row.Class23 || '-'}</p>
       </div>`;
 
-      const color = row.Class23 === 'Forest' ? 'blue' : 'gray';
+      const color = row.Class23 === 'Forest' ? 'orange' : 'gray';
       const marker = L.circleMarker([lat, lon], { 
         radius: 3, color, fillColor: color, fillOpacity: 0.3
       }).bindPopup(popup).addTo(map);
