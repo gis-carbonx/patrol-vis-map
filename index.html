@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patrol Data</title>
+  <title>Patrol Data 1</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-measure@3.3.0/dist/leaflet-measure.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     html, body { height: 100%; margin: 0; overflow: hidden; }
@@ -105,7 +106,9 @@
     <img id="modalImage" src="">
   </div>
 
+  <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet-measure@3.3.0/dist/leaflet-measure.min.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
   <script>
@@ -123,6 +126,17 @@ const map = L.map('map', {
   zoomControl: false
 });
 L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+const measureControl = new L.Control.Measure({
+    primaryLengthUnit: 'meters',
+    secondaryLengthUnit: 'kilometers',
+    primaryAreaUnit: 'sqmeters',
+    secondaryAreaUnit: 'hectares',
+    position: 'topright',
+    activeColor: '#ff3333',
+    completedColor: '#3388ff'
+});
+measureControl.addTo(map);
 
 let currentBase = basemaps["Hillshade"], boundaryLayer = null, markers = [];
 map._hasFitted = false;
@@ -244,6 +258,7 @@ const modal = document.getElementById("imageModal"), modalImg = document.getElem
 document.getElementById("closeModal").onclick = () => modal.style.display = "none";
 modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
 function openModal(src) { modal.style.display = "flex"; modalImg.src = src; }
+
   </script>
 </body>
 </html>
