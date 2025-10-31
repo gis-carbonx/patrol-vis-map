@@ -263,7 +263,7 @@ Papa.parse(deforestSheetURL, { download:true, header:true, complete: (results)=>
       <p><b>UMD GLAD:</b> ${row.umd_glad_l} / ${row.umd_glad_s}</p>
       <p><b>WUR/RADD:</b> ${row.wur_radd_a}</p>
     </div>`;
-    const marker = L.circleMarker([lat, lon], { radius:6, color:'green', fillColor:'green', fillOpacity:0.8 }).bindPopup(popup).addTo(map);
+    const marker = L.circleMarker([lat, lon], { radius:2, color:'green', fillColor:'green', fillOpacity:0.8 }).bindPopup(popup).addTo(map);
     deforestMarkers.push(marker);
   });
 }});
