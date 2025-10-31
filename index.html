@@ -258,9 +258,10 @@ document.getElementById("closeModal").onclick = () => modal.style.display = "non
 modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
 function openModal(src) { modal.style.display = "flex"; modalImg.src = src; }
 
+
 let measureLayer = L.layerGroup().addTo(map);
 let currentLine = null, measuring = false;
-
+let startMarker = null;
 const btnMeasure = document.getElementById('btnMeasure');
 const btnUndo = document.getElementById('btnUndo');
 const btnClear = document.getElementById('btnClear');
@@ -268,7 +269,11 @@ const btnClear = document.getElementById('btnClear');
 btnMeasure.onclick = () => {
   measuring = !measuring;
   btnMeasure.innerHTML = measuring ? 'Finish Measurement' : 'Measure Distance';
-  if (!measuring && currentLine) {
+  if (!measuring) {
+    if (startMarker) {
+      measureLayer.removeLayer(startMarker);
+      startMarker = null;
+    }
     currentLine = null;
   }
 };
@@ -283,6 +288,10 @@ btnUndo.onclick = () => {
     } else {
       measureLayer.removeLayer(currentLine);
       currentLine = null;
+      if (startMarker) {
+        measureLayer.removeLayer(startMarker);
+        startMarker = null;
+      }
     }
   }
 };
@@ -290,6 +299,7 @@ btnUndo.onclick = () => {
 btnClear.onclick = () => {
   measureLayer.clearLayers();
   currentLine = null;
+  startMarker = null;
 };
 
 function updateDistancePopup(line) {
@@ -309,8 +319,8 @@ map.on('click', function(e) {
   if (!measuring) return;
 
   if (!currentLine) {
-
     currentLine = L.polyline([e.latlng], { color: 'blue', weight: 4 }).addTo(measureLayer);
+    startMarker = L.circleMarker(e.latlng, { radius: 5, color: 'red', fillColor: 'red', fillOpacity: 1 }).addTo(measureLayer);
   } else {
     const latlngs = currentLine.getLatLngs();
     latlngs.push(e.latlng);
