@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patrol Data</title>
+  <title>Patrol Data Vis</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -110,7 +110,8 @@
       <b>Legend:</b>
       <ul style="list-style:none; padding-left:0; font-size:14px;">
         <li><span style="display:inline-block;width:12px;height:12px;background:#ff3333;margin-right:6px;"></span> Survey Points</li>
-        <li><span style="display:inline-block;width:12px;height:12px;background:green;margin-right:6px;"></span> Deforestation Points</li>
+        <li><span style="display:inline-block;width:12px;height:12px;background:blue;margin-right:6px;"></span> Forest Deforestation</li>
+        <li><span style="display:inline-block;width:12px;height:12px;background:green;margin-right:6px;"></span> Other Deforestation</li>
       </ul>
     </div>
   </div>
@@ -268,15 +269,15 @@ Papa.parse(deforestSheetURL, {
         <p><b>Class:</b> ${row.Class23 || '-'}</p>
       </div>`;
 
+      const color = row.Class23 === 'Forest' ? 'blue' : 'green';
       const marker = L.circleMarker([lat, lon], { 
-        radius: 3, color: 'green', fillColor: 'green', fillOpacity: 0.3 
+        radius: 3, color, fillColor: color, fillOpacity: 0.3
       }).bindPopup(popup).addTo(map);
 
       deforestMarkers.push(marker);
     });
   }
 });
-
 
 function convertGoogleDriveLink(url) {
   if (!url) return null;
@@ -338,18 +339,18 @@ function updateDistancePopup(line){
   line.bindPopup(popupContent).openPopup();
 }
 
-map.on('click', function(e){
+map.on('click', e => {
   if(!measuring) return;
-
+  const point = e.latlng;
   if(!currentLine){
-    currentLine=L.polyline([e.latlng],{color:'blue',weight:4}).addTo(measureLayer);
-    startMarker=L.circleMarker(e.latlng,{radius:5,color:'red',fillColor:'red',fillOpacity:1}).addTo(measureLayer);
+    currentLine = L.polyline([point], { color:'red', weight:3 }).addTo(measureLayer);
+    startMarker = L.circleMarker(point,{radius:4,color:'red',fillColor:'red',fillOpacity:1}).addTo(measureLayer);
   } else {
-    const latlngs=currentLine.getLatLngs();
-    latlngs.push(e.latlng);
+    const latlngs = currentLine.getLatLngs();
+    latlngs.push(point);
     currentLine.setLatLngs(latlngs);
+    updateDistancePopup(currentLine);
   }
-  updateDistancePopup(currentLine);
 });
 </script>
 </body>
