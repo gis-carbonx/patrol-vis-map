@@ -190,7 +190,7 @@ Papa.parse(sheetURL, {
       const img1 = convertGoogleDriveLink(row['data-documentation-image_1']);
       const img2 = convertGoogleDriveLink(row['data-documentation-image_2']);
       const popup = `<div class="popup-content">
-        <h4>${cat} - ${row['data-survey-finding'] || ''}</h4>
+        <h2>${cat} - ${row['data-survey-finding'] || ''}</h2>
         <p><b>Officer:</b> ${row['data-base_info-nama'] || ''}</p>
         <p><b>Description:</b> ${row['data-survey-description'] || ''}</p>
         <p><b>Date:</b> ${row['data-start_date'] || ''}</p>
@@ -246,7 +246,7 @@ Papa.parse(deforestSheetURL, {
       if (isNaN(lat) || isNaN(lon)) return;
 
       const popup = `<div class="popup-content">
-        <h4>Deforestation Detected</h4>
+        <h3>Deforestation Detected</h3>
         <p><b>Date:</b> ${row.gfw_integr}</p>
         <p><b>Month:</b> ${row.month}</p>
         <p><b>UMD GLAD:</b> ${row.umd_glad_l || 'not_detected'} / ${row.umd_glad_s || 'not_detected'}</p>
