@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patrol Data 1</title>
+  <title>Patrol Data 3</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-measure@3.3.0/dist/leaflet-measure.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -18,13 +18,11 @@
       pointer-events: none; user-select: none;
     }
     #map-title img { height: 45px; width: auto; }
-
     .popup-content img {
       width: 100%; max-width: 250px; margin-top: 8px; border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; transition: transform 0.2s;
     }
     .popup-content img:hover { transform: scale(1.02); }
-
     .img-modal {
       display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.8); justify-content: center; align-items: center;
@@ -34,7 +32,6 @@
       position: absolute; top: 20px; right: 40px; color: white;
       font-size: 40px; font-weight: bold; cursor: pointer;
     }
-
     .pin-marker { position: relative; width: 10px; height: 24px; background: transparent; }
     .pin-marker:before {
       content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
@@ -45,7 +42,6 @@
       content: ''; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
       width: 2px; height: 14px; background: var(--pin-color, #ff3333);
     }
-
     .panel {
       position: absolute; z-index: 1000;
       background: rgba(255,255,255,0.95);
@@ -55,27 +51,23 @@
     }
     #infoPanel { top: 15px; right: 15px; }
     #basemapPanel { bottom: 15px; left: 15px; width: 200px; }
-
     .panel-header {
       font-weight: bold; cursor: pointer; text-align: center;
       background: #444; color: white; padding: 6px; border-radius: 8px;
       margin-bottom: 8px; user-select: none;
     }
     .panel-content { display: none; }
-
     #resetFilter {
       background: #555; color: white; border: none; padding: 6px 10px;
       border-radius: 6px; margin-top: 10px; cursor: pointer; width: 100%;
     }
     #resetFilter:hover { background: #333; }
-
     .basemap-btn {
       display: block; width: 100%; margin: 3px 0; padding: 6px;
       text-align: left; cursor: pointer; border-radius: 6px;
       border: 1px solid #ddd; background: #f7f7f7;
     }
     .basemap-btn:hover { background: #eee; }
-
     .leaflet-control-zoom { margin-bottom: 10px !important; margin-right: 15px !important; }
   </style>
 </head>
@@ -106,10 +98,9 @@
     <img id="modalImage" src="">
   </div>
 
-  <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/leaflet-measure@3.3.0/dist/leaflet-measure.min.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet-measure@3.3.0/dist/leaflet-measure.min.js"></script>
 
   <script>
 const basemaps = {
@@ -127,6 +118,9 @@ const map = L.map('map', {
 });
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 
+let currentBase = basemaps["Hillshade"], boundaryLayer = null, markers = [];
+map._hasFitted = false;
+
 const measureControl = new L.Control.Measure({
     primaryLengthUnit: 'meters',
     secondaryLengthUnit: 'kilometers',
@@ -137,9 +131,6 @@ const measureControl = new L.Control.Measure({
     completedColor: '#3388ff'
 });
 measureControl.addTo(map);
-
-let currentBase = basemaps["Hillshade"], boundaryLayer = null, markers = [];
-map._hasFitted = false;
 
 fetch('data/CMI.json')
   .then(res => res.json())
@@ -258,7 +249,6 @@ const modal = document.getElementById("imageModal"), modalImg = document.getElem
 document.getElementById("closeModal").onclick = () => modal.style.display = "none";
 modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
 function openModal(src) { modal.style.display = "flex"; modalImg.src = src; }
-
   </script>
 </body>
 </html>
