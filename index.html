@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patrol Data 3</title>
+  <title>Patrol</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -77,7 +77,7 @@
 
     .measure-btn {
       background: #444; color: white; border: none; padding: 6px 10px;
-      border-radius: 6px; margin-bottom: 5px; cursor: pointer; width: 130px;
+      border-radius: 6px; margin-bottom: 5px; cursor: pointer; width: 100%;
     }
     .measure-btn:hover { background: #222; }
 
@@ -98,6 +98,13 @@
       <p id="totalPoints">Total titik temuan: -</p>
       <canvas id="categoryChart" width="250" height="250"></canvas>
       <button id="resetFilter">Show All</button>
+
+      <hr>
+      <div>
+        <button id="btnMeasure" class="measure-btn">Measure Distance</button>
+        <button id="btnUndo" class="measure-btn">Undo Last Point</button>
+        <button id="btnClear" class="measure-btn">Clear Measurements</button>
+      </div>
     </div>
   </div>
 
@@ -251,46 +258,34 @@ document.getElementById("closeModal").onclick = () => modal.style.display = "non
 modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
 function openModal(src) { modal.style.display = "flex"; modalImg.src = src; }
 
-// ====================== Measurement Tool ======================
 let measureLayer = L.layerGroup().addTo(map);
 let currentLine = null, measuring = false;
 
-const MeasureControl = L.Control.extend({
-  options: { position: 'topright' },
-  onAdd: function() {
-    const container = L.DomUtil.create('div');
-    const btnStart = L.DomUtil.create('button', 'measure-btn', container);
-    btnStart.innerHTML = 'Measure Distance';
-    btnStart.onclick = () => {
-      measuring = !measuring;
-      btnStart.innerHTML = measuring ? 'Finish Measurement' : 'Measure Distance';
-      if (!measuring && currentLine) currentLine = null;
-    };
+const btnMeasure = document.getElementById('btnMeasure');
+const btnUndo = document.getElementById('btnUndo');
+const btnClear = document.getElementById('btnClear');
 
-    const btnUndo = L.DomUtil.create('button', 'measure-btn', container);
-    btnUndo.innerHTML = 'Undo Last Point';
-    btnUndo.onclick = () => {
-      if (currentLine) {
-        const latlngs = currentLine.getLatLngs();
-        if (latlngs.length > 1) {
-          latlngs.pop();
-          currentLine.setLatLngs(latlngs);
-          updateDistancePopup(currentLine);
-        } else {
-          measureLayer.removeLayer(currentLine);
-          currentLine = null;
-        }
-      }
-    };
+btnMeasure.onclick = () => {
+  measuring = !measuring;
+  btnMeasure.innerHTML = measuring ? 'Finish Measurement' : 'Measure Distance';
+  if (!measuring && currentLine) currentLine = null;
+};
 
-    const btnClear = L.DomUtil.create('button', 'measure-btn', container);
-    btnClear.innerHTML = 'Clear Measurements';
-    btnClear.onclick = () => { measureLayer.clearLayers(); currentLine = null; };
-
-    return container;
+btnUndo.onclick = () => {
+  if (currentLine) {
+    const latlngs = currentLine.getLatLngs();
+    if (latlngs.length > 1) {
+      latlngs.pop();
+      currentLine.setLatLngs(latlngs);
+      updateDistancePopup(currentLine);
+    } else {
+      measureLayer.removeLayer(currentLine);
+      currentLine = null;
+    }
   }
-});
-map.addControl(new MeasureControl());
+};
+
+btnClear.onclick = () => { measureLayer.clearLayers(); currentLine = null; };
 
 function updateDistancePopup(line) {
   const latlngs = line.getLatLngs();
@@ -311,10 +306,11 @@ map.on('click', function(e) {
     currentLine = L.polyline([e.latlng], { color: 'blue' }).addTo(measureLayer);
   } else {
     const latlngs = currentLine.getLatLngs();
-    const first = latlngs[0], last = latlngs[latlngs.length-1];
+    const last = latlngs[latlngs.length-1];
     if (e.latlng.equals(last)) {
       measuring = false;
       currentLine = null;
+      btnMeasure.innerHTML = 'Measure Distance';
       return;
     }
     latlngs.push(e.latlng);
