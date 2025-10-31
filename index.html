@@ -3,9 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patrol2</title>
+  <title>Patrol Data</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-measure/dist/leaflet-measure.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     html, body { height: 100%; margin: 0; overflow: hidden; }
@@ -77,16 +76,6 @@
     .basemap-btn:hover { background: #eee; }
 
     .leaflet-control-zoom { margin-bottom: 10px !important; margin-right: 15px !important; }
-    .leaflet-control-measure {
-      margin-bottom: 65px !important;
-      margin-right: 15px !important;
-    }
-    .leaflet-control-measure-toggle {
-      background-color: #444 !important;
-      color: white !important;
-      border-radius: 6px !important;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    }
   </style>
 </head>
 
@@ -118,7 +107,6 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="https://unpkg.com/leaflet-measure/dist/leaflet-measure.js"></script>
 
   <script>
 const basemaps = {
@@ -135,28 +123,6 @@ const map = L.map('map', {
   zoomControl: false
 });
 L.control.zoom({ position: 'bottomright' }).addTo(map);
-
-map.whenReady(() => {
-  map.invalidateSize();
-  L.Measure = {
-    linearMeasurement: "Distance measurement",
-    areaMeasurement: "Area measurement",
-    start: "Start",
-    meter: "m",
-    kilometer: "km",
-    squareMeter: "m²",
-    squareKilometers: "km²"
-  };
-  L.control.measure({
-    position: 'bottomright',
-    primaryLengthUnit: 'kilometers',
-    secondaryLengthUnit: 'meters',
-    primaryAreaUnit: 'hectares',
-    secondaryAreaUnit: 'sqmeters',
-    activeColor: '#f44336',
-    completedColor: '#4caf50'
-  }).addTo(map);
-});
 
 let currentBase = basemaps["Hillshade"], boundaryLayer = null, markers = [];
 map._hasFitted = false;
@@ -253,6 +219,7 @@ function createMarker(latlng, cat, popup) {
   marker.category = cat;
   return marker;
 }
+
 function highlightMarkers(category) {
   markers.forEach(m => {
     const color = (!category || m.category === category) ? '#ff3333' : '#888';
@@ -260,11 +227,13 @@ function highlightMarkers(category) {
     if (category && m.category !== category) m.closePopup();
   });
 }
+
 function convertGoogleDriveLink(url) {
   if (!url) return null;
   const id = url.match(/[-\w]{25,}/);
   return id ? `https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000` : null;
 }
+
 function generateColors(n) {
   const base = ['#ff6666','#66b3ff','#99ff99','#ffcc99','#c299ff','#ff99c2','#ffd966','#a1cfff','#b8ffb0','#ffc2d6'];
   if (n <= base.length) return base.slice(0,n);
