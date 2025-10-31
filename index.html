@@ -6,7 +6,6 @@
   <title>Patrol 2</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <style>
     html, body { height: 100%; margin: 0; overflow: hidden; }
     #map { height: 100%; width: 100%; }
@@ -78,8 +77,6 @@
 
     .leaflet-control-zoom { margin-bottom: 10px !important; margin-right: 15px !important; }
   </style>
-  <link rel="stylesheet" type="text/css" href="../src/leaflet.measure.css" />
-  <script type="text/javascript" src="../src/leaflet.measure.js"></script>
 </head>
 
 <body>
@@ -129,18 +126,6 @@ L.control.zoom({ position: 'bottomright' }).addTo(map);
 
 let currentBase = basemaps["Hillshade"], boundaryLayer = null, markers = [];
 map._hasFitted = false;
-
-L.Measure = {
-    linearMeasurement: "Distance measurement",
-    areaMeasurement: "Area measurement",
-    start: "开始",
-    meter: "m",
-    kilometer: "km",
-    squareMeter: "m²",
-    squareKilometers: "km²",
-    };
-
-var measure = L.control.measure({}).addTo(map);    
     
 fetch('data/CMI.json')
   .then(res => res.json())
