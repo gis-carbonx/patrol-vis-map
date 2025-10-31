@@ -227,25 +227,31 @@ map.addControl(drawControl);
 
 function showMeasurementPopup(layer, text) {
   const center = layer.getBounds ? layer.getBounds().getCenter() : layer.getLatLngs()[0];
-  L.popup({ closeOnClick: false, autoClose: false })
-   .setLatLng(center)
-   .setContent(text)
-   .openOn(map);
+  if(layer._measurementPopup) layer._measurementPopup.setLatLng(center).setContent(text);
+  else layer._measurementPopup = L.popup({closeOnClick:false,autoClose:false}).setLatLng(center).setContent(text).openOn(map);
 }
+
+map.on('draw:drawvertex', function(e){
+  const layer = e.layers.getLayers()[0];
+  if(layer instanceof L.Polyline && !(layer instanceof L.Polygon)){
+    const distance = L.GeometryUtil.geodesicLength(layer.getLatLngs());
+    showMeasurementPopup(layer, `<b>Jarak:</b> ${(distance/1000).toFixed(2)} km`);
+  }
+});
 
 map.on(L.Draw.Event.CREATED, function(e){
   const layer = e.layer;
   drawnItems.addLayer(layer);
-
   if(layer instanceof L.Polyline && !(layer instanceof L.Polygon)){
     const distance = L.GeometryUtil.geodesicLength(layer.getLatLngs());
     showMeasurementPopup(layer, `<b>Jarak:</b> ${(distance/1000).toFixed(2)} km`);
   } else if(layer instanceof L.Polygon || layer instanceof L.Rectangle){
-    const latlngs = layer.getLatLngs ? layer.getLatLngs()[0] : [];
+    const latlngs = layer.getLatLngs()[0];
     const area = L.GeometryUtil.geodesicArea(latlngs);
     showMeasurementPopup(layer, `<b>Luas:</b> ${(area/10000).toFixed(2)} ha`);
   }
 });
+
 </script>
 </body>
 </html>
