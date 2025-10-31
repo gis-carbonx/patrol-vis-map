@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patrol Data Vis</title>
+  <title>Patrol Data 2</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -32,17 +32,6 @@
     .img-modal span {
       position: absolute; top: 20px; right: 40px; color: white;
       font-size: 40px; font-weight: bold; cursor: pointer;
-    }
-
-    .pin-marker { position: relative; width: 10px; height: 24px; background: transparent; }
-    .pin-marker:before {
-      content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-      width: 12px; height: 12px; background: var(--pin-color, #ff3333);
-      border: 2px solid white; border-radius: 50%; box-shadow: 0 0 3px rgba(0,0,0,0.4);
-    }
-    .pin-marker:after {
-      content: ''; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-      width: 2px; height: 14px; background: var(--pin-color, #ff3333);
     }
 
     .panel {
@@ -111,7 +100,7 @@
       <ul style="list-style:none; padding-left:0; font-size:14px;">
         <li><span style="display:inline-block;width:12px;height:12px;background:#ff3333;margin-right:6px;"></span> Survey Points</li>
         <li><span style="display:inline-block;width:12px;height:12px;background:blue;margin-right:6px;"></span> Forest Deforestation</li>
-        <li><span style="display:inline-block;width:12px;height:12px;background:green;margin-right:6px;"></span> Other Deforestation</li>
+        <li><span style="display:inline-block;width:12px;height:12px;background:gray;margin-right:6px;"></span> Non-Forest Deforestation</li>
       </ul>
     </div>
   </div>
@@ -207,7 +196,7 @@ Papa.parse(sheetURL, {
         ${img1 ? `<img src="${img1}" onclick="openModal('${img1}')" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
         ${img2 ? `<img src="${img2}" onclick="openModal('${img2}')" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
       </div>`;
-      const marker = createMarker([lat, lon], cat, popup);
+      const marker = createCircleMarker([lat, lon], cat, popup);
       markers.push(marker);
     });
 
@@ -235,18 +224,18 @@ Papa.parse(sheetURL, {
   }
 });
 
-function createMarker(latlng, cat, popup) {
-  const icon = L.divIcon({ className: 'pin-marker', iconSize: [12, 24], iconAnchor: [6, 24] });
-  const marker = L.marker(latlng, { icon }).bindPopup(popup).addTo(map);
+function createCircleMarker(latlng, cat, popup){
+  const color = '#ff3333';
+  const marker = L.circleMarker(latlng, { radius: 6, color, fillColor: color, fillOpacity:1 }).bindPopup(popup).addTo(map);
   marker.category = cat;
   return marker;
 }
 
-function highlightMarkers(category) {
+function highlightMarkers(category){
   markers.forEach(m => {
-    const color = (!category || m.category === category) ? '#ff3333' : '#888';
-    m._icon.style.setProperty('--pin-color', color);
-    if (category && m.category !== category) m.closePopup();
+    const opacity = (!category || m.category === category) ? 1 : 0.3;
+    m.setStyle({ fillOpacity: opacity, opacity });
+    if(category && m.category !== category) m.closePopup();
   });
 }
 
@@ -269,7 +258,7 @@ Papa.parse(deforestSheetURL, {
         <p><b>Class:</b> ${row.Class23 || '-'}</p>
       </div>`;
 
-      const color = row.Class23 === 'Forest' ? 'blue' : 'green';
+      const color = row.Class23 === 'Forest' ? 'blue' : 'gray';
       const marker = L.circleMarker([lat, lon], { 
         radius: 3, color, fillColor: color, fillOpacity: 0.3
       }).bindPopup(popup).addTo(map);
