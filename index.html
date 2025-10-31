@@ -130,12 +130,12 @@ const basemaps = {
 const map = L.map('map', {
   center: [0.8, 110.325],
   zoom: 13,
-  layers: [basemaps["Hillshade"]],
+  layers: [basemaps["Satellite"]],
   zoomControl: false
 });
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-let currentBase = basemaps["Hillshade"], boundaryLayer = null, markers = [];
+let currentBase = basemaps["Satellite"], boundaryLayer = null, markers = [];
 let deforestMarkers = [];
 map._hasFitted = false;
 
