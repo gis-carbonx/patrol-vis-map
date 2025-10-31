@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patrol Data 2</title>
+  <title>Patrol Data</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -174,6 +174,15 @@ function togglePanel(id) {
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 let categoryCount = {}, total = 0;
 
+const pinIcon = L.icon({
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  iconSize: [25,41],
+  iconAnchor: [12,41],
+  popupAnchor: [1,-34],
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  shadowSize: [41,41]
+});
+
 Papa.parse(sheetURL, {
   download: true, header: true,
   complete: (results) => {
@@ -196,7 +205,7 @@ Papa.parse(sheetURL, {
         ${img1 ? `<img src="${img1}" onclick="openModal('${img1}')" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
         ${img2 ? `<img src="${img2}" onclick="openModal('${img2}')" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
       </div>`;
-      const marker = createCircleMarker([lat, lon], cat, popup);
+      const marker = createPinMarker([lat, lon], cat, popup);
       markers.push(marker);
     });
 
@@ -224,9 +233,8 @@ Papa.parse(sheetURL, {
   }
 });
 
-function createCircleMarker(latlng, cat, popup){
-  const color = '#ff3333';
-  const marker = L.circleMarker(latlng, { radius: 6, color, fillColor: color, fillOpacity:1 }).bindPopup(popup).addTo(map);
+function createPinMarker(latlng, cat, popup){
+  const marker = L.marker(latlng, { icon: pinIcon }).bindPopup(popup).addTo(map);
   marker.category = cat;
   return marker;
 }
@@ -234,12 +242,12 @@ function createCircleMarker(latlng, cat, popup){
 function highlightMarkers(category){
   markers.forEach(m => {
     const opacity = (!category || m.category === category) ? 1 : 0.3;
-    m.setStyle({ fillOpacity: opacity, opacity });
+    m.setOpacity(opacity);
     if(category && m.category !== category) m.closePopup();
   });
 }
 
-const deforestSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRY1oLCvdfaMj2T63s2tHUwKm3uZw0ml8CVTiiNut2o0Utr6FHCYbrsPU9zGsaNNvDAUNEXE7o0i3tI/pub?output=csv";
+const deforestSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRY1oLCvdfaMj2T63s2tHUwKm3uZw0ml8CVTiiNut2o0Utr6FHCYbrsPU9zGsaNNvDAUNEXE7o0i3tI3/pub?output=csv";
 
 Papa.parse(deforestSheetURL, { 
   download: true, header: true, 
@@ -267,7 +275,7 @@ Papa.parse(deforestSheetURL, {
     });
   }
 });
-
+  
 function convertGoogleDriveLink(url) {
   if (!url) return null;
   const id = url.match(/[-\w]{25,}/);
