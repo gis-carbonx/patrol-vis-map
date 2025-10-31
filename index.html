@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patrol Data Vis</title>
+  <title>Patrol Data 1</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -120,6 +120,7 @@
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
 <script>
+
 const basemaps = {
   "OSM": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
   "Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
@@ -171,6 +172,61 @@ function togglePanel(id) {
   el.style.display = el.style.display === "none" ? "block" : "none";
 }
 
+function createPinMarker(latlng, category, popupContent) {
+  const pin = L.Layer.extend({
+    initialize: function(latlng, category, popupContent) {
+      this._latlng = latlng;
+      this._category = category;
+      this._popupContent = popupContent;
+    },
+    onAdd: function(map) {
+      const svg = L.svg().addTo(map);
+      this._svg = svg;
+      this._draw();
+      map.on('zoomend viewreset move', this._draw, this);
+      if(this._popupContent){
+        const marker = L.marker(this._latlng).addTo(map).bindPopup(this._popupContent);
+        this._markerRef = marker;
+      }
+    },
+    _draw: function() {
+      const point = map.latLngToLayerPoint(this._latlng);
+      const svgLayer = map.getPanes().overlayPane;
+      if(!this._line){
+        this._line = L.DomUtil.create('div','pin-line');
+        this._line.style.position = 'absolute';
+        this._line.style.width = '2px';
+        this._line.style.backgroundColor = '#ff3333';
+        svgLayer.appendChild(this._line);
+      }
+      if(!this._circle){
+        this._circle = L.DomUtil.create('div','pin-circle');
+        this._circle.style.position = 'absolute';
+        this._circle.style.width = '10px';
+        this._circle.style.height = '10px';
+        this._circle.style.borderRadius = '50%';
+        this._circle.style.backgroundColor = '#ff3333';
+        svgLayer.appendChild(this._circle);
+      }
+      this._line.style.left = (point.x-1)+'px';
+      this._line.style.top = (point.y)+'px';
+      this._line.style.height = '20px';
+
+      this._circle.style.left = (point.x-5)+'px';
+      this._circle.style.top = (point.y-5)+'px';
+    },
+    get category(){ return this._category; },
+    remove: function(){ 
+      if(this._line) this._line.remove(); 
+      if(this._circle) this._circle.remove();
+      if(this._markerRef) map.removeLayer(this._markerRef);
+    }
+  });
+  const pinInstance = new pin(latlng, category, popupContent);
+  pinInstance.addTo(map);
+  return pinInstance;
+}
+
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 let categoryCount = {}, total = 0;
 
@@ -196,7 +252,7 @@ Papa.parse(sheetURL, {
         ${img1 ? `<img src="${img1}" onclick="openModal('${img1}')" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
         ${img2 ? `<img src="${img2}" onclick="openModal('${img2}')" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
       </div>`;
-      const marker = createCircleMarker([lat, lon], cat, popup);
+      const marker = createPinMarker([lat, lon], cat, popup);
       markers.push(marker);
     });
 
@@ -224,18 +280,12 @@ Papa.parse(sheetURL, {
   }
 });
 
-function createCircleMarker(latlng, cat, popup){
-  const color = '#ff3333';
-  const marker = L.circleMarker(latlng, { radius: 6, color, fillColor: color, fillOpacity:1 }).bindPopup(popup).addTo(map);
-  marker.category = cat;
-  return marker;
-}
-
 function highlightMarkers(category){
   markers.forEach(m => {
     const opacity = (!category || m.category === category) ? 1 : 0.3;
-    m.setStyle({ fillOpacity: opacity, opacity });
-    if(category && m.category !== category) m.closePopup();
+    if(m._line) m._line.style.opacity = opacity;
+    if(m._circle) m._circle.style.opacity = opacity;
+    if(category && m.category !== category && m._markerRef) m._markerRef.closePopup();
   });
 }
 
