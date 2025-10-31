@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patrol</title>
+  <title>Patrol 1</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" type="text/css" href="../src/leaflet.measure.css" />
@@ -129,7 +129,7 @@ L.control.zoom({ position: 'bottomright' }).addTo(map);
 let currentBase = basemaps["Hillshade"], boundaryLayer = null, markers = [];
 map._hasFitted = false;
 
-    L.Measure = {
+L.Measure = {
     linearMeasurement: "Distance measurement",
     areaMeasurement: "Area measurement",
     start: "开始",
@@ -139,7 +139,7 @@ map._hasFitted = false;
     squareKilometers: "km²",
     };
 
-    var measure = L.control.measure({}).addTo(map);    
+var measure = L.control.measure({}).addTo(map);    
     
 fetch('data/CMI.json')
   .then(res => res.json())
