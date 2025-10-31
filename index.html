@@ -143,26 +143,22 @@ L.control.measure({
   primaryAreaUnit: 'hectares',
   secondaryAreaUnit: 'sqmeters',
   activeColor: '#f44336',
-  completedColor: '#4caf50'
+  completedColor: '#4caf50',
+  popupOptions: { autoPan: false }
 }).addTo(map);
 
-let lastCenter = map.getCenter(), lastZoom = map.getZoom();
-map.on('measurestart', () => {
-  lastCenter = map.getCenter();
-  lastZoom = map.getZoom();
-});
-map.on('measurefinish', () => {
-  map.setView(lastCenter, lastZoom);
-});
-
-
 let currentBase = basemaps["Hillshade"], boundaryLayer = null, markers = [];
+
+map._hasFitted = false;
 
 fetch('data/CMI.json')
   .then(res => res.json())
   .then(json => {
     boundaryLayer = L.geoJSON(json, { style: { color: "purple", weight: 2, fillOpacity: 0.1 } }).addTo(map);
-    if (boundaryLayer.getBounds) map.fitBounds(boundaryLayer.getBounds());
+    if (!map._hasFitted && boundaryLayer.getBounds) {
+      map.fitBounds(boundaryLayer.getBounds());
+      map._hasFitted = true;
+    }
   });
 
 const baseDiv = document.getElementById("basemapContent");
