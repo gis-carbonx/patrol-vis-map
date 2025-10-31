@@ -268,7 +268,9 @@ const btnClear = document.getElementById('btnClear');
 btnMeasure.onclick = () => {
   measuring = !measuring;
   btnMeasure.innerHTML = measuring ? 'Finish Measurement' : 'Measure Distance';
-  if (!measuring && currentLine) currentLine = null;
+  if (!measuring && currentLine) {
+    currentLine = null;
+  }
 };
 
 btnUndo.onclick = () => {
@@ -285,13 +287,16 @@ btnUndo.onclick = () => {
   }
 };
 
-btnClear.onclick = () => { measureLayer.clearLayers(); currentLine = null; };
+btnClear.onclick = () => {
+  measureLayer.clearLayers();
+  currentLine = null;
+};
 
 function updateDistancePopup(line) {
   const latlngs = line.getLatLngs();
   let total = 0;
   let popupContent = '<b>Segment Distances:</b><br>';
-  for (let i=1; i<latlngs.length; i++) {
+  for (let i = 1; i < latlngs.length; i++) {
     const d = latlngs[i-1].distanceTo(latlngs[i]);
     total += d;
     popupContent += `${i}: ${(d/1000).toFixed(3)} km<br>`;
@@ -302,21 +307,17 @@ function updateDistancePopup(line) {
 
 map.on('click', function(e) {
   if (!measuring) return;
+
   if (!currentLine) {
-    currentLine = L.polyline([e.latlng], { color: 'blue' }).addTo(measureLayer);
+
+    currentLine = L.polyline([e.latlng], { color: 'blue', weight: 4 }).addTo(measureLayer);
   } else {
     const latlngs = currentLine.getLatLngs();
-    const last = latlngs[latlngs.length-1];
-    if (e.latlng.equals(last)) {
-      measuring = false;
-      currentLine = null;
-      btnMeasure.innerHTML = 'Measure Distance';
-      return;
-    }
     latlngs.push(e.latlng);
     currentLine.setLatLngs(latlngs);
-    updateDistancePopup(currentLine);
   }
+
+  updateDistancePopup(currentLine);
 });
   </script>
 </body>
