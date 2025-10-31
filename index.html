@@ -1,80 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Patrol Data 1</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patrol Data 5</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    #map { height: 100%; width: 100%; }
+    #map-title {
+      position: absolute; top: 15px; left: 20px; z-index: 1000;
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Segoe UI', sans-serif; font-size: 32px; font-weight: 800;
+      color: black; text-shadow: -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white;
+      pointer-events: none; user-select: none;
+    }
+    #map-title img { height: 45px; width: auto; }
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    .popup-content img {
+      width: 100%; max-width: 250px; margin-top: 8px; border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; transition: transform 0.2s;
+    }
+    .popup-content img:hover { transform: scale(1.02); }
 
-<style>
-html, body { height: 100%; margin: 0; overflow: hidden; }
-#map { height: 100%; width: 100%; }
-#map-title { position: absolute; top: 15px; left: 20px; z-index: 1000; display: flex; align-items: center; gap: 10px; font-family: 'Segoe UI', sans-serif; font-size: 32px; font-weight: 800; color: black; text-shadow: -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white; pointer-events: none; user-select: none; }
-#map-title img { height: 45px; width: auto; }
+    .img-modal {
+      display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8); justify-content: center; align-items: center;
+    }
+    .img-modal img { max-width: 90%; max-height: 90%; border-radius: 10px; }
+    .img-modal span {
+      position: absolute; top: 20px; right: 40px; color: white;
+      font-size: 40px; font-weight: bold; cursor: pointer;
+    }
 
-.popup-content img { width: 100%; max-width: 250px; margin-top: 8px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; transition: transform 0.2s; }
-.popup-content img:hover { transform: scale(1.02); }
+    .pin-marker { position: relative; width: 10px; height: 24px; background: transparent; }
+    .pin-marker:before {
+      content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 12px; height: 12px; background: var(--pin-color, #ff3333);
+      border: 2px solid white; border-radius: 50%; box-shadow: 0 0 3px rgba(0,0,0,0.4);
+    }
+    .pin-marker:after {
+      content: ''; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+      width: 2px; height: 14px; background: var(--pin-color, #ff3333);
+    }
 
-.img-modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; }
-.img-modal img { max-width: 90%; max-height: 90%; border-radius: 10px; }
-.img-modal span { position: absolute; top: 20px; right: 40px; color: white; font-size: 40px; font-weight: bold; cursor: pointer; }
+    .panel {
+      position: absolute; z-index: 1000;
+      background: rgba(255,255,255,0.95);
+      padding: 10px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      font-family: 'Segoe UI', sans-serif;
+      width: 320px; max-height: 85%; overflow-y: auto;
+    }
+    #infoPanel { top: 15px; right: 15px; }
+    #basemapPanel { bottom: 15px; left: 15px; width: 200px; }
 
-.pin-marker { position: relative; width: 10px; height: 24px; background: transparent; }
-.pin-marker:before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 12px; height: 12px; background: var(--pin-color, #ff3333); border: 2px solid white; border-radius: 50%; box-shadow: 0 0 3px rgba(0,0,0,0.4); }
-.pin-marker:after { content: ''; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 2px; height: 14px; background: var(--pin-color, #ff3333); }
+    .panel-header {
+      font-weight: bold; cursor: pointer; text-align: center;
+      background: #444; color: white; padding: 6px; border-radius: 8px;
+      margin-bottom: 8px; user-select: none;
+    }
+    .panel-content { display: none; }
 
-.panel { position: absolute; z-index: 1000; background: rgba(255,255,255,0.95); padding: 10px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-family: 'Segoe UI', sans-serif; width: 320px; max-height: 85%; overflow-y: auto; }
-#infoPanel { top: 15px; right: 15px; }
-#basemapPanel { bottom: 15px; left: 15px; width: 200px; }
+    #resetFilter {
+      background: #555; color: white; border: none; padding: 6px 10px;
+      border-radius: 6px; margin-top: 10px; cursor: pointer; width: 100%;
+    }
+    #resetFilter:hover { background: #333; }
 
-.panel-header { font-weight: bold; cursor: pointer; text-align: center; background: #444; color: white; padding: 6px; border-radius: 8px; margin-bottom: 8px; user-select: none; }
-.panel-content { display: none; }
+    .basemap-btn {
+      display: block; width: 100%; margin: 3px 0; padding: 6px;
+      text-align: left; cursor: pointer; border-radius: 6px;
+      border: 1px solid #ddd; background: #f7f7f7;
+    }
+    .basemap-btn:hover { background: #eee; }
 
-#resetFilter { background: #555; color: white; border: none; padding: 6px 10px; border-radius: 6px; margin-top: 10px; cursor: pointer; width: 100%; }
-#resetFilter:hover { background: #333; }
-
-.basemap-btn { display: block; width: 100%; margin: 3px 0; padding: 6px; text-align: left; cursor: pointer; border-radius: 6px; border: 1px solid #ddd; background: #f7f7f7; }
-.basemap-btn:hover { background: #eee; }
-
-.leaflet-control-zoom { margin-bottom: 10px !important; margin-right: 15px !important; }
-</style>
+    .leaflet-control-zoom { margin-bottom: 10px !important; margin-right: 15px !important; }
+  </style>
 </head>
 
 <body>
-<div id="map"></div>
-<div id="map-title">
-  <img src="data/CMI-Brandmark-FullColor-BlackBG.png" alt="Logo CMI">
-  <span>Patrol Data Visualization</span>
-</div>
-
-<div id="infoPanel" class="panel">
-  <div class="panel-header" onclick="togglePanel('infoContent')">Map Statistics ▼</div>
-  <div id="infoContent" class="panel-content">
-    <p id="totalPoints">Total titik temuan: -</p>
-    <canvas id="categoryChart" width="250" height="250"></canvas>
-    <button id="resetFilter">Show All</button>
+  <div id="map"></div>
+  <div id="map-title">
+    <img src="data/CMI-Brandmark-FullColor-BlackBG.png" alt="Logo CMI">
+    <span>Patrol Data Visualization</span>
   </div>
-</div>
 
-<div id="basemapPanel" class="panel">
-  <div class="panel-header" onclick="togglePanel('basemapContent')">Basemap ▼</div>
-  <div id="basemapContent" class="panel-content"></div>
-</div>
+  <div id="infoPanel" class="panel">
+    <div class="panel-header" onclick="togglePanel('infoContent')">Map Statistics ▼</div>
+    <div id="infoContent" class="panel-content">
+      <p id="totalPoints">Total titik temuan: -</p>
+      <canvas id="categoryChart" width="250" height="250"></canvas>
+      <button id="resetFilter">Show All</button>
+    </div>
+  </div>
 
-<div id="imageModal" class="img-modal">
-  <span id="closeModal">&times;</span>
-  <img id="modalImage" src="">
-</div>
+  <div id="basemapPanel" class="panel">
+    <div class="panel-header" onclick="togglePanel('basemapContent')">Basemap ▼</div>
+    <div id="basemapContent" class="panel-content"></div>
+  </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
-<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
-<script src="https://unpkg.com/leaflet-geometryutil"></script>
+  <div id="imageModal" class="img-modal">
+    <span id="closeModal">&times;</span>
+    <img id="modalImage" src="">
+  </div>
 
-<script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <script>
 const basemaps = {
   "OSM": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
   "Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
@@ -210,48 +244,6 @@ const modal = document.getElementById("imageModal"), modalImg = document.getElem
 document.getElementById("closeModal").onclick = () => modal.style.display = "none";
 modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
 function openModal(src) { modal.style.display = "flex"; modalImg.src = src; }
-
-const drawnItems = new L.FeatureGroup();
-map.addLayer(drawnItems);
-
-const drawControl = new L.Control.Draw({
-  draw: {
-    polyline: { shapeOptions: { color: 'red' }, metric: true },
-    polygon: { allowIntersection: false, shapeOptions: { color: 'blue' }, showArea: true, metric: true },
-    rectangle: { shapeOptions: { color: 'green' } },
-    circle: false, circlemarker: false, marker: false
-  },
-  edit: { featureGroup: drawnItems }
-});
-map.addControl(drawControl);
-
-function showMeasurementPopup(layer, text) {
-  const center = layer.getBounds ? layer.getBounds().getCenter() : layer.getLatLngs()[0];
-  if(layer._measurementPopup) layer._measurementPopup.setLatLng(center).setContent(text);
-  else layer._measurementPopup = L.popup({closeOnClick:false,autoClose:false}).setLatLng(center).setContent(text).openOn(map);
-}
-
-map.on('draw:drawvertex', function(e){
-  const layer = e.layers.getLayers()[0];
-  if(layer instanceof L.Polyline && !(layer instanceof L.Polygon)){
-    const distance = L.GeometryUtil.geodesicLength(layer.getLatLngs());
-    showMeasurementPopup(layer, `<b>Jarak:</b> ${(distance/1000).toFixed(2)} km`);
-  }
-});
-
-map.on(L.Draw.Event.CREATED, function(e){
-  const layer = e.layer;
-  drawnItems.addLayer(layer);
-  if(layer instanceof L.Polyline && !(layer instanceof L.Polygon)){
-    const distance = L.GeometryUtil.geodesicLength(layer.getLatLngs());
-    showMeasurementPopup(layer, `<b>Jarak:</b> ${(distance/1000).toFixed(2)} km`);
-  } else if(layer instanceof L.Polygon || layer instanceof L.Rectangle){
-    const latlngs = layer.getLatLngs()[0];
-    const area = L.GeometryUtil.geodesicArea(latlngs);
-    showMeasurementPopup(layer, `<b>Luas:</b> ${(area/10000).toFixed(2)} ha`);
-  }
-});
-
-</script>
+  </script>
 </body>
 </html>
