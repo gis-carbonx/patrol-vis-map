@@ -3,9 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patrol Monitoring</title>
+  <title>Patrol Monitoring Update</title>
+
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script src="https://cdn.maptiler.com/maptiler-sdk-js/v3.8.0/maptiler-sdk.umd.min.js"></script>
+  <link href="https://cdn.maptiler.com/maptiler-sdk-js/v3.8.0/maptiler-sdk.css" rel="stylesheet" />
+  <script src="https://cdn.maptiler.com/leaflet-maptilersdk/v4.1.0/leaflet-maptilersdk.umd.min.js"></script>
+
   <style>
     html, body { height: 100%; margin: 0; overflow: hidden; }
     #map { height: 100%; width: 100%; }
@@ -117,11 +124,20 @@
   <img id="modalImage" src="">
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
 <script>
+const maptilerKey = 'UZQBQFSUleFh5QxjUm5p';
+
 const basemaps = {
+  "MapTiler Streets": L.maptiler.maptilerLayer({
+    apiKey: maptilerKey,
+    style: L.maptiler.MapStyle.STREETS
+  }),
+  "MapTiler Satellite": L.maptiler.maptilerLayer({
+    apiKey: maptilerKey,
+    style: L.maptiler.MapStyle.SATELLITE
+  }),
   "OSM": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
   "Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
   "Hillshade": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}'),
@@ -131,12 +147,12 @@ const basemaps = {
 const map = L.map('map', {
   center: [0.8, 110.325],
   zoom: 13,
-  layers: [basemaps["Satellite"]],
+  layers: [basemaps["MapTiler Streets"]],
   zoomControl: false
 });
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-let currentBase = basemaps["Satellite"], boundaryLayer = null, markers = [];
+let currentBase = basemaps["MapTiler Streets"], boundaryLayer = null, markers = [];
 let deforestMarkers = [];
 map._hasFitted = false;
 
@@ -318,21 +334,20 @@ function updateDistancePopup(line){
   for(let i=1;i<latlngs.length;i++){
     const d = latlngs[i-1].distanceTo(latlngs[i]);
     total+=d;
-    popupContent+=`${i}: ${(d/1000).toFixed(3)} km<br>`;
+    popupContent+=`• ${(d/1000).toFixed(2)} km<br>`;
   }
-  popupContent+=`<b>Total: ${(total/1000).toFixed(3)} km</b>`;
+  popupContent+=`<b>Total: ${(total/1000).toFixed(2)} km</b>`;
   line.bindPopup(popupContent).openPopup();
 }
-
-map.on('click', e => {
-  if(!measuring) return;
-  const point = e.latlng;
+map.on('click', e=>{
+  if(!measuring)return;
   if(!currentLine){
-    currentLine = L.polyline([point], { color:'red', weight:3 }).addTo(measureLayer);
-    startMarker = L.circleMarker(point,{radius:4,color:'red',fillColor:'red',fillOpacity:1}).addTo(measureLayer);
-  } else {
-    const latlngs = currentLine.getLatLngs();
-    latlngs.push(point);
+    currentLine=L.polyline([e.latlng],{color:'red'}).addTo(measureLayer);
+    startMarker=L.marker(e.latlng,{draggable:true}).addTo(measureLayer);
+    startMarker.on('drag',()=>{currentLine.setLatLngs([startMarker.getLatLng()]);});
+  }else{
+    const latlngs=currentLine.getLatLngs();
+    latlngs.push(e.latlng);
     currentLine.setLatLngs(latlngs);
     updateDistancePopup(currentLine);
   }
