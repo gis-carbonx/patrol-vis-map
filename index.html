@@ -359,23 +359,12 @@
       updateDistancePopup(currentLine);
     }
   });
-  const lulcToggle = document.getElementById('lulcToggle');
-  const lulcOpacity = document.getElementById('lulcOpacity');
-  const lulcOpacityValue = document.getElementById('lulcOpacityValue');
-
-  lulcToggle.addEventListener('change', () => {
-    if (lulcToggle.checked) {
-      map.addLayer(lulcTiles);
-    } else {
-      map.removeLayer(lulcTiles);
-    }
-  });
-
-  lulcOpacity.addEventListener('input', () => {
-    const val = parseFloat(lulcOpacity.value);
+  const opacitySlider = document.getElementById('opacitySlider');
+  opacitySlider.addEventListener('input', () => {
+    const val = parseFloat(opacitySlider.value);
     lulcTiles.setOpacity(val);
-    lulcOpacityValue.textContent = val.toFixed(1);
   });
+
     
   </script>
   </body>
