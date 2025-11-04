@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>MapTiler Map Style</title>
+  <title>MapTiler Map</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- MapLibre GL JS CSS -->
-  <link href="https://unpkg.com/maplibre-gl@2.6.1/dist/maplibre-gl.css" rel="stylesheet" />
+  <!-- MapTiler SDK CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/@maptiler/sdk/dist/maptiler-sdk.css" />
 
   <style>
     html, body { margin: 0; padding: 0; height: 100%; }
@@ -16,19 +16,22 @@
 <body>
   <div id="map"></div>
 
-  <!-- MapLibre GL JS -->
-  <script src="https://unpkg.com/maplibre-gl@2.6.1/dist/maplibre-gl.js"></script>
+  <!-- MapTiler SDK JS -->
+  <script src="https://unpkg.com/@maptiler/sdk/dist/maptiler-sdk.umd.js"></script>
   <script>
-    // Initialize the map using your MapTiler style.json
-    const map = new maplibregl.Map({
+    // Set your API key
+    maptiler.config.apiKey = 'UZQBQFSUleFh5QxjUm5p';
+
+    // Create the map
+    const map = new maptiler.Map({
       container: 'map',
-      style: 'https://api.maptiler.com/maps/019a4946-ce24-7a1c-953e-d79c6874ef99/style.json?key=UZQBQFSUleFh5QxjUm5p',
-      center: [106.8272, -6.1751], // Jakarta
+      style: '019a4946-ce24-7a1c-953e-d79c6874ef99', // Just the style ID
+      center: [106.8272, -6.1751],
       zoom: 12
     });
 
-    // Add zoom and rotation controls
-    map.addControl(new maplibregl.NavigationControl());
+    // Add controls
+    map.addControl(new maptiler.NavigationControl());
   </script>
 </body>
 </html>
