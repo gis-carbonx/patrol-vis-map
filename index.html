@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patrol Monitoring 1</title>
+  <title>Patrol Monitoring 2</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -114,6 +114,10 @@
       <input type="checkbox" id="layerBoundary" checked>
       <label for="layerBoundary">Boundary</label>
     </div>
+    <div class="layer-toggle">
+      <input type="checkbox" id="layerMaptiler" checked>
+      <label for="layerMaptiler">MapTiler Custom Overlay</label>
+    </div>
 
     <hr>
     <div>
@@ -159,7 +163,7 @@ L.control.zoom({ position: 'bottomright' }).addTo(map);
 const maptilerCustom = L.maptiler.maptilerLayer({
   apiKey: maptilerKey,
   style: "https://api.maptiler.com/maps/019a4929-bcef-7bcf-84c3-fe285ca18e6f/style.json?key=" + maptilerKey,
-  opacity: 0.7
+  opacity: 0.6
 }).addTo(map);
 
 const basemaps = {
@@ -170,7 +174,6 @@ const basemaps = {
 };
 
 let currentBase = basemaps["OSM"].addTo(map);
-
 const baseDiv = document.getElementById("basemapContent");
 Object.keys(basemaps).forEach(name => {
   const btn = document.createElement("button");
@@ -272,6 +275,7 @@ Papa.parse(deforestSheetURL, {
 document.getElementById("layerSurvey").onchange = e => e.target.checked ? map.addLayer(surveyLayer) : map.removeLayer(surveyLayer);
 document.getElementById("layerDeforest").onchange = e => e.target.checked ? map.addLayer(deforestLayer) : map.removeLayer(deforestLayer);
 document.getElementById("layerBoundary").onchange = e => e.target.checked ? map.addLayer(boundaryLayer) : map.removeLayer(boundaryLayer);
+document.getElementById("layerMaptiler").onchange = e => e.target.checked ? map.addLayer(maptilerCustom) : map.removeLayer(maptilerCustom);
 
 function togglePanel(id){ const el=document.getElementById(id); el.style.display=el.style.display==="none"?"block":"none"; }
 function convertGoogleDriveLink(url){ if(!url)return null; const id=url.match(/[-\w]{25,}/); return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null; }
@@ -283,7 +287,6 @@ document.getElementById("closeModal").onclick=()=>modal.style.display="none";
 modal.onclick=e=>{if(e.target===modal)modal.style.display="none";};
 function openModal(src){modal.style.display="flex";modalImg.src=src;}
 
-// ✅ Measure tool
 let measureLayer=L.layerGroup().addTo(map);
 let currentLine=null,measuring=false,startMarker=null;
 document.getElementById('btnMeasure').onclick=()=>{
