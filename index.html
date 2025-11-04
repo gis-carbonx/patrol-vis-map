@@ -3,14 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patrol Monitoring</title>
+  <title>Patrol Monitoring 1</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdn.maptiler.com/maptiler-sdk-js/v3.8.0/maptiler-sdk.umd.min.js"></script>
-  <link href="https://cdn.maptiler.com/maptiler-sdk-js/v3.8.0/maptiler-sdk.css" rel="stylesheet" />
-  <script src="https://cdn.maptiler.com/leaflet-maptilersdk/v4.1.0/leaflet-maptilersdk.umd.min.js"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
@@ -127,32 +123,26 @@
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
 <script>
-const maptilerKey = "UZQBQFSUleFh5QxjUm5p";
-const maptilerCustom = L.maptiler.maptilerLayer({
-  apiKey: maptilerKey,
-  style: "https://api.maptiler.com/maps/019a4929-bcef-7bcf-84c3-fe285ca18e6f/style.json?key=" + maptilerKey,
-});
 
 const basemaps = {
-  "MapTiler Custom": maptilerCustom,
-  "OSM": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
+  "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '© OpenStreetMap contributors'
+  }),
   "Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
   "Hillshade": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}'),
   "Topo": L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png')
 };
-
 const map = L.map('map', {
   center: [0.8, 110.325],
   zoom: 13,
-  layers: [basemaps["MapTiler Custom"]],
+  layers: [basemaps["OpenStreetMap"]],
   zoomControl: false
 });
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-let currentBase = basemaps["MapTiler Custom"], boundaryLayer = null, markers = [];
+let currentBase = basemaps["OpenStreetMap"], boundaryLayer = null, markers = [];
 let deforestMarkers = [];
 map._hasFitted = false;
-
 fetch('data/CMI.json')
   .then(res => res.json())
   .then(json => {
@@ -165,7 +155,6 @@ fetch('data/CMI.json')
       }
     });
   });
-
 const baseDiv = document.getElementById("basemapContent");
 Object.keys(basemaps).forEach(name => {
   const btn = document.createElement("button");
@@ -184,7 +173,6 @@ function togglePanel(id) {
   const el = document.getElementById(id);
   el.style.display = el.style.display === "none" ? "block" : "none";
 }
-
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 let categoryCount = {}, total = 0;
 
