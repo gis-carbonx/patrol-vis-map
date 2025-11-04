@@ -58,6 +58,11 @@
     }
     .panel-content { display: none; }
 
+    .layer-toggle {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 14px; margin-bottom: 5px;
+    }
+
     #resetFilter {
       background: #555; color: white; border: none; padding: 6px 10px;
       border-radius: 6px; margin-top: 10px; cursor: pointer; width: 100%;
@@ -96,6 +101,21 @@
     <button id="resetFilter">Show All</button>
 
     <hr>
+    <b>Map Layers:</b><br>
+    <div class="layer-toggle">
+      <input type="checkbox" id="layerSurvey" checked>
+      <label for="layerSurvey">Survey Points</label>
+    </div>
+    <div class="layer-toggle">
+      <input type="checkbox" id="layerDeforest" checked>
+      <label for="layerDeforest">Deforestation</label>
+    </div>
+    <div class="layer-toggle">
+      <input type="checkbox" id="layerBoundary" checked>
+      <label for="layerBoundary">Boundary</label>
+    </div>
+
+    <hr>
     <div>
       <button id="btnMeasure" class="measure-btn">Measure Distance</button>
       <button id="btnUndo" class="measure-btn">Undo Last Point</button>
@@ -105,7 +125,7 @@
     <div id="legend" style="margin-top:10px;">
       <b>Legend:</b>
       <ul style="list-style:none; padding-left:0; font-size:14px;">
-        <li><img src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png" 
+        <li><img src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png"
                  style="width:16px;height:26px;vertical-align:middle;margin-right:6px;"> Survey Points</li>
         <li><span style="display:inline-block;width:12px;height:12px;background:orange;margin-right:6px;"></span> Forest Deforestation</li>
         <li><span style="display:inline-block;width:12px;height:12px;background:gray;margin-right:6px;"></span> Non-Forest Deforestation</li>
@@ -128,43 +148,28 @@
 
 <script>
 const maptilerKey = "UZQBQFSUleFh5QxjUm5p";
+
+const map = L.map('map', {
+  center: [0.8, 110.325],
+  zoom: 13,
+  zoomControl: false
+});
+L.control.zoom({ position: 'bottomright' }).addTo(map);
+
 const maptilerCustom = L.maptiler.maptilerLayer({
   apiKey: maptilerKey,
   style: "https://api.maptiler.com/maps/019a4929-bcef-7bcf-84c3-fe285ca18e6f/style.json?key=" + maptilerKey,
-});
+  opacity: 0.7
+}).addTo(map);
 
 const basemaps = {
-  "MapTiler Custom": maptilerCustom,
   "OSM": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
   "Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
   "Hillshade": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}'),
   "Topo": L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png')
 };
 
-const map = L.map('map', {
-  center: [0.8, 110.325],
-  zoom: 13,
-  layers: [basemaps["MapTiler Custom"]],
-  zoomControl: false
-});
-L.control.zoom({ position: 'bottomright' }).addTo(map);
-
-let currentBase = basemaps["MapTiler Custom"], boundaryLayer = null, markers = [];
-let deforestMarkers = [];
-map._hasFitted = false;
-
-fetch('data/CMI.json')
-  .then(res => res.json())
-  .then(json => {
-    boundaryLayer = L.geoJSON(json, { style: { color: "purple", weight: 2, fillOpacity: 0.1 } }).addTo(map);
-    map.whenReady(() => {
-      if (!map._hasFitted && boundaryLayer.getBounds) {
-        map.fitBounds(boundaryLayer.getBounds());
-        map.invalidateSize();
-        map._hasFitted = true;
-      }
-    });
-  });
+let currentBase = basemaps["OSM"].addTo(map);
 
 const baseDiv = document.getElementById("basemapContent");
 Object.keys(basemaps).forEach(name => {
@@ -175,18 +180,24 @@ Object.keys(basemaps).forEach(name => {
     if (currentBase) map.removeLayer(currentBase);
     currentBase = basemaps[name];
     currentBase.addTo(map);
-    if (boundaryLayer && !map.hasLayer(boundaryLayer)) map.addLayer(boundaryLayer);
   };
   baseDiv.appendChild(btn);
 });
 
-function togglePanel(id) {
-  const el = document.getElementById(id);
-  el.style.display = el.style.display === "none" ? "block" : "none";
-}
+let boundaryLayer = L.layerGroup().addTo(map);
+let surveyLayer = L.layerGroup().addTo(map);
+let deforestLayer = L.layerGroup().addTo(map);
+
+fetch('data/CMI.json')
+  .then(res => res.json())
+  .then(json => {
+    const layer = L.geoJSON(json, { style: { color: "purple", weight: 2, fillOpacity: 0.1 } });
+    boundaryLayer.addLayer(layer);
+    map.fitBounds(layer.getBounds());
+  });
 
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
-let categoryCount = {}, total = 0;
+let markers = [], categoryCount = {}, total = 0;
 
 Papa.parse(sheetURL, {
   download: true, header: true,
@@ -207,11 +218,11 @@ Papa.parse(sheetURL, {
         <p><b>Officer:</b> ${row['data-base_info-nama'] || ''}</p>
         <p><b>Description:</b> ${row['data-survey-description'] || ''}</p>
         <p><b>Date:</b> ${row['data-start_date'] || ''}</p>
-        ${img1 ? `<img src="${img1}" onclick="openModal('${img1}')" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
-        ${img2 ? `<img src="${img2}" onclick="openModal('${img2}')" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
+        ${img1 ? `<img src="${img1}" onclick="openModal('${img1}')">` : ''}
+        ${img2 ? `<img src="${img2}" onclick="openModal('${img2}')">` : ''}
       </div>`;
-      
-      const marker = L.marker([lat, lon]).bindPopup(popup).addTo(map);
+
+      const marker = L.marker([lat, lon]).bindPopup(popup).addTo(surveyLayer);
       marker.category = cat;
       markers.push(marker);
     });
@@ -240,113 +251,65 @@ Papa.parse(sheetURL, {
   }
 });
 
-function highlightMarkers(category){
-  markers.forEach(m => {
-    const opacity = (!category || m.category === category) ? 1 : 0.3;
-    if(m.setOpacity) m.setOpacity(opacity);
-    if(category && m.category !== category) m.closePopup();
-  });
-}
-
 const deforestSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRY1oLCvdfaMj2T63s2tHUwKm3uZw0ml8CVTiiNut2o0Utr6FHCYbrsPU9zGsaNNvDAUNEXE7o0i3tI/pub?output=csv";
-
-Papa.parse(deforestSheetURL, { 
-  download: true, header: true, 
+Papa.parse(deforestSheetURL, {
+  download: true, header: true,
   complete: (results) => {
     results.data.forEach(row => {
-      const lat = parseFloat(row.latitude);
-      const lon = parseFloat(row.longitude);
+      const lat = parseFloat(row.latitude), lon = parseFloat(row.longitude);
       if (isNaN(lat) || isNaN(lon)) return;
-
+      const color = row.Class23 === 'Forest' ? 'orange' : 'gray';
       const popup = `<div class="popup-content">
         <h3>Deforestation Detected</h3>
         <p><b>Date:</b> ${row.gfw_integr}</p>
-        <p><b>Month:</b> ${row.month}</p>
-        <p><b>UMD GLAD:</b> ${row.umd_glad_l || 'not_detected'} / ${row.umd_glad_s || 'not_detected'}</p>
-        <p><b>WUR/RADD:</b> ${row.wur_radd_a || '-'}</p>
         <p><b>Class:</b> ${row.Class23 || '-'}</p>
       </div>`;
-
-      const color = row.Class23 === 'Forest' ? 'orange' : 'gray';
-      const marker = L.circleMarker([lat, lon], { 
-        radius: 3, color, fillColor: color, fillOpacity: 0.3
-      }).bindPopup(popup).addTo(map);
-
-      deforestMarkers.push(marker);
+      L.circleMarker([lat, lon], { radius: 3, color, fillOpacity: 0.3 }).bindPopup(popup).addTo(deforestLayer);
     });
   }
 });
 
-function convertGoogleDriveLink(url) {
-  if (!url) return null;
-  const id = url.match(/[-\w]{25,}/);
-  return id ? `https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000` : null;
-}
-function generateColors(n) {
-  const base = ['#ff6666','#66b3ff','#99ff99','#ffcc99','#c299ff','#ff99c2','#ffd966','#a1cfff','#b8ffb0','#ffc2d6'];
-  if (n <= base.length) return base.slice(0,n);
-  return Array.from({length:n},(_,i)=>`hsl(${(i*360/n).toFixed(0)} 70% 60%)`);
-}
+document.getElementById("layerSurvey").onchange = e => e.target.checked ? map.addLayer(surveyLayer) : map.removeLayer(surveyLayer);
+document.getElementById("layerDeforest").onchange = e => e.target.checked ? map.addLayer(deforestLayer) : map.removeLayer(deforestLayer);
+document.getElementById("layerBoundary").onchange = e => e.target.checked ? map.addLayer(boundaryLayer) : map.removeLayer(boundaryLayer);
 
-const modal = document.getElementById("imageModal"), modalImg = document.getElementById("modalImage");
-document.getElementById("closeModal").onclick = () => modal.style.display = "none";
-modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
-function openModal(src) { modal.style.display = "flex"; modalImg.src = src; }
+function togglePanel(id){ const el=document.getElementById(id); el.style.display=el.style.display==="none"?"block":"none"; }
+function convertGoogleDriveLink(url){ if(!url)return null; const id=url.match(/[-\w]{25,}/); return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null; }
+function generateColors(n){ return Array.from({length:n},(_,i)=>`hsl(${(i*360/n).toFixed(0)} 70% 60%)`); }
+function highlightMarkers(category){ markers.forEach(m=>{ const o=(!category||m.category===category)?1:0.3; m.setOpacity(o); if(category&&m.category!==category)m.closePopup(); }); }
 
-let measureLayer = L.layerGroup().addTo(map);
-let currentLine = null, measuring = false, startMarker = null;
-const btnMeasure = document.getElementById('btnMeasure');
-const btnUndo = document.getElementById('btnUndo');
-const btnClear = document.getElementById('btnClear');
+const modal=document.getElementById("imageModal"), modalImg=document.getElementById("modalImage");
+document.getElementById("closeModal").onclick=()=>modal.style.display="none";
+modal.onclick=e=>{if(e.target===modal)modal.style.display="none";};
+function openModal(src){modal.style.display="flex";modalImg.src=src;}
 
-btnMeasure.onclick = () => {
-  measuring = !measuring;
-  btnMeasure.innerHTML = measuring ? 'Finish Measurement' : 'Measure Distance';
-  if (!measuring && startMarker) {
-    measureLayer.removeLayer(startMarker);
-    startMarker = null;
-    currentLine = null;
-  }
+// ✅ Measure tool
+let measureLayer=L.layerGroup().addTo(map);
+let currentLine=null,measuring=false,startMarker=null;
+document.getElementById('btnMeasure').onclick=()=>{
+  measuring=!measuring;
+  btnMeasure.innerHTML=measuring?'Finish Measurement':'Measure Distance';
+  if(!measuring&&startMarker){measureLayer.removeLayer(startMarker);startMarker=null;currentLine=null;}
 };
-
-btnUndo.onclick = () => {
+document.getElementById('btnUndo').onclick=()=>{
   if(currentLine){
-    const latlngs = currentLine.getLatLngs();
-    if(latlngs.length>1){
-      latlngs.pop();
-      currentLine.setLatLngs(latlngs);
-      updateDistancePopup(currentLine);
-    } else {
-      measureLayer.removeLayer(currentLine);
-      currentLine = null;
-      if(startMarker) { measureLayer.removeLayer(startMarker); startMarker=null; }
-    }
+    const latlngs=currentLine.getLatLngs();
+    if(latlngs.length>1){latlngs.pop();currentLine.setLatLngs(latlngs);updateDistancePopup(currentLine);}
+    else{measureLayer.removeLayer(currentLine);currentLine=null;if(startMarker){measureLayer.removeLayer(startMarker);startMarker=null;}}
   }
 };
-btnClear.onclick = () => { measureLayer.clearLayers(); currentLine=null; startMarker=null; };
+document.getElementById('btnClear').onclick=()=>{measureLayer.clearLayers();currentLine=null;startMarker=null;};
 
 function updateDistancePopup(line){
-  const latlngs = line.getLatLngs();
-  let total = 0, popupContent = '<b>Segment Distances:</b><br>';
-  for(let i=1;i<latlngs.length;i++){
-    const d = latlngs[i-1].distanceTo(latlngs[i]);
-    total+=d;
-    popupContent+=`${i}: ${(d/1000).toFixed(3)} km<br>`;
-  }
+  const latlngs=line.getLatLngs();let total=0,popupContent='<b>Segment Distances:</b><br>';
+  for(let i=1;i<latlngs.length;i++){const d=latlngs[i-1].distanceTo(latlngs[i]);total+=d;popupContent+=`${i}: ${(d/1000).toFixed(3)} km<br>`;}
   popupContent+=`<hr><b>Total: ${(total/1000).toFixed(3)} km</b>`;
-  const last = latlngs[latlngs.length-1];
-  line.bindPopup(popupContent).openPopup(last);
+  const last=latlngs[latlngs.length-1];line.bindPopup(popupContent).openPopup(last);
 }
-
-map.on('click', (e) => {
-  if(!measuring) return;
-  if(!currentLine){
-    startMarker = L.marker(e.latlng).addTo(measureLayer);
-    currentLine = L.polyline([e.latlng], { color:'red' }).addTo(measureLayer);
-  } else {
-    currentLine.addLatLng(e.latlng);
-    updateDistancePopup(currentLine);
-  }
+map.on('click',e=>{
+  if(!measuring)return;
+  if(!currentLine){startMarker=L.marker(e.latlng).addTo(measureLayer);currentLine=L.polyline([e.latlng],{color:'red'}).addTo(measureLayer);}
+  else{currentLine.addLatLng(e.latlng);updateDistancePopup(currentLine);}
 });
 </script>
 </body>
