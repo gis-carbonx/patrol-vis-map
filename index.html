@@ -1,37 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>MapTiler Map</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>MapTiler Vector Tile Example</title>
 
-  <!-- MapTiler SDK CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/@maptiler/sdk/dist/maptiler-sdk.css" />
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- MapTiler SDK -->
+  <script src="https://cdn.maptiler.com/maptiler-sdk-js/v3.8.0/maptiler-sdk.umd.min.js"></script>
+  <link href="https://cdn.maptiler.com/maptiler-sdk-js/v3.8.0/maptiler-sdk.css" rel="stylesheet" />
+
+  <!-- Leaflet MapTiler SDK -->
+  <script src="https://cdn.maptiler.com/leaflet-maptilersdk/v4.1.0/leaflet-maptilersdk.umd.min.js"></script>
 
   <style>
-    html, body { margin: 0; padding: 0; height: 100%; }
-    #map { width: 100%; height: 100%; }
+    html, body { margin:0; height:100%; }
+    #map { position:absolute; top:0; bottom:0; left:0; right:0; }
   </style>
 </head>
 <body>
   <div id="map"></div>
 
-  <!-- MapTiler SDK JS -->
-  <script src="https://unpkg.com/@maptiler/sdk/dist/maptiler-sdk.umd.js"></script>
   <script>
-    // Set your API key
-    maptiler.config.apiKey = 'UZQBQFSUleFh5QxjUm5p';
+    const key = 'UZQBQFSUleFh5QxjUm5p';
 
-    // Create the map
-    const map = new maptiler.Map({
-      container: 'map',
-      style: '019a4946-ce24-7a1c-953e-d79c6874ef99', // Just the style ID
-      center: [106.8272, -6.1751],
-      zoom: 12
-    });
+    // Initialize Leaflet map
+    const map = L.map('map').setView([-6.1751, 106.8272], 12); // Jakarta example
 
-    // Add controls
-    map.addControl(new maptiler.NavigationControl());
+    // Add MapTiler layer using your style ID
+    const mtLayer = L.maptiler.maptilerLayer({
+      apiKey: key,
+      style: "019a4946-ce24-7a1c-953e-d79c6874ef99" // Just the style ID
+    }).addTo(map);
   </script>
 </body>
 </html>
