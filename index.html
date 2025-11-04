@@ -1,345 +1,342 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Patrol Monitoring</title>
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patrol Monitoring</title>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
-<script src="https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.bundled.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<style>
-html, body { height: 100%; margin: 0; overflow: hidden; }
-#map { height: 100%; width: 100%; }
-#map-title {
-  position: absolute; top: 15px; left: 20px; z-index: 1000;
-  display: flex; align-items: center; gap: 10px;
-  font-family: 'Segoe UI', sans-serif; font-size: 32px; font-weight: 800;
-  color: black; text-shadow: -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white;
-  pointer-events: none; user-select: none;
-}
-#map-title img { height: 45px; width: auto; }
+    <style>
+      html, body { height: 100%; margin: 0; overflow: hidden; }
+      #map { height: 100%; width: 100%; }
+      #map-title {
+        position: absolute; top: 15px; left: 20px; z-index: 1000;
+        display: flex; align-items: center; gap: 10px;
+        font-family: 'Segoe UI', sans-serif; font-size: 32px; font-weight: 800;
+        color: black; text-shadow: -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white;
+        pointer-events: none; user-select: none;
+      }
+      #map-title img { height: 45px; width: auto; }
 
-.popup-content img {
-  width: 100%; max-width: 250px; margin-top: 8px; border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; transition: transform 0.2s;
-}
-.popup-content img:hover { transform: scale(1.02); }
+      .popup-content img {
+        width: 100%; max-width: 250px; margin-top: 8px; border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; transition: transform 0.2s;
+      }
+      .popup-content img:hover { transform: scale(1.02); }
 
-.img-modal {
-  display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.8); justify-content: center; align-items: center;
-}
-.img-modal img { max-width: 90%; max-height: 90%; border-radius: 10px; }
-.img-modal span {
-  position: absolute; top: 20px; right: 40px; color: white;
-  font-size: 40px; font-weight: bold; cursor: pointer;
-}
+      .img-modal {
+        display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.8); justify-content: center; align-items: center;
+      }
+      .img-modal img { max-width: 90%; max-height: 90%; border-radius: 10px; }
+      .img-modal span {
+        position: absolute; top: 20px; right: 40px; color: white;
+        font-size: 40px; font-weight: bold; cursor: pointer;
+      }
 
-.panel {
-  position: absolute; z-index: 1000;
-  background: rgba(255,255,255,0.95);
-  padding: 10px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  font-family: 'Segoe UI', sans-serif;
-  width: 320px; max-height: 85%; overflow-y: auto;
-}
-#infoPanel { top: 15px; right: 15px; }
-#basemapPanel { bottom: 15px; left: 15px; width: 200px; }
+      .panel {
+        position: absolute; z-index: 1000;
+        background: rgba(255,255,255,0.95);
+        padding: 10px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        font-family: 'Segoe UI', sans-serif;
+        width: 320px; max-height: 85%; overflow-y: auto;
+      }
+      #infoPanel { top: 15px; right: 15px; }
+      #basemapPanel { bottom: 15px; left: 15px; width: 200px; }
 
-.panel-header {
-  font-weight: bold; cursor: pointer; text-align: center;
-  background: #444; color: white; padding: 6px; border-radius: 8px;
-  margin-bottom: 8px; user-select: none;
-}
-.panel-content { display: none; }
+      .panel-header {
+        font-weight: bold; cursor: pointer; text-align: center;
+        background: #444; color: white; padding: 6px; border-radius: 8px;
+        margin-bottom: 8px; user-select: none;
+      }
+      .panel-content { display: none; }
 
-#resetFilter {
-  background: #555; color: white; border: none; padding: 6px 10px;
-  border-radius: 6px; margin-top: 10px; cursor: pointer; width: 100%;
-}
-#resetFilter:hover { background: #333; }
+      #resetFilter {
+        background: #555; color: white; border: none; padding: 6px 10px;
+        border-radius: 6px; margin-top: 10px; cursor: pointer; width: 100%;
+      }
+      #resetFilter:hover { background: #333; }
 
-.basemap-btn {
-  display: block; width: 100%; margin: 3px 0; padding: 6px;
-  text-align: left; cursor: pointer; border-radius: 6px;
-  border: 1px solid #ddd; background: #f7f7f7;
-}
-.basemap-btn:hover { background: #eee; }
+      .basemap-btn {
+        display: block; width: 100%; margin: 3px 0; padding: 6px;
+        text-align: left; cursor: pointer; border-radius: 6px;
+        border: 1px solid #ddd; background: #f7f7f7;
+      }
+      .basemap-btn:hover { background: #eee; }
 
-.measure-btn {
-  background: #444; color: white; border: none; padding: 6px 10px;
-  border-radius: 6px; margin-bottom: 5px; cursor: pointer; width: 100%;
-}
-.measure-btn:hover { background: #222; }
+      .measure-btn {
+        background: #444; color: white; border: none; padding: 6px 10px;
+        border-radius: 6px; margin-bottom: 5px; cursor: pointer; width: 100%;
+      }
+      .measure-btn:hover { background: #222; }
 
-.leaflet-control-zoom { margin-bottom: 10px !important; margin-right: 15px !important; }
-</style>
-</head>
+      .leaflet-control-zoom { margin-bottom: 10px !important; margin-right: 15px !important; }
+    </style>
+  </head>
 
-<body>
-<div id="map"></div>
-<div id="map-title">
-  <img src="data/CMI-Brandmark-FullColor-BlackBG.png" alt="Logo CMI">
-  <span>Patrol Data Visualization</span>
-</div>
+  <body>
+  <div id="map"></div>
+  <div id="map-title">
+    <img src="data/CMI-Brandmark-FullColor-BlackBG.png" alt="Logo CMI">
+    <span>Patrol Data Visualization</span>
+  </div>
 
-<div id="infoPanel" class="panel">
-  <div class="panel-header" onclick="togglePanel('infoContent')">Map Statistics ▼</div>
-  <div id="infoContent" class="panel-content">
-    <p id="totalPoints">Total titik temuan: -</p>
-    <canvas id="categoryChart" width="250" height="250"></canvas>
-    <button id="resetFilter">Show All</button>
+  <div id="infoPanel" class="panel">
+    <div class="panel-header" onclick="togglePanel('infoContent')">Map Statistics ▼</div>
+    <div id="infoContent" class="panel-content">
+      <p id="totalPoints">Total titik temuan: -</p>
+      <canvas id="categoryChart" width="250" height="250"></canvas>
+      <button id="resetFilter">Show All</button>
 
-    <hr>
-    <div>
-      <button id="btnMeasure" class="measure-btn">Measure Distance</button>
-      <button id="btnUndo" class="measure-btn">Undo Last Point</button>
-      <button id="btnClear" class="measure-btn">Clear Measurements</button>
-    </div>
+      <hr>
+      <div>
+        <button id="btnMeasure" class="measure-btn">Measure Distance</button>
+        <button id="btnUndo" class="measure-btn">Undo Last Point</button>
+        <button id="btnClear" class="measure-btn">Clear Measurements</button>
+      </div>
 
-    <div id="legend" style="margin-top:10px;">
-      <b>Legend:</b>
-      <ul style="list-style:none; padding-left:0; font-size:14px;">
-        <li><img src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png" 
-                 style="width:16px;height:26px;vertical-align:middle;margin-right:6px;"> Survey Points</li>
-        <li><span style="display:inline-block;width:12px;height:12px;background:orange;margin-right:6px;"></span> Forest Deforestation</li>
-        <li><span style="display:inline-block;width:12px;height:12px;background:gray;margin-right:6px;"></span> Non-Forest Deforestation</li>
-      </ul>
+      <div id="legend" style="margin-top:10px;">
+        <b>Legend:</b>
+        <ul style="list-style:none; padding-left:0; font-size:14px;">
+          <li><img src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png" 
+                  style="width:16px;height:26px;vertical-align:middle;margin-right:6px;"> Survey Points</li>
+          <li><span style="display:inline-block;width:12px;height:12px;background:orange;margin-right:6px;"></span> Forest Deforestation</li>
+          <li><span style="display:inline-block;width:12px;height:12px;background:gray;margin-right:6px;"></span> Non-Forest Deforestation</li>
+        </ul>
+      </div>
     </div>
   </div>
-</div>
 
-<div id="basemapPanel" class="panel">
-  <div class="panel-header" onclick="togglePanel('basemapContent')">Basemap ▼</div>
-  <div id="basemapContent" class="panel-content"></div>
-</div>
+  <div id="basemapPanel" class="panel">
+    <div class="panel-header" onclick="togglePanel('basemapContent')">Basemap ▼</div>
+    <div id="basemapContent" class="panel-content"></div>
+  </div>
 
-<div id="imageModal" class="img-modal">
-  <span id="closeModal">&times;</span>
-  <img id="modalImage" src="">
-</div>
+  <div id="imageModal" class="img-modal">
+    <span id="closeModal">&times;</span>
+    <img id="modalImage" src="">
+  </div>
 
-<script>
-const basemaps = {
-  "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19, attribution: '© OpenStreetMap contributors'
-  }),
-  "Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
-  "Hillshade": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}'),
-  "Topo": L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'),
-  "MapTiler": L.tileLayer('https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=YOUR_MAPTILER_KEY', {
-    attribution: '© MapTiler © OpenStreetMap contributors'
-  })
-};
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
-const map = L.map('map', {
-  center: [0.8, 110.325],
-  zoom: 13,
-  layers: [basemaps["OpenStreetMap"]],
-  zoomControl: false
-});
-L.control.zoom({ position: 'bottomright' }).addTo(map);
+  <script>
 
-let currentBase = basemaps["OpenStreetMap"], boundaryLayer = null, markers = [];
-let deforestMarkers = [];
-map._hasFitted = false;
-
-fetch('data/CMI.json')
-  .then(res => res.json())
-  .then(json => {
-    boundaryLayer = L.geoJSON(json, { style: { color: "purple", weight: 2, fillOpacity: 0.1 } }).addTo(map);
-    map.whenReady(() => {
-      if (!map._hasFitted && boundaryLayer.getBounds) {
-        map.fitBounds(boundaryLayer.getBounds());
-        map.invalidateSize();
-        map._hasFitted = true;
-      }
-    });
-  });
-
-const baseDiv = document.getElementById("basemapContent");
-Object.keys(basemaps).forEach(name => {
-  const btn = document.createElement("button");
-  btn.textContent = name;
-  btn.className = 'basemap-btn';
-  btn.onclick = () => {
-    if (currentBase) map.removeLayer(currentBase);
-    currentBase = basemaps[name];
-    currentBase.addTo(map);
-    if (boundaryLayer && !map.hasLayer(boundaryLayer)) map.addLayer(boundaryLayer);
+  const basemaps = {
+    "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19, attribution: '© OpenStreetMap contributors'
+    }),
+    "Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
+    "Hillshade": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}'),
+    "Topo": L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png')
   };
-  baseDiv.appendChild(btn);
-});
-
-function togglePanel(id) {
-  const el = document.getElementById(id);
-  el.style.display = el.style.display === "none" ? "block" : "none";
-}
-
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
-let categoryCount = {}, total = 0;
-
-Papa.parse(sheetURL, {
-  download: true, header: true,
-  complete: (results) => {
-    results.data.forEach(row => {
-      const coord = row['data-coordinate'];
-      if (!coord) return;
-      const [lat, lon] = coord.split(',').map(Number);
-      if (isNaN(lat) || isNaN(lon)) return;
-      total++;
-      const cat = row['data-survey-categ'] || "Unknown";
-      categoryCount[cat] = (categoryCount[cat] || 0) + 1;
-
-      const img1 = convertGoogleDriveLink(row['data-documentation-image_1']);
-      const img2 = convertGoogleDriveLink(row['data-documentation-image_2']);
-      const popup = `<div class="popup-content">
-        <h2>${cat} - ${row['data-survey-finding'] || ''}</h2>
-        <p><b>Officer:</b> ${row['data-base_info-nama'] || ''}</p>
-        <p><b>Description:</b> ${row['data-survey-description'] || ''}</p>
-        <p><b>Date:</b> ${row['data-start_date'] || ''}</p>
-        ${img1 ? `<img src="${img1}" onclick="openModal('${img1}')" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
-        ${img2 ? `<img src="${img2}" onclick="openModal('${img2}')" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
-      </div>`;
-      
-      const marker = L.marker([lat, lon]).bindPopup(popup).addTo(map);
-      marker.category = cat;
-      markers.push(marker);
-    });
-
-    document.getElementById("totalPoints").textContent = `Total titik temuan: ${total}`;
-    const labels = Object.keys(categoryCount);
-    const values = Object.values(categoryCount);
-    const colors = generateColors(labels.length);
-
-    let selectedCategory = null;
-    const pieChart = new Chart(document.getElementById("categoryChart"), {
-      type: 'pie',
-      data: { labels, datasets: [{ data: values, backgroundColor: colors }] },
-      options: {
-        plugins: { legend: { position: 'bottom' } },
-        onClick: (evt, els) => {
-          if (!els.length) return;
-          const idx = els[0].index;
-          const cat = labels[idx];
-          selectedCategory = selectedCategory === cat ? null : cat;
-          highlightMarkers(selectedCategory);
-        }
-      }
-    });
-    document.getElementById("resetFilter").onclick = () => { selectedCategory = null; highlightMarkers(null); };
-  }
-});
-
-function highlightMarkers(category){
-  markers.forEach(m => {
-    const opacity = (!category || m.category === category) ? 1 : 0.3;
-    if(m.setOpacity) m.setOpacity(opacity);
-    if(category && m.category !== category) m.closePopup();
+  const map = L.map('map', {
+    center: [0.8, 110.325],
+    zoom: 13,
+    layers: [basemaps["OpenStreetMap"]],
+    zoomControl: false
   });
-}
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-const deforestSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRY1oLCvdfaMj2T63s2tHUwKm3uZw0ml8CVTiiNut2o0Utr6FHCYbrsPU9zGsaNNvDAUNEXE7o0i3tI3/pub?output=csv";
-Papa.parse(deforestSheetURL, { 
-  download: true, header: true, 
-  complete: (results) => {
-    results.data.forEach(row => {
-      const lat = parseFloat(row.latitude);
-      const lon = parseFloat(row.longitude);
-      if (isNaN(lat) || isNaN(lon)) return;
+  let currentBase = basemaps["OpenStreetMap"], boundaryLayer = null, markers = [];
+  let deforestMarkers = [];
+  map._hasFitted = false;
+  fetch('data/CMI.json')
+    .then(res => res.json())
+    .then(json => {
+      boundaryLayer = L.geoJSON(json, { style: { color: "purple", weight: 2, fillOpacity: 0.1 } }).addTo(map);
+      map.whenReady(() => {
+        if (!map._hasFitted && boundaryLayer.getBounds) {
+          map.fitBounds(boundaryLayer.getBounds());
+          map.invalidateSize();
+          map._hasFitted = true;
+        }
+      });
+    });
+  const baseDiv = document.getElementById("basemapContent");
+  Object.keys(basemaps).forEach(name => {
+    const btn = document.createElement("button");
+    btn.textContent = name;
+    btn.className = 'basemap-btn';
+    btn.onclick = () => {
+      if (currentBase) map.removeLayer(currentBase);
+      currentBase = basemaps[name];
+      currentBase.addTo(map);
+      if (boundaryLayer && !map.hasLayer(boundaryLayer)) map.addLayer(boundaryLayer);
+    };
+    baseDiv.appendChild(btn);
+  });
 
-      const popup = `<div class="popup-content">
-        <h3>Deforestation Detected</h3>
-        <p><b>Date:</b> ${row.gfw_integr}</p>
-        <p><b>Month:</b> ${row.month}</p>
-        <p><b>UMD GLAD:</b> ${row.umd_glad_l || 'not_detected'} / ${row.umd_glad_s || 'not_detected'}</p>
-        <p><b>WUR/RADD:</b> ${row.wur_radd_a || '-'}</p>
-        <p><b>Class:</b> ${row.Class23 || '-'}</p>
-      </div>`;
+  function togglePanel(id) {
+    const el = document.getElementById(id);
+    el.style.display = el.style.display === "none" ? "block" : "none";
+  }
 
-      const color = row.Class23 === 'Forest' ? 'orange' : 'gray';
-      const marker = L.circleMarker([lat, lon], { 
-        radius: 3, color, fillColor: color, fillOpacity: 0.3
-      }).bindPopup(popup).addTo(map);
+  const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
+  let categoryCount = {}, total = 0;
 
-      deforestMarkers.push(marker);
+  Papa.parse(sheetURL, {
+    download: true, header: true,
+    complete: (results) => {
+      results.data.forEach(row => {
+        const coord = row['data-coordinate'];
+        if (!coord) return;
+        const [lat, lon] = coord.split(',').map(Number);
+        if (isNaN(lat) || isNaN(lon)) return;
+        total++;
+        const cat = row['data-survey-categ'] || "Unknown";
+        categoryCount[cat] = (categoryCount[cat] || 0) + 1;
+
+        const img1 = convertGoogleDriveLink(row['data-documentation-image_1']);
+        const img2 = convertGoogleDriveLink(row['data-documentation-image_2']);
+        const popup = `<div class="popup-content">
+          <h2>${cat} - ${row['data-survey-finding'] || ''}</h2>
+          <p><b>Officer:</b> ${row['data-base_info-nama'] || ''}</p>
+          <p><b>Description:</b> ${row['data-survey-description'] || ''}</p>
+          <p><b>Date:</b> ${row['data-start_date'] || ''}</p>
+          ${img1 ? `<img src="${img1}" onclick="openModal('${img1}')" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
+          ${img2 ? `<img src="${img2}" onclick="openModal('${img2}')" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
+        </div>`;
+        
+        const marker = L.marker([lat, lon]).bindPopup(popup).addTo(map);
+        marker.category = cat;
+        markers.push(marker);
+      });
+
+      document.getElementById("totalPoints").textContent = `Total titik temuan: ${total}`;
+      const labels = Object.keys(categoryCount);
+      const values = Object.values(categoryCount);
+      const colors = generateColors(labels.length);
+
+      let selectedCategory = null;
+      const pieChart = new Chart(document.getElementById("categoryChart"), {
+        type: 'pie',
+        data: { labels, datasets: [{ data: values, backgroundColor: colors }] },
+        options: {
+          plugins: { legend: { position: 'bottom' } },
+          onClick: (evt, els) => {
+            if (!els.length) return;
+            const idx = els[0].index;
+            const cat = labels[idx];
+            selectedCategory = selectedCategory === cat ? null : cat;
+            highlightMarkers(selectedCategory);
+          }
+        }
+      });
+      document.getElementById("resetFilter").onclick = () => { selectedCategory = null; highlightMarkers(null); };
+    }
+  });
+
+  function highlightMarkers(category){
+    markers.forEach(m => {
+      const opacity = (!category || m.category === category) ? 1 : 0.3;
+      if(m.setOpacity) m.setOpacity(opacity);
+      if(category && m.category !== category) m.closePopup();
     });
   }
-});
 
-function convertGoogleDriveLink(url) {
-  if (!url) return null;
-  const id = url.match(/[-\w]{25,}/);
-  return id ? `https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000` : null;
-}
-function generateColors(n) {
-  const base = ['#ff6666','#66b3ff','#99ff99','#ffcc99','#c299ff','#ff99c2','#ffd966','#a1cfff','#b8ffb0','#ffc2d6'];
-  if (n <= base.length) return base.slice(0,n);
-  return Array.from({length:n},(_,i)=>`hsl(${(i*360/n).toFixed(0)} 70% 60%)`);
-}
+  const deforestSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRY1oLCvdfaMj2T63s2tHUwKm3uZw0ml8CVTiiNut2o0Utr6FHCYbrsPU9zGsaNNvDAUNEXE7o0i3tI/pub?output=csv";
 
-const modal = document.getElementById("imageModal"), modalImg = document.getElementById("modalImage");
-document.getElementById("closeModal").onclick = () => modal.style.display = "none";
-modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
-function openModal(src) { modal.style.display = "flex"; modalImg.src = src; }
+  Papa.parse(deforestSheetURL, { 
+    download: true, header: true, 
+    complete: (results) => {
+      results.data.forEach(row => {
+        const lat = parseFloat(row.latitude);
+        const lon = parseFloat(row.longitude);
+        if (isNaN(lat) || isNaN(lon)) return;
 
-let measureLayer = L.layerGroup().addTo(map);
-let currentLine = null, measuring = false, startMarker = null;
-const btnMeasure = document.getElementById('btnMeasure');
-const btnUndo = document.getElementById('btnUndo');
-const btnClear = document.getElementById('btnClear');
+        const popup = `<div class="popup-content">
+          <h3>Deforestation Detected</h3>
+          <p><b>Date:</b> ${row.gfw_integr}</p>
+          <p><b>Month:</b> ${row.month}</p>
+          <p><b>UMD GLAD:</b> ${row.umd_glad_l || 'not_detected'} / ${row.umd_glad_s || 'not_detected'}</p>
+          <p><b>WUR/RADD:</b> ${row.wur_radd_a || '-'}</p>
+          <p><b>Class:</b> ${row.Class23 || '-'}</p>
+        </div>`;
 
-btnMeasure.onclick = () => {
-  measuring = !measuring;
-  btnMeasure.innerHTML = measuring ? 'Finish Measurement' : 'Measure Distance';
-  if (!measuring && startMarker) {
-    measureLayer.removeLayer(startMarker);
-    startMarker = null;
-    currentLine = null;
-  }
-};
-btnUndo.onclick = () => {
-  if(currentLine){
-    const latlngs = currentLine.getLatLngs();
-    if(latlngs.length>1){
-      latlngs.pop();
-      currentLine.setLatLngs(latlngs);
-      updateDistancePopup(currentLine);
-    } else {
-      measureLayer.removeLayer(currentLine);
-      currentLine = null;
-      if(startMarker) { measureLayer.removeLayer(startMarker); startMarker=null; }
+        const color = row.Class23 === 'Forest' ? 'orange' : 'gray';
+        const marker = L.circleMarker([lat, lon], { 
+          radius: 3, color, fillColor: color, fillOpacity: 0.3
+        }).bindPopup(popup).addTo(map);
+
+        deforestMarkers.push(marker);
+      });
     }
-  }
-};
-btnClear.onclick = () => { measureLayer.clearLayers(); currentLine=null; startMarker=null; };
+  });
 
-function updateDistancePopup(line){
-  const latlngs = line.getLatLngs();
-  let total = 0, popupContent = '<b>Segment Distances:</b><br>';
-  for(let i=1;i<latlngs.length;i++){
-    const d = latlngs[i-1].distanceTo(latlngs[i]);
-    total+=d;
-    popupContent+=`${i}: ${(d/1000).toFixed(3)} km<br>`;
+  function convertGoogleDriveLink(url) {
+    if (!url) return null;
+    const id = url.match(/[-\w]{25,}/);
+    return id ? `https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000` : null;
   }
-  popupContent+=`<hr><b>Total: ${(total/1000).toFixed(3)} km</b>`;
-  const last = latlngs[latlngs.length-1];
-  line.bindPopup(popupContent).openPopup(last);
-}
+  function generateColors(n) {
+    const base = ['#ff6666','#66b3ff','#99ff99','#ffcc99','#c299ff','#ff99c2','#ffd966','#a1cfff','#b8ffb0','#ffc2d6'];
+    if (n <= base.length) return base.slice(0,n);
+    return Array.from({length:n},(_,i)=>`hsl(${(i*360/n).toFixed(0)} 70% 60%)`);
+  }
 
-map.on('click', (e) => {
-  if(!measuring) return;
-  if(!currentLine){
-    startMarker = L.marker(e.latlng).addTo(measureLayer);
-    currentLine = L.polyline([e.latlng], { color:'red' }).addTo(measureLayer);
-  } else {
-    currentLine.addLatLng(e.latlng);
-    updateDistancePopup(currentLine);
+  const modal = document.getElementById("imageModal"), modalImg = document.getElementById("modalImage");
+  document.getElementById("closeModal").onclick = () => modal.style.display = "none";
+  modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
+  function openModal(src) { modal.style.display = "flex"; modalImg.src = src; }
+
+  let measureLayer = L.layerGroup().addTo(map);
+  let currentLine = null, measuring = false, startMarker = null;
+  const btnMeasure = document.getElementById('btnMeasure');
+  const btnUndo = document.getElementById('btnUndo');
+  const btnClear = document.getElementById('btnClear');
+
+  btnMeasure.onclick = () => {
+    measuring = !measuring;
+    btnMeasure.innerHTML = measuring ? 'Finish Measurement' : 'Measure Distance';
+    if (!measuring && startMarker) {
+      measureLayer.removeLayer(startMarker);
+      startMarker = null;
+      currentLine = null;
+    }
+  };
+
+  btnUndo.onclick = () => {
+    if(currentLine){
+      const latlngs = currentLine.getLatLngs();
+      if(latlngs.length>1){
+        latlngs.pop();
+        currentLine.setLatLngs(latlngs);
+        updateDistancePopup(currentLine);
+      } else {
+        measureLayer.removeLayer(currentLine);
+        currentLine = null;
+        if(startMarker) { measureLayer.removeLayer(startMarker); startMarker=null; }
+      }
+    }
+  };
+  btnClear.onclick = () => { measureLayer.clearLayers(); currentLine=null; startMarker=null; };
+
+  function updateDistancePopup(line){
+    const latlngs = line.getLatLngs();
+    let total = 0, popupContent = '<b>Segment Distances:</b><br>';
+    for(let i=1;i<latlngs.length;i++){
+      const d = latlngs[i-1].distanceTo(latlngs[i]);
+      total+=d;
+      popupContent+=`${i}: ${(d/1000).toFixed(3)} km<br>`;
+    }
+    popupContent+=`<hr><b>Total: ${(total/1000).toFixed(3)} km</b>`;
+    const last = latlngs[latlngs.length-1];
+    line.bindPopup(popupContent).openPopup(last);
   }
-});
-</script>
-</body>
-</html>
+
+  map.on('click', (e) => {
+    if(!measuring) return;
+    if(!currentLine){
+      startMarker = L.marker(e.latlng).addTo(measureLayer);
+      currentLine = L.polyline([e.latlng], { color:'red' }).addTo(measureLayer);
+    } else {
+      currentLine.addLatLng(e.latlng);
+      updateDistancePopup(currentLine);
+    }
+  });
+  </script>
+  </body>
+  </html>
