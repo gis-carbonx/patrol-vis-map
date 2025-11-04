@@ -107,12 +107,6 @@
         <li><span style="display:inline-block;width:12px;height:12px;background:gray;margin-right:6px;"></span> Non-Forest Deforestation</li>
       </ul>
     </div>
-
-    <!-- MapTiler toggle control -->
-    <hr>
-    <label style="font-weight:bold;">
-      <input type="checkbox" id="toggleMaptiler" checked> Show MapTiler Layer
-    </label>
   </div>
 </div>
 
@@ -129,7 +123,7 @@
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
 <script>
-// ============ BASEMAP & MAP INITIALIZATION ============
+
 const basemaps = {
   "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19, attribution: '© OpenStreetMap contributors'
@@ -138,7 +132,6 @@ const basemaps = {
   "Hillshade": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}'),
   "Topo": L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png')
 };
-
 const map = L.map('map', {
   center: [0.8, 110.325],
   zoom: 13,
@@ -147,21 +140,6 @@ const map = L.map('map', {
 });
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-// ============ ADD MAPTILER CUSTOM LAYER (ALWAYS ON) ============
-const maptilerLayer = L.maptilerLayer({
-  style: 'https://api.maptiler.com/maps/019a4946-ce24-7a1c-953e-d79c6874ef99/style.json?key=UZQBQFSUleFh5QxjUm5p'
-}).addTo(map);
-maptilerLayer.setOpacity(0.9); // transparency for blending
-
-document.getElementById("toggleMaptiler").addEventListener("change", (e) => {
-  if (e.target.checked) {
-    map.addLayer(maptilerLayer);
-  } else {
-    map.removeLayer(maptilerLayer);
-  }
-});
-
-// ============ LOAD BOUNDARY ============
 let currentBase = basemaps["OpenStreetMap"], boundaryLayer = null, markers = [];
 let deforestMarkers = [];
 map._hasFitted = false;
@@ -177,8 +155,6 @@ fetch('data/CMI.json')
       }
     });
   });
-
-// ============ BASEMAP BUTTONS ============
 const baseDiv = document.getElementById("basemapContent");
 Object.keys(basemaps).forEach(name => {
   const btn = document.createElement("button");
@@ -189,7 +165,6 @@ Object.keys(basemaps).forEach(name => {
     currentBase = basemaps[name];
     currentBase.addTo(map);
     if (boundaryLayer && !map.hasLayer(boundaryLayer)) map.addLayer(boundaryLayer);
-    if (!map.hasLayer(maptilerLayer)) map.addLayer(maptilerLayer); // ensure MapTiler always stays
   };
   baseDiv.appendChild(btn);
 });
@@ -198,8 +173,6 @@ function togglePanel(id) {
   const el = document.getElementById(id);
   el.style.display = el.style.display === "none" ? "block" : "none";
 }
-
-// ============ SURVEY POINTS (GOOGLE SHEET) ============
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 let categoryCount = {}, total = 0;
 
@@ -263,7 +236,6 @@ function highlightMarkers(category){
   });
 }
 
-// ============ DEFORESTATION POINTS ============
 const deforestSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRY1oLCvdfaMj2T63s2tHUwKm3uZw0ml8CVTiiNut2o0Utr6FHCYbrsPU9zGsaNNvDAUNEXE7o0i3tI/pub?output=csv";
 
 Papa.parse(deforestSheetURL, { 
@@ -293,7 +265,6 @@ Papa.parse(deforestSheetURL, {
   }
 });
 
-// ============ UTILITIES ============
 function convertGoogleDriveLink(url) {
   if (!url) return null;
   const id = url.match(/[-\w]{25,}/);
@@ -305,13 +276,11 @@ function generateColors(n) {
   return Array.from({length:n},(_,i)=>`hsl(${(i*360/n).toFixed(0)} 70% 60%)`);
 }
 
-// ============ IMAGE MODAL ============
 const modal = document.getElementById("imageModal"), modalImg = document.getElementById("modalImage");
 document.getElementById("closeModal").onclick = () => modal.style.display = "none";
 modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
 function openModal(src) { modal.style.display = "flex"; modalImg.src = src; }
 
-// ============ MEASUREMENT TOOL ============
 let measureLayer = L.layerGroup().addTo(map);
 let currentLine = null, measuring = false, startMarker = null;
 const btnMeasure = document.getElementById('btnMeasure');
