@@ -140,6 +140,21 @@
   });
   L.control.zoom({ position: 'bottomright' }).addTo(map);
 
+  const lulcTiles = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png', {
+    minZoom: 3,
+    maxZoom: 18,
+    tms: false,
+    attribution: 'LULC Map'
+  }).addTo(map);
+
+  map.on('zoomend', () => {
+    if (map.getZoom() >= 10) {
+      if (!map.hasLayer(lulcTiles)) map.addLayer(lulcTiles);
+    } else {
+      if (map.hasLayer(lulcTiles)) map.removeLayer(lulcTiles);
+    }
+  });
+    
   let currentBase = basemaps["Satellite"], boundaryLayer = null, markers = [];
   let deforestMarkers = [];
   map._hasFitted = false;
