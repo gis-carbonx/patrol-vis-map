@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patrol Monitoring 1</title>
+  <title>Patrol Monitoring 2</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -107,6 +107,11 @@
         <li><span style="display:inline-block;width:12px;height:12px;background:gray;margin-right:6px;"></span> Non-Forest Deforestation</li>
       </ul>
     </div>
+
+    <hr>
+    <label style="font-weight:bold;">
+      <input type="checkbox" id="toggleMaptiler" checked> Show MapTiler Layer
+    </label>
   </div>
 </div>
 
@@ -132,6 +137,7 @@ const basemaps = {
   "Hillshade": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}'),
   "Topo": L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png')
 };
+
 const map = L.map('map', {
   center: [0.8, 110.325],
   zoom: 13,
@@ -139,6 +145,19 @@ const map = L.map('map', {
   zoomControl: false
 });
 L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+const maptilerLayer = L.maptilerLayer({
+  style: 'https://api.maptiler.com/maps/019a4946-ce24-7a1c-953e-d79c6874ef99/style.json?key=UZQBQFSUleFh5QxjUm5p'
+}).addTo(map);
+maptilerLayer.setOpacity(0.9);
+
+document.getElementById("toggleMaptiler").addEventListener("change", (e) => {
+  if (e.target.checked) {
+    map.addLayer(maptilerLayer);
+  } else {
+    map.removeLayer(maptilerLayer);
+  }
+});
 
 let currentBase = basemaps["OpenStreetMap"], boundaryLayer = null, markers = [];
 let deforestMarkers = [];
@@ -155,6 +174,7 @@ fetch('data/CMI.json')
       }
     });
   });
+
 const baseDiv = document.getElementById("basemapContent");
 Object.keys(basemaps).forEach(name => {
   const btn = document.createElement("button");
@@ -165,6 +185,7 @@ Object.keys(basemaps).forEach(name => {
     currentBase = basemaps[name];
     currentBase.addTo(map);
     if (boundaryLayer && !map.hasLayer(boundaryLayer)) map.addLayer(boundaryLayer);
+    if (!map.hasLayer(maptilerLayer)) map.addLayer(maptilerLayer);
   };
   baseDiv.appendChild(btn);
 });
@@ -173,6 +194,7 @@ function togglePanel(id) {
   const el = document.getElementById(id);
   el.style.display = el.style.display === "none" ? "block" : "none";
 }
+
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 let categoryCount = {}, total = 0;
 
