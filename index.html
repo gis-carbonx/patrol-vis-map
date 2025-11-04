@@ -16,10 +16,10 @@
     <div id="map"></div>
     <script>
       const key = 'UZQBQFSUleFh5QxjUm5p';
-      const map = L.map('map').setView([0, 0], 1);
+      const map = L.map('map').setView([-7.8, 110.36], 12); // contoh Yogyakarta
       const mtLayer = L.maptiler.maptilerLayer({
         apiKey: key,
-        style: L.maptiler."019a4946-ce24-7a1c-953e-d79c6874ef99", //optional
+        style: `https://api.maptiler.com/maps/019a4946-ce24-7a1c-953e-d79c6874ef99/style.json?key=${key}`,
       }).addTo(map);
     </script>
   </body>
