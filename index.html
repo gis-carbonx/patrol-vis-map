@@ -290,7 +290,7 @@
 
         const color = row.Class23 === 'Forest' ? 'orange' : 'black';
         const marker = L.circleMarker([lat, lon], { 
-          radius: 3, color, fillColor: color, fillOpacity: 0.3
+          radius: 2, color, fillColor: color, fillOpacity: 0.1
         }).bindPopup(popup).addTo(map);
 
         deforestMarkers.push(marker);
