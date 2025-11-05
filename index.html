@@ -196,8 +196,10 @@
       if (currentBase) map.removeLayer(currentBase);
       currentBase = basemaps[name];
       currentBase.addTo(map);
+      if (!map.hasLayer(lulcTiles)) map.addLayer(lulcTiles);
       if (boundaryLayer && !map.hasLayer(boundaryLayer)) map.addLayer(boundaryLayer);
     };
+
     baseDiv.appendChild(btn);
   });
 
