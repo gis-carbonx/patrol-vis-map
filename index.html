@@ -162,8 +162,13 @@
     maxZoom: 18,
     tms: false,
     attribution: 'LULC Map'
-  }).addTo(map);
+  });
 
+  lulcTiles.on('add', () => {
+    lulcTiles.bringToFront();
+  });
+  lulcTiles.addTo(map);
+    
   map.on('zoomend', () => {
     if (map.getZoom() >= 10) {
       if (!map.hasLayer(lulcTiles)) map.addLayer(lulcTiles);
@@ -192,13 +197,14 @@
     const btn = document.createElement("button");
     btn.textContent = name;
     btn.className = 'basemap-btn';
-    btn.onclick = () => {
-      if (currentBase) map.removeLayer(currentBase);
-      currentBase = basemaps[name];
-      currentBase.addTo(map);
-      if (!map.hasLayer(lulcTiles)) map.addLayer(lulcTiles);
-      if (boundaryLayer && !map.hasLayer(boundaryLayer)) map.addLayer(boundaryLayer);
-    };
+  btn.onclick = () => {
+    if (currentBase) map.removeLayer(currentBase);
+    currentBase = basemaps[name];
+    currentBase.addTo(map);
+    if (!map.hasLayer(lulcTiles)) map.addLayer(lulcTiles);
+    lulcTiles.bringToFront();
+    if (boundaryLayer) boundaryLayer.bringToFront();
+  };
 
     baseDiv.appendChild(btn);
   });
