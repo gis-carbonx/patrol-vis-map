@@ -118,8 +118,8 @@
       </div>
         <b>Legend:</b>
         <ul style="list-style:none; padding-left:0; font-size:14px;">
-          <li><img src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png" 
-                  style="width:16px;height:26px;vertical-align:middle;margin-right:6px;"> Survey Points</li>
+          <li><img src="data/point-of-interest.png" 
+             style="width:18px;height:18px;vertical-align:middle;margin-right:6px;"> Survey Points</li>
           <li><span style="display:inline-block;width:12px;height:12px;background:orange;margin-right:6px;"></span> Forest Deforestation</li>
           <li><span style="display:inline-block;width:12px;height:12px;background:black;margin-right:6px;"></span> Non-Forest Deforestation</li>
         </ul>
@@ -239,8 +239,17 @@
           ${img1 ? `<img src="${img1}" onclick="openModal('${img1}')" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
           ${img2 ? `<img src="${img2}" onclick="openModal('${img2}')" onerror="this.src='https://via.placeholder.com/250x150?text=Image+Not+Found';">` : ''}
         </div>`;
+      
+        const flagIcon = L.icon({
+          iconUrl: './data/point-of-interest.png',
+          iconSize: [24, 24],
+          iconAnchor: [12, 24],
+          popupAnchor: [0, -24]
+        });
+        const marker = L.marker([lat, lon], { icon: flagIcon })
+          .bindPopup(popup)
+          .addTo(map);
         
-        const marker = L.marker([lat, lon]).bindPopup(popup).addTo(map);
         marker.category = cat;
         markers.push(marker);
       });
