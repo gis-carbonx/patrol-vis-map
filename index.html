@@ -263,7 +263,7 @@
 
   function highlightMarkers(category){
     markers.forEach(m => {
-      const opacity = (!category || m.category === category) ? 1 : 0.3;
+      const opacity = (!category || m.category === category) ? 1 : 0.1;
       if(m.setOpacity) m.setOpacity(opacity);
       if(category && m.category !== category) m.closePopup();
     });
