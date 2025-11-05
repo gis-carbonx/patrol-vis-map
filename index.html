@@ -121,7 +121,7 @@
           <li><img src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png" 
                   style="width:16px;height:26px;vertical-align:middle;margin-right:6px;"> Survey Points</li>
           <li><span style="display:inline-block;width:12px;height:12px;background:orange;margin-right:6px;"></span> Forest Deforestation</li>
-          <li><span style="display:inline-block;width:12px;height:12px;background:gray;margin-right:6px;"></span> Non-Forest Deforestation</li>
+          <li><span style="display:inline-block;width:12px;height:12px;background:black;margin-right:6px;"></span> Non-Forest Deforestation</li>
         </ul>
       </div>
     </div>
@@ -288,7 +288,7 @@
           <p><b>Class:</b> ${row.Class23 || '-'}</p>
         </div>`;
 
-        const color = row.Class23 === 'Forest' ? 'orange' : 'gray';
+        const color = row.Class23 === 'Forest' ? 'orange' : 'black';
         const marker = L.circleMarker([lat, lon], { 
           radius: 3, color, fillColor: color, fillOpacity: 0.3
         }).bindPopup(popup).addTo(map);
