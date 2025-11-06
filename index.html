@@ -185,7 +185,7 @@
   fetch('data/CMI.json')
     .then(res => res.json())
     .then(json => {
-      boundaryLayer = L.geoJSON(json, { style: { color: "purple", weight: 2, fillOpacity: 0.1 } }).addTo(map);
+      boundaryLayer = L.geoJSON(json, { style: { color: "purple", weight: 4, fillOpacity: 0 } }).addTo(map);
       map.whenReady(() => {
         if (!map._hasFitted && boundaryLayer.getBounds) {
           map.fitBounds(boundaryLayer.getBounds());
