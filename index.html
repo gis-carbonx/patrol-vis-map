@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Patrol x Monitoring</title>
+<title>Patrol Monitoring</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -21,12 +21,25 @@ position:absolute;
 top:20px;
 right:20px;
 z-index:1000;
-width:330px;
-background:rgba(255,255,255,0.85);
+width:340px;
+background:rgba(255,255,255,0.88);
 backdrop-filter:blur(14px);
-border-radius:16px;
+border-radius:18px;
 padding:15px;
-box-shadow:0 8px 25px rgba(0,0,0,0.15);
+box-shadow:0 10px 30px rgba(0,0,0,0.15);
+}
+
+/* FILTER */
+.filter-box{
+display:flex;
+gap:6px;
+margin-bottom:10px;
+}
+.filter-box input{
+flex:1;
+padding:7px;
+border-radius:6px;
+border:1px solid #ccc;
 }
 
 /* TOTAL */
@@ -35,54 +48,45 @@ display:flex;
 justify-content:center;
 align-items:center;
 gap:10px;
+margin-bottom:8px;
 }
-.total-main{font-size:28px;font-weight:600;}
+.total-main{font-size:30px;font-weight:700;}
 .total-sub{font-size:18px;color:#FF5722;display:none;}
-
-/* FILTER */
-.filter-box{
-display:flex;
-gap:5px;
-margin-bottom:10px;
-}
-.filter-box input{
-flex:1;
-padding:6px;
-border-radius:6px;
-border:1px solid #ccc;
-}
 
 /* BUTTON */
 #resetFilter{
-margin-top:8px;
+margin-top:10px;
 width:100%;
-padding:7px;
+padding:8px;
 border:none;
-border-radius:6px;
+border-radius:8px;
 background:#111;
 color:white;
+cursor:pointer;
 }
 
 /* TOGGLE */
 .toggle{
 display:flex;
 justify-content:space-between;
-margin-top:8px;
+margin-top:10px;
 font-size:13px;
 }
 
-/* ===== POPUP ===== */
+/* ===== POPUP STYLE ===== */
 .leaflet-popup-content-wrapper{
-border-radius:14px;
+border-radius:16px;
 padding:0;
 overflow:hidden;
+width:260px !important;
 }
 
+/* IMAGE FIX SIZE (NOT RATIO) */
 .popup-img-container{
 width:260px;
 height:180px;
-overflow:hidden;
 background:#eee;
+overflow:hidden;
 }
 .popup-img{
 width:100%;
@@ -92,18 +96,18 @@ cursor:pointer;
 }
 
 /* CONTENT */
-.popup-body{padding:10px;}
+.popup-body{padding:12px;}
 .popup-category{
 font-size:10px;
-font-weight:600;
+font-weight:700;
 color:#888;
 text-transform:uppercase;
-margin-bottom:2px;
+letter-spacing:0.5px;
 }
 .popup-title{
 font-size:14px;
-font-weight:600;
-margin-bottom:6px;
+font-weight:700;
+margin:4px 0 6px;
 }
 .popup-meta{
 font-size:11px;
@@ -112,24 +116,25 @@ margin-bottom:6px;
 }
 .popup-desc{
 font-size:12px;
-line-height:1.4;
+line-height:1.45;
+color:#333;
 }
 
-/* MODAL */
+/* MODAL ZOOM */
 .img-modal{
 display:none;
 position:fixed;
 z-index:9999;
 width:100%;
 height:100%;
-background:rgba(0,0,0,0.85);
+background:rgba(0,0,0,0.9);
 justify-content:center;
 align-items:center;
 }
 .img-modal img{
 max-width:90%;
 max-height:90%;
-border-radius:10px;
+border-radius:12px;
 }
 </style>
 </head>
@@ -157,6 +162,7 @@ border-radius:10px;
 <div class="toggle"><span>Points</span><input type="checkbox" id="togglePoints" checked></div>
 </div>
 
+<!-- IMAGE MODAL -->
 <div id="modal" class="img-modal">
 <img id="modalImg">
 </div>
@@ -171,7 +177,7 @@ const lulc=L.tileLayer('./data/Tiles/{z}/{x}/{y}.png').addTo(map);
 let boundaryLayer;
 let pointLayer=L.layerGroup().addTo(map);
 
-/* BOUNDARY FIX */
+/* BOUNDARY (TRANSPARENT FILL) */
 fetch('data/CMI.json')
 .then(r=>r.json())
 .then(j=>{
@@ -200,13 +206,14 @@ updateMap();
 }
 });
 
-/* DATE */
-function parseDate(s){
-const d=new Date(s);
+/* DATE SAFE PARSER */
+function parseDate(val){
+if(!val) return null;
+const d=new Date(val);
 return isNaN(d)?null:d;
 }
 
-/* UPDATE */
+/* MAIN UPDATE */
 function updateMap(){
 
 pointLayer.clearLayers();
@@ -235,6 +242,7 @@ total++;
 
 const img=convert(r['data-documentation-image_1']);
 
+/* POPUP MODERN */
 const popup=`
 <div>
 ${img?`<div class="popup-img-container">
@@ -244,10 +252,12 @@ ${img?`<div class="popup-img-container">
 <div class="popup-body">
 <div class="popup-category">${cat}</div>
 <div class="popup-title">${finding}</div>
+
 <div class="popup-meta">
-Officer: ${r['data-base_info-nama']||'-'}<br>
-Date: ${r['data-start_date']||'-'}
+<b>Officer:</b> ${r['data-base_info-nama']||'-'}<br>
+<b>Date:</b> ${r['data-start_date']||'-'}
 </div>
+
 <div class="popup-desc">
 ${r['data-survey-description']||''}
 </div>
@@ -260,6 +270,7 @@ pointLayer.addLayer(m);
 
 });
 
+/* TOTAL */
 totalMain.innerText=total;
 
 /* CHART */
@@ -281,7 +292,7 @@ highlight(labels[el[0].index],values[el[0].index]);
 });
 }
 
-/* FILTER */
+/* FILTER CATEGORY */
 function highlight(cat,count){
 if(!cat){
 totalSub.style.display='none';
@@ -304,7 +315,7 @@ updateMap();
 startDate.onchange=updateMap;
 endDate.onchange=updateMap;
 
-/* LAYER */
+/* LAYER CONTROL */
 toggleLulc.onchange=e=>e.target.checked?map.addLayer(lulc):map.removeLayer(lulc);
 toggleBoundary.onchange=e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
 togglePoints.onchange=e=>e.target.checked?map.addLayer(pointLayer):map.removeLayer(pointLayer);
@@ -317,6 +328,7 @@ return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null;
 }
 function gen(n){return Array.from({length:n},(_,i)=>`hsl(${i*360/n},70%,60%)`)}
 
+/* IMAGE CLICK → MODAL */
 document.addEventListener('click',function(e){
 if(e.target.classList.contains('zoomable')){
 modal.style.display='flex';
