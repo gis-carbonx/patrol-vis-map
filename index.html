@@ -3,9 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Patrol Monitoring</title>
-
-<link rel="icon" type="image/png" href="./data/CMI-Brandmark-FullColor-BlackBG.png">
+<title>Patrol 2 Monitoring</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -13,124 +11,112 @@
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-html, body {
-  height: 100%;
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-}
-#map {
-  height: 100%;
-  width: 100%;
-}
+html, body { height:100%; margin:0; font-family:'Segoe UI'; }
+#map { height:100%; }
 
 /* 🔥 TOP TITLE */
 #map-title {
-  position: absolute;
-  top: 15px;
-  left: 20px;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 20px;
-  font-weight: 600;
-  background: rgba(255,255,255,0.7);
-  backdrop-filter: blur(10px);
-  padding: 8px 14px;
-  border-radius: 12px;
+  position:absolute; top:15px; left:20px; z-index:1000;
+  display:flex; align-items:center; gap:10px;
+  background:rgba(255,255,255,0.7);
+  backdrop-filter:blur(10px);
+  padding:8px 14px;
+  border-radius:12px;
+  font-weight:600;
 }
-#map-title img { height: 30px; }
 
-/* 🔥 GLASS PANEL */
+/* 🔥 PANEL RIGHT TOP */
 .panel {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
+  position:absolute;
+  top:15px;
+  right:15px;
+  z-index:1000;
 
-  width: 340px;
-  background: rgba(255,255,255,0.75);
-  backdrop-filter: blur(14px);
-  border-radius: 16px;
-  padding: 15px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  width:300px;
+  background:rgba(255,255,255,0.75);
+  backdrop-filter:blur(14px);
+  border-radius:16px;
+  padding:15px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.15);
 }
 
-/* 🔥 TOTAL CARD */
+/* 🔢 TOTAL */
 .total-box {
-  text-align: center;
-  margin-bottom: 10px;
+  text-align:center;
+  transition:all 0.3s ease;
 }
-.total-box h1 {
-  margin: 0;
-  font-size: 28px;
+.total-main {
+  font-size:26px;
+  font-weight:700;
 }
-.total-box span {
-  font-size: 13px;
-  color: #666;
+.total-sub {
+  font-size:14px;
+  color:#444;
+  opacity:0;
+  transform:translateY(-5px);
+}
+.total-sub.show {
+  opacity:1;
+  transform:translateY(0);
 }
 
-/* 🔥 BUTTON */
+/* 📅 DATE FILTER */
+.date-filter {
+  display:flex;
+  gap:5px;
+  margin-bottom:10px;
+}
+.date-filter input {
+  width:100%;
+  padding:6px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  font-size:12px;
+}
+
+/* BUTTON */
 #resetFilter {
-  margin-top: 10px;
-  width: 100%;
-  padding: 8px;
-  border: none;
-  border-radius: 8px;
-  background: #111;
-  color: white;
-  cursor: pointer;
-}
-#resetFilter:hover {
-  background: #333;
+  margin-top:8px;
+  width:100%;
+  padding:7px;
+  border:none;
+  border-radius:8px;
+  background:#111;
+  color:white;
+  cursor:pointer;
 }
 
-/* 🔥 POPUP MODERN */
+/* POPUP */
 .leaflet-popup-content-wrapper {
-  border-radius: 14px;
-  padding: 0;
-  overflow: hidden;
+  border-radius:14px;
+  padding:0;
+  overflow:hidden;
 }
-.popup-card {
-  font-family: 'Segoe UI';
-}
-.popup-img {
-  width: 100%;
-  height: 140px;
-  object-fit: cover;
+.popup-card img {
+  width:100%;
+  height:140px;
+  object-fit:cover;
 }
 .popup-body {
-  padding: 10px;
+  padding:10px;
 }
-.popup-title {
-  font-weight: 600;
-  margin-bottom: 5px;
-}
-.popup-meta {
-  font-size: 12px;
-  color: #666;
-}
-.popup-desc {
-  font-size: 13px;
-  margin-top: 6px;
-}
+.popup-title { font-weight:600; }
+.popup-desc { font-size:13px; }
 
-/* 🔥 IMAGE MODAL */
+/* MODAL */
 .img-modal {
-  display: none;
-  position: fixed;
-  z-index: 9999;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.8);
-  justify-content: center;
-  align-items: center;
+  display:none;
+  position:fixed;
+  z-index:9999;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.8);
+  justify-content:center;
+  align-items:center;
 }
 .img-modal img {
-  max-width: 90%;
-  max-height: 90%;
-  border-radius: 10px;
+  max-width:90%;
+  max-height:90%;
 }
 </style>
 </head>
@@ -139,16 +125,20 @@ html, body {
 
 <div id="map"></div>
 
-<div id="map-title">
-  <img src="data/CMI-Brandmark-FullColor-BlackBG.png">
-  Patrol Monitoring
-</div>
+<div id="map-title">Patrol Monitoring</div>
 
-<!-- 🔥 SIMPLE MODERN PANEL -->
 <div class="panel">
+  
+  <!-- 📅 DATE FILTER -->
+  <div class="date-filter">
+    <input type="date" id="startDate">
+    <input type="date" id="endDate">
+  </div>
+
+  <!-- 🔢 TOTAL -->
   <div class="total-box">
-    <h1 id="totalPoints">-</h1>
-    <span>Total Observations</span>
+    <div class="total-main" id="totalPoints">-</div>
+    <div class="total-sub" id="categoryCount"></div>
   </div>
 
   <canvas id="categoryChart" height="200"></canvas>
@@ -161,148 +151,159 @@ html, body {
 
 <script>
 
-/* ================= MAP ================= */
+/* MAP */
 const map = L.map('map', {
-  center: [0.8, 110.325],
-  zoom: 13,
-  zoomControl: false
+  center:[0.8,110.325],
+  zoom:13
 });
-L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-/* SINGLE BASEMAP (SIMPLE) */
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}')
 .addTo(map);
 
-/* LULC */
-const lulcTiles = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png');
-lulcTiles.addTo(map);
+/* GLOBAL */
+let markers = [];
+let rawData = [];
+let selectedCategory = null;
 
-/* ================= BOUNDARY ================= */
-fetch('data/CMI.json')
-.then(res => res.json())
-.then(json => {
-  const boundary = L.geoJSON(json, {
-    style: { color: "#7B1FA2", weight: 3 }
-  }).addTo(map);
-  map.fitBounds(boundary.getBounds());
-});
-
-/* ================= DATA ================= */
+/* LOAD DATA */
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 
-let markers = [];
-let categoryCount = {};
-let total = 0;
-
 Papa.parse(sheetURL, {
-  download: true,
-  header: true,
-  complete: (results) => {
-
-    results.data.forEach(row => {
-      const coord = row['data-coordinate'];
-      if (!coord) return;
-
-      const [lat, lon] = coord.split(',').map(Number);
-      if (isNaN(lat)) return;
-
-      total++;
-      const cat = row['data-survey-categ'] || "Unknown";
-      categoryCount[cat] = (categoryCount[cat] || 0) + 1;
-
-      const img = convertGoogleDriveLink(row['data-documentation-image_1']);
-
-      const popup = `
-      <div class="popup-card">
-        ${img ? `<img class="popup-img" src="${img}" onclick="openModal('${img}')">` : ''}
-        <div class="popup-body">
-          <div class="popup-title">${cat}</div>
-          <div class="popup-meta">${row['data-base_info-nama'] || ''}</div>
-          <div class="popup-desc">${row['data-survey-description'] || ''}</div>
-        </div>
-      </div>`;
-
-      const marker = L.marker([lat, lon])
-        .bindPopup(popup)
-        .addTo(map);
-
-      marker.category = cat;
-      markers.push(marker);
-    });
-
-    document.getElementById("totalPoints").innerText = total;
-
-    createChart();
+  download:true,
+  header:true,
+  complete:(res)=>{
+    rawData = res.data;
+    applyFilter();
   }
 });
 
-/* ================= CHART ================= */
-function createChart() {
+/* FILTER FUNCTION */
+function applyFilter(){
+
+  markers.forEach(m=>map.removeLayer(m));
+  markers = [];
+
+  const start = document.getElementById('startDate').value;
+  const end = document.getElementById('endDate').value;
+
+  let categoryCount = {};
+  let total = 0;
+
+  rawData.forEach(row=>{
+    const coord = row['data-coordinate'];
+    if(!coord) return;
+
+    const date = row['data-start_date'];
+    if(start && date < start) return;
+    if(end && date > end) return;
+
+    const [lat,lon] = coord.split(',').map(Number);
+    if(isNaN(lat)) return;
+
+    total++;
+
+    const cat = row['data-survey-categ'] || "Unknown";
+    categoryCount[cat]=(categoryCount[cat]||0)+1;
+
+    const img = convertGoogleDriveLink(row['data-documentation-image_1']);
+
+    const popup = `
+    <div class="popup-card">
+      ${img ? `<img src="${img}" onclick="openModal('${img}')">` : ''}
+      <div class="popup-body">
+        <div class="popup-title">${cat}</div>
+        <div class="popup-desc">${row['data-survey-description']||''}</div>
+      </div>
+    </div>`;
+
+    const m = L.marker([lat,lon]).bindPopup(popup).addTo(map);
+    m.category = cat;
+    markers.push(m);
+  });
+
+  document.getElementById("totalPoints").innerText = total;
+
+  updateChart(categoryCount);
+}
+
+/* CHART */
+let chart;
+
+function updateChart(categoryCount){
   const labels = Object.keys(categoryCount);
   const values = Object.values(categoryCount);
 
-  let selectedCategory = null;
+  if(chart) chart.destroy();
 
-  new Chart(document.getElementById("categoryChart"), {
-    type: 'pie',
-    data: {
+  chart = new Chart(document.getElementById("categoryChart"),{
+    type:'pie',
+    data:{
       labels,
-      datasets: [{
-        data: values,
-        backgroundColor: generateColors(labels.length)
-      }]
+      datasets:[{data:values,backgroundColor:generateColors(labels.length)}]
     },
-    options: {
-      plugins: {
-        legend: { position: 'bottom' }
-      },
-      onClick: (evt, el) => {
-        if (!el.length) return;
+    options:{
+      plugins:{legend:{position:'bottom'}},
+      onClick:(evt,el)=>{
+        if(!el.length) return;
+
         const idx = el[0].index;
         const cat = labels[idx];
 
-        selectedCategory = selectedCategory === cat ? null : cat;
+        selectedCategory = selectedCategory===cat ? null : cat;
+
         highlightMarkers(selectedCategory);
+
+        const sub = document.getElementById("categoryCount");
+
+        if(selectedCategory){
+          sub.innerText = `${cat}: ${values[idx]}`;
+          sub.classList.add("show");
+        }else{
+          sub.classList.remove("show");
+        }
       }
     }
   });
-
-  document.getElementById("resetFilter").onclick = () => {
-    selectedCategory = null;
-    highlightMarkers(null);
-  };
 }
 
-/* ================= FILTER ================= */
-function highlightMarkers(category) {
-  markers.forEach(m => {
-    const visible = !category || m.category === category;
-    m.setOpacity(visible ? 1 : 0.2);
+/* FILTER MARKER */
+function highlightMarkers(cat){
+  markers.forEach(m=>{
+    const show = !cat || m.category===cat;
+    m.setOpacity(show?1:0.2);
   });
 }
 
-/* ================= UTIL ================= */
-function convertGoogleDriveLink(url) {
-  if (!url) return null;
-  const id = url.match(/[-\w]{25,}/);
-  return id ? `https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000` : null;
-}
+/* DATE EVENT */
+document.getElementById('startDate').onchange = applyFilter;
+document.getElementById('endDate').onchange = applyFilter;
 
-function generateColors(n) {
+/* RESET */
+document.getElementById("resetFilter").onclick = ()=>{
+  selectedCategory=null;
+  document.getElementById("categoryCount").classList.remove("show");
+  highlightMarkers(null);
+};
+
+/* UTIL */
+function convertGoogleDriveLink(url){
+  if(!url) return null;
+  const id=url.match(/[-\w]{25,}/);
+  return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null;
+}
+function generateColors(n){
   return Array.from({length:n},(_,i)=>`hsl(${i*360/n},70%,60%)`);
 }
 
-/* ================= IMAGE MODAL ================= */
-const modal = document.getElementById("imageModal");
-const modalImg = document.getElementById("modalImage");
-
+/* MODAL */
+const modal=document.getElementById("imageModal");
+const modalImg=document.getElementById("modalImage");
 function openModal(src){
-  modal.style.display = "flex";
-  modalImg.src = src;
+  modal.style.display="flex";
+  modalImg.src=src;
 }
-modal.onclick = () => modal.style.display = "none";
+modal.onclick=()=>modal.style.display="none";
 
 </script>
-
 </body>
 </html>
