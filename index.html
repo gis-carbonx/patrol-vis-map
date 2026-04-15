@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Patrol 2</title>
+<title>Patrol Dashboard</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -14,82 +14,45 @@
 html, body { height: 100%; margin: 0; font-family: 'Inter', sans-serif; }
 #map { height: 100%; width: 100%; }
 
-/* SIDEBAR MODERN */
+/* SIDEBAR */
 #sidebar {
   position: absolute;
   top: 0;
   left: 0;
   height: 100%;
-  width: 320px;
-  background: rgba(255,255,255,0.7);
-  backdrop-filter: blur(14px);
+  width: 300px;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
   box-shadow: 4px 0 20px rgba(0,0,0,0.2);
-  padding: 20px;
+  padding: 15px;
   overflow-y: auto;
   z-index: 1000;
+  transition: transform 0.3s ease;
 }
 
-#map-title {
+#sidebar.hidden {
+  transform: translateX(-100%);
+}
+
+#toggleSidebar {
   position: absolute;
   top: 20px;
-  right: 20px;
-  font-size: 22px;
-  font-weight: 700;
-  background: rgba(0,0,0,0.6);
+  left: 310px;
+  z-index: 1100;
+  background: #111;
   color: white;
-  padding: 10px 16px;
-  border-radius: 12px;
-}
-
-.section-title {
-  font-weight: 700;
-  margin-top: 15px;
-  margin-bottom: 5px;
-}
-
-button {
-  width: 100%;
-  margin-top: 6px;
-  padding: 8px;
-  border-radius: 10px;
   border: none;
-  background: #1f2937;
-  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
   cursor: pointer;
 }
-button:hover { background: #111827; }
 
-.legend-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 5px;
-  font-size: 13px;
-}
-.legend-color {
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  margin-right: 6px;
-}
+.section-title { font-weight: 700; margin-top: 10px; }
 
-/* FLOAT BUTTON */
-.fab {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+.legend-item { display:flex; align-items:center; font-size:13px; margin:3px 0; }
+.legend-color { width:12px; height:12px; margin-right:6px; border-radius:3px; }
 
-.fab button {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  font-size: 18px;
-}
-
-canvas { margin-top: 10px; }
+canvas { margin-top:10px; }
 
 </style>
 </head>
@@ -97,68 +60,56 @@ canvas { margin-top: 10px; }
 <body>
 <div id="map"></div>
 
-<div id="map-title">Patrol Intelligence</div>
+<button id="toggleSidebar">☰</button>
 
-<!-- SIDEBAR -->
 <div id="sidebar">
 
   <div class="section-title">Statistics</div>
   <p id="totalPoints">Total: -</p>
   <canvas id="chart"></canvas>
-  <button id="resetFilter">Reset Filter</button>
+
+  <div class="section-title">Layer Control</div>
+  <label><input type="checkbox" id="togglePoints" checked> Patrol Points</label><br>
+  <label><input type="checkbox" id="toggleLULC" checked> LULC</label><br>
+  <label><input type="checkbox" id="toggleGrid" checked> Grid</label>
 
   <div class="section-title">Legend</div>
-  <div id="legend">
-    <div class="legend-item"><div class="legend-color" style="background:red"></div>Illegal Logging</div>
-    <div class="legend-item"><div class="legend-color" style="background:green"></div>Wildlife</div>
-    <div class="legend-item"><div class="legend-color" style="background:orange"></div>Encroachment</div>
-    <div class="legend-item"><div class="legend-color" style="background:blue"></div>Other</div>
-  </div>
+  <div class="legend-item"><div class="legend-color" style="background:red"></div>Illegal Logging</div>
+  <div class="legend-item"><div class="legend-color" style="background:green"></div>Wildlife</div>
+  <div class="legend-item"><div class="legend-color" style="background:orange"></div>Encroachment</div>
+  <div class="legend-item"><div class="legend-color" style="background:blue"></div>Other</div>
 
-  <div class="section-title">LULC Opacity</div>
-  <input id="opacitySlider" type="range" min="0" max="1" step="0.1" value="1">
-
-  <div class="section-title">Basemap</div>
-  <div id="basemapList"></div>
-
-</div>
-
-<div class="fab">
-  <button id="btnMeasure">📏</button>
-  <button id="btnClear">🗑</button>
 </div>
 
 <script>
 
-const map = L.map('map', { center: [0.8,110.325], zoom: 13, preferCanvas:true });
+const map = L.map('map', { center:[0.8,110.325], zoom:13, preferCanvas:true });
 
-const basemaps = {
-  "Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
-  "OSM": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
-};
+// BASEMAP FIXED
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
 
-basemaps["Satellite"].addTo(map);
+// LAYERS
+const lulc = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png');
+const gridLayer = L.geoJSON(null,{style:{color:'#555',weight:1,fillOpacity:0}});
+const pointLayer = L.layerGroup();
 
-Object.keys(basemaps).forEach(name=>{
-  const btn=document.createElement('button');
-  btn.innerText=name;
-  btn.onclick=()=>{
-    Object.values(basemaps).forEach(l=>map.removeLayer(l));
-    basemaps[name].addTo(map);
-  };
-  document.getElementById('basemapList').appendChild(btn);
+lulc.addTo(map);
+gridLayer.addTo(map);
+pointLayer.addTo(map);
+
+// LOAD GRID (FIX GEOREFERENCE)
+fetch('./data/grid2x2.json')
+.then(r=>r.json())
+.then(j=>{
+  gridLayer.addData(j);
 });
 
-// LULC
-const lulc = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png').addTo(map);
-document.getElementById('opacitySlider').oninput=e=> lulc.setOpacity(e.target.value);
-
-// Boundary
+// BOUNDARY (FIX FIT ISSUE)
 fetch('data/CMI.json')
 .then(r=>r.json())
 .then(j=>{
   const layer=L.geoJSON(j,{color:'purple'}).addTo(map);
-  map.fitBounds(layer.getBounds());
+  map.fitBounds(layer.getBounds(), {padding:[20,20]});
 });
 
 // DATA
@@ -172,7 +123,7 @@ Papa.parse(sheetURL,{
   res.data.forEach(row=>{
     if(!row['data-coordinate']) return;
     const [lat,lon]=row['data-coordinate'].split(',').map(Number);
-    if(isNaN(lat)) return;
+    if(isNaN(lat)||isNaN(lon)) return;
 
     total++;
     const cat=row['data-survey-categ']||"Unknown";
@@ -182,43 +133,34 @@ Papa.parse(sheetURL,{
       radius:6,
       color:getColor(cat),
       fillOpacity:0.9
-    }).addTo(map);
+    });
 
     marker.bindPopup(`<b>${cat}</b><br>${row['data-survey-description']||''}`);
     marker.category=cat;
+
+    pointLayer.addLayer(marker);
     markers.push(marker);
   });
 
   document.getElementById('totalPoints').innerText=`Total: ${total}`;
 
-  const labels=Object.keys(categoryCount);
-  const values=Object.values(categoryCount);
-
-  const chart=new Chart(document.getElementById('chart'),{
-    type:'doughnut',
-    data:{labels,datasets:[{data:values}]}
+  // MODERN BAR CHART
+  new Chart(document.getElementById('chart'),{
+    type:'bar',
+    data:{
+      labels:Object.keys(categoryCount),
+      datasets:[{
+        data:Object.values(categoryCount),
+        borderRadius:8
+      }]
+    },
+    options:{
+      plugins:{legend:{display:false}},
+      scales:{y:{beginAtZero:true}}
+    }
   });
-
-  let selected=null;
-  chart.options.onClick=(e,el)=>{
-    if(!el.length) return;
-    const cat=labels[el[0].index];
-    selected=selected===cat?null:cat;
-    filter(cat);
-  };
-
-  document.getElementById('resetFilter').onclick=()=>{
-    selected=null; filter(null);
-  };
  }
 });
-
-function filter(cat){
- markers.forEach(m=>{
-  const show=!cat||m.category===cat;
-  m.setStyle({opacity:show?1:0.1, fillOpacity:show?0.9:0.1});
- });
-}
 
 function getColor(cat){
  const colors={
@@ -229,15 +171,29 @@ function getColor(cat){
  return colors[cat]||"blue";
 }
 
-// MEASURE SIMPLE
-let line=null;
-map.on('click',e=>{
- if(!line){ line=L.polyline([e.latlng]).addTo(map); }
- else{ line.addLatLng(e.latlng); }
-});
+// LAYER CONTROL
 
-document.getElementById('btnClear').onclick=()=>{
- if(line){ map.removeLayer(line); line=null; }
+document.getElementById('togglePoints').onchange=e=>{
+  if(e.target.checked) map.addLayer(pointLayer);
+  else map.removeLayer(pointLayer);
+};
+
+document.getElementById('toggleLULC').onchange=e=>{
+  if(e.target.checked) map.addLayer(lulc);
+  else map.removeLayer(lulc);
+};
+
+document.getElementById('toggleGrid').onchange=e=>{
+  if(e.target.checked) map.addLayer(gridLayer);
+  else map.removeLayer(gridLayer);
+};
+
+// SIDEBAR TOGGLE
+const sidebar=document.getElementById('sidebar');
+const toggleBtn=document.getElementById('toggleSidebar');
+
+toggleBtn.onclick=()=>{
+  sidebar.classList.toggle('hidden');
 };
 
 </script>
