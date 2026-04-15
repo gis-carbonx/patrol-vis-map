@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Patrol 3 Monitoring</title>
+<title>Patrol Monitoring</title>
 
-<link rel="icon" href="./data/CMI-Brandmark-FullColor-BlackBG.png">
+<link rel="icon" type="image/png" href="./data/CMI-Brandmark-FullColor-BlackBG.png">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -13,100 +13,121 @@
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-
-/* === GLOBAL === */
 html, body {
   height: 100%;
   margin: 0;
-  font-family: 'Inter', sans-serif;
-  background: #0f172a;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 #map {
   height: 100%;
+  width: 100%;
 }
 
-/* === GLASS PANEL === */
-.panel {
+/* ===== TITLE ===== */
+#map-title {
   position: absolute;
-  backdrop-filter: blur(12px);
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 16px;
-  padding: 12px;
-  color: white;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-}
-
-/* === TITLE === */
-#title {
   top: 20px;
   left: 20px;
+  z-index: 1000;
   display: flex;
   align-items: center;
   gap: 10px;
+  font-size: 26px;
+  font-weight: 700;
+  color: white;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(6px);
+  padding: 10px 15px;
+  border-radius: 12px;
 }
 
-#title img {
-  height: 40px;
+#map-title img {
+  height: 35px;
 }
 
-#title h1 {
-  font-size: 20px;
-  margin: 0;
-}
-
-/* === RIGHT PANEL === */
-#infoPanel {
-  top: 20px;
-  right: 20px;
+/* ===== PANEL MODERN ===== */
+.panel {
+  position: absolute;
+  z-index: 1000;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+  padding: 12px;
   width: 300px;
-  max-height: 85%;
-  overflow-y: auto;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.25);
 }
 
-/* === BASEMAP === */
-#basemapPanel {
-  bottom: 20px;
-  left: 20px;
-  width: 180px;
+#infoPanel { top: 20px; right: 20px; }
+#basemapPanel { bottom: 20px; left: 20px; width: 180px; }
+
+.panel h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
 }
 
-/* === BUTTON === */
 button {
   width: 100%;
-  margin-top: 6px;
-  padding: 8px;
-  border-radius: 10px;
+  padding: 6px;
   border: none;
-  background: rgba(255,255,255,0.15);
+  border-radius: 8px;
+  background: #333;
   color: white;
   cursor: pointer;
-  transition: 0.2s;
-}
-button:hover {
-  background: rgba(255,255,255,0.3);
 }
 
-/* === POPUP === */
-.leaflet-popup-content {
+button:hover {
+  background: #111;
+}
+
+/* ===== BASEMAP BUTTON ===== */
+.basemap-btn {
+  margin-top: 5px;
+  background: #f0f0f0;
+  color: black;
+}
+
+.basemap-btn:hover {
+  background: #ddd;
+}
+
+/* ===== POPUP ===== */
+.popup-content {
   font-size: 13px;
 }
-.popup-img {
+
+.popup-content img {
   width: 100%;
-  border-radius: 10px;
-  margin-top: 5px;
+  border-radius: 8px;
+  margin-top: 6px;
 }
 
-/* === SCROLL === */
-::-webkit-scrollbar {
-  width: 6px;
+/* ===== MODAL ===== */
+.img-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+  justify-content: center;
+  align-items: center;
 }
-::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.3);
+
+.img-modal img {
+  max-width: 90%;
+  max-height: 90%;
   border-radius: 10px;
 }
 
+.img-modal span {
+  position: absolute;
+  top: 20px;
+  right: 40px;
+  color: white;
+  font-size: 35px;
+  cursor: pointer;
+}
 </style>
 </head>
 
@@ -114,155 +135,161 @@ button:hover {
 
 <div id="map"></div>
 
-<!-- TITLE -->
-<div id="title" class="panel">
+<div id="map-title">
   <img src="data/CMI-Brandmark-FullColor-BlackBG.png">
-  <h1>Patrol Monitoring</h1>
+  Patrol Dashboard
 </div>
 
 <!-- INFO PANEL -->
 <div id="infoPanel" class="panel">
-  <b>📊 Statistics</b>
-  <p id="totalPoints">Total: -</p>
-  <canvas id="chart"></canvas>
-
-  <button id="reset">Reset Filter</button>
-
-  <hr>
-
-  <b>📏 Measure</b>
-  <button id="measureBtn">Start</button>
-  <button id="undoBtn">Undo</button>
-  <button id="clearBtn">Clear</button>
+  <h3>Statistics</h3>
+  <p id="totalPoints">-</p>
+  <canvas id="categoryChart"></canvas>
+  <button id="resetFilter">Reset Filter</button>
 
   <hr>
-
-  <b>🗺️ LULC Opacity</b>
-  <input type="range" id="opacity" min="0" max="1" step="0.1" value="1">
-
+  <h3>LULC Opacity</h3>
+  <input id="opacitySlider" type="range" min="0" max="1" step="0.1" value="1">
 </div>
 
 <!-- BASEMAP -->
-<div id="basemapPanel" class="panel"></div>
+<div id="basemapPanel" class="panel">
+  <h3>Basemap</h3>
+  <div id="basemapContent"></div>
+</div>
+
+<!-- MODAL -->
+<div id="imageModal" class="img-modal">
+  <span id="closeModal">&times;</span>
+  <img id="modalImage">
+</div>
 
 <script>
 
-// ================= MAP =================
-const map = L.map('map', {
-  center: [0.8,110.3],
-  zoom: 13
-});
-
+// ===== MAP =====
 const basemaps = {
-  "Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
   "OSM": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
-  "Topo": L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png')
+  "Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}')
 };
 
-basemaps["Satellite"].addTo(map);
+const map = L.map('map', {
+  center: [0.8, 110.3],
+  zoom: 13,
+  layers: [basemaps["Satellite"]]
+});
 
-Object.keys(basemaps).forEach(name=>{
+// ===== LULC =====
+const lulcTiles = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png');
+lulcTiles.addTo(map);
+
+// ===== BASEMAP BUTTON =====
+const baseDiv = document.getElementById("basemapContent");
+let currentBase = basemaps["Satellite"];
+
+Object.keys(basemaps).forEach(name => {
   const btn = document.createElement("button");
   btn.innerText = name;
-  btn.onclick = ()=>{
-    Object.values(basemaps).forEach(b=>map.removeLayer(b));
-    basemaps[name].addTo(map);
+  btn.className = "basemap-btn";
+
+  btn.onclick = () => {
+    map.removeLayer(currentBase);
+    currentBase = basemaps[name];
+    currentBase.addTo(map);
   };
-  document.getElementById("basemapPanel").appendChild(btn);
+
+  baseDiv.appendChild(btn);
 });
 
-// ================= LULC =================
-const lulc = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png').addTo(map);
+// ===== DATA =====
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 
-document.getElementById("opacity").oninput = e=>{
-  lulc.setOpacity(e.target.value);
-};
-
-// ================= BOUNDARY =================
-fetch('data/CMI.json')
-.then(r=>r.json())
-.then(data=>{
-  const layer = L.geoJSON(data,{color:"cyan"}).addTo(map);
-  map.fitBounds(layer.getBounds());
-});
-
-// ================= DATA =================
 let markers = [];
 let categoryCount = {};
 let total = 0;
 
-Papa.parse("YOUR CSV LINK", {
-  download:true,
-  header:true,
-  complete: res=>{
-    res.data.forEach(row=>{
-      const coord = row['data-coordinate'];
-      if(!coord) return;
+Papa.parse(sheetURL, {
+  download: true,
+  header: true,
+  complete: (results) => {
 
-      const [lat,lon] = coord.split(',').map(Number);
-      if(isNaN(lat)) return;
+    results.data.forEach(row => {
+      const coord = row['data-coordinate'];
+      if (!coord) return;
+
+      const [lat, lon] = coord.split(',').map(Number);
+      if (isNaN(lat)) return;
 
       total++;
 
       const cat = row['data-survey-categ'] || "Unknown";
-      categoryCount[cat] = (categoryCount[cat]||0)+1;
+      categoryCount[cat] = (categoryCount[cat] || 0) + 1;
+
+      const img = convertLink(row['data-documentation-image_1']);
 
       const popup = `
+      <div class="popup-content">
         <b>${cat}</b><br>
         ${row['data-survey-finding'] || ''}<br>
-        <i>${row['data-base_info-nama']}</i>
-      `;
+        <small>${row['data-base_info-nama'] || ''}</small>
+        ${img ? `<img src="${img}" onclick="openModal('${img}')">` : ''}
+      </div>`;
 
-      const m = L.marker([lat,lon]).bindPopup(popup).addTo(map);
-      m.category = cat;
-      markers.push(m);
+      const marker = L.marker([lat, lon])
+        .bindPopup(popup)
+        .addTo(map);
+
+      marker.category = cat;
+      markers.push(marker);
     });
 
-    document.getElementById("totalPoints").innerText = "Total: "+total;
+    document.getElementById("totalPoints").innerText =
+      "Total Points: " + total;
 
-    new Chart(document.getElementById("chart"),{
-      type:"pie",
-      data:{
-        labels:Object.keys(categoryCount),
-        datasets:[{
-          data:Object.values(categoryCount)
-        }]
-      }
-    });
+    createChart();
   }
 });
 
-// ================= FILTER =================
-function filter(cat){
-  markers.forEach(m=>{
-    m.setOpacity(!cat || m.category===cat ? 1:0.2);
+// ===== CHART =====
+function createChart(){
+  const ctx = document.getElementById("categoryChart");
+
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(categoryCount),
+      datasets: [{
+        data: Object.values(categoryCount)
+      }]
+    }
   });
 }
 
-// ================= MEASURE =================
-let measuring=false;
-let line;
-
-document.getElementById("measureBtn").onclick=()=>{
-  measuring=!measuring;
+// ===== FILTER =====
+document.getElementById("resetFilter").onclick = () => {
+  markers.forEach(m => m.setOpacity(1));
 };
 
-map.on("click",e=>{
-  if(!measuring) return;
+// ===== IMAGE =====
+function convertLink(url){
+  if(!url) return null;
+  const id = url.match(/[-\w]{25,}/);
+  return id ? `https://drive.google.com/thumbnail?id=${id[0]}` : null;
+}
 
-  if(!line){
-    line=L.polyline([e.latlng]).addTo(map);
-  } else {
-    line.addLatLng(e.latlng);
-  }
-});
+function openModal(src){
+  document.getElementById("imageModal").style.display = "flex";
+  document.getElementById("modalImage").src = src;
+}
 
-document.getElementById("clearBtn").onclick=()=>{
-  if(line) map.removeLayer(line);
-  line=null;
+document.getElementById("closeModal").onclick = () => {
+  document.getElementById("imageModal").style.display = "none";
+};
+
+// ===== OPACITY =====
+document.getElementById("opacitySlider").oninput = (e) => {
+  lulcTiles.setOpacity(e.target.value);
 };
 
 </script>
-
 </body>
 </html>
