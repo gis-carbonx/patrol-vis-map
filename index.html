@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Patrol Monitoring</title>
+<title>1Patrol Monitoring</title>
 
 <link rel="icon" type="image/png" href="./data/CMI-Brandmark-FullColor-BlackBG.png">
 
@@ -13,124 +13,130 @@
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-html, body {
-  height: 100%;
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-}
-#map {
-  height: 100%;
-  width: 100%;
-}
+html, body { height:100%; margin:0; font-family:'Segoe UI'; }
+#map { height:100%; }
 
-/* 🔥 TOP TITLE */
+/* TITLE */
 #map-title {
-  position: absolute;
-  top: 15px;
-  left: 20px;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 20px;
-  font-weight: 600;
-  background: rgba(255,255,255,0.7);
-  backdrop-filter: blur(10px);
-  padding: 8px 14px;
-  border-radius: 12px;
+  position:absolute; top:15px; left:20px; z-index:1000;
+  display:flex; align-items:center; gap:10px;
+  background:rgba(255,255,255,0.7);
+  backdrop-filter:blur(10px);
+  padding:8px 14px;
+  border-radius:12px;
 }
-#map-title img { height: 30px; }
+#map-title img { height:28px; }
 
-/* 🔥 GLASS PANEL */
-.panel {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-
-  width: 340px;
-  background: rgba(255,255,255,0.75);
-  backdrop-filter: blur(14px);
-  border-radius: 16px;
-  padding: 15px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+/* 🔥 BOTTOM SIDEBAR */
+#bottomPanel {
+  position:absolute;
+  bottom:0;
+  left:0;
+  width:100%;
+  height:60px;
+  background:rgba(255,255,255,0.85);
+  backdrop-filter:blur(14px);
+  border-top-left-radius:20px;
+  border-top-right-radius:20px;
+  transition:all 0.3s ease;
+  z-index:1000;
+  overflow:hidden;
 }
 
-/* 🔥 TOTAL CARD */
+#bottomPanel.expanded {
+  height:65%;
+}
+
+/* HANDLE */
+#handle {
+  width:40px;
+  height:5px;
+  background:#aaa;
+  border-radius:10px;
+  margin:10px auto;
+  cursor:pointer;
+}
+
+/* CONTENT */
+#panelContent {
+  padding:10px 15px;
+  overflow-y:auto;
+  height:calc(100% - 30px);
+}
+
+/* TOTAL */
 .total-box {
-  text-align: center;
-  margin-bottom: 10px;
+  text-align:center;
 }
 .total-box h1 {
-  margin: 0;
-  font-size: 28px;
+  margin:0;
+  font-size:26px;
 }
 .total-box span {
-  font-size: 13px;
-  color: #666;
+  font-size:13px;
+  color:#666;
 }
 
-/* 🔥 BUTTON */
+/* BUTTON */
 #resetFilter {
-  margin-top: 10px;
-  width: 100%;
-  padding: 8px;
-  border: none;
-  border-radius: 8px;
-  background: #111;
-  color: white;
-  cursor: pointer;
-}
-#resetFilter:hover {
-  background: #333;
+  margin-top:10px;
+  width:100%;
+  padding:8px;
+  border:none;
+  border-radius:8px;
+  background:#111;
+  color:white;
 }
 
-/* 🔥 POPUP MODERN */
-.leaflet-popup-content-wrapper {
-  border-radius: 14px;
-  padding: 0;
-  overflow: hidden;
+/* LEGEND */
+.legend {
+  margin-top:15px;
 }
-.popup-card {
-  font-family: 'Segoe UI';
+.legend h4 {
+  margin:5px 0;
+}
+.legend-item {
+  display:flex;
+  align-items:center;
+  font-size:13px;
+  margin-bottom:4px;
+}
+.legend-color {
+  width:14px;
+  height:14px;
+  margin-right:6px;
+}
+
+/* POPUP */
+.leaflet-popup-content-wrapper {
+  border-radius:14px;
+  overflow:hidden;
 }
 .popup-img {
-  width: 100%;
-  height: 140px;
-  object-fit: cover;
+  width:100%;
+  height:130px;
+  object-fit:cover;
 }
 .popup-body {
-  padding: 10px;
+  padding:10px;
 }
-.popup-title {
-  font-weight: 600;
-  margin-bottom: 5px;
-}
-.popup-meta {
-  font-size: 12px;
-  color: #666;
-}
-.popup-desc {
-  font-size: 13px;
-  margin-top: 6px;
-}
+.popup-title { font-weight:600; }
+.popup-meta { font-size:12px; color:#666; }
 
-/* 🔥 IMAGE MODAL */
+/* MODAL */
 .img-modal {
-  display: none;
-  position: fixed;
-  z-index: 9999;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.8);
-  justify-content: center;
-  align-items: center;
+  display:none;
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.8);
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
 }
 .img-modal img {
-  max-width: 90%;
-  max-height: 90%;
-  border-radius: 10px;
+  max-width:90%;
+  max-height:90%;
 }
 </style>
 </head>
@@ -144,15 +150,35 @@ html, body {
   Patrol Monitoring
 </div>
 
-<!-- 🔥 SIMPLE MODERN PANEL -->
-<div class="panel">
-  <div class="total-box">
-    <h1 id="totalPoints">-</h1>
-    <span>Total Observations</span>
-  </div>
+<!-- 🔥 BOTTOM PANEL -->
+<div id="bottomPanel">
+  <div id="handle"></div>
+  <div id="panelContent">
 
-  <canvas id="categoryChart" height="200"></canvas>
-  <button id="resetFilter">Show All</button>
+    <div class="total-box">
+      <h1 id="totalPoints">-</h1>
+      <span>Total Observations</span>
+    </div>
+
+    <canvas id="categoryChart" height="180"></canvas>
+    <button id="resetFilter">Show All</button>
+
+    <!-- 🔥 LULC LEGEND -->
+    <div class="legend">
+      <h4>Land Cover 2023</h4>
+
+      <div class="legend-item"><div class="legend-color" style="background:#ec4040"></div>Building</div>
+      <div class="legend-item"><div class="legend-color" style="background:#a1a1a1"></div>Bare Land</div>
+      <div class="legend-item"><div class="legend-color" style="background:#ecb240"></div>Oil Palm</div>
+      <div class="legend-item"><div class="legend-color" style="background:#5c9640"></div>Forest</div>
+      <div class="legend-item"><div class="legend-color" style="background:#ffffce"></div>Agriculture</div>
+      <div class="legend-item"><div class="legend-color" style="background:#b2ec40"></div>Old Shrubs</div>
+      <div class="legend-item"><div class="legend-color" style="background:#000"></div>Road</div>
+      <div class="legend-item"><div class="legend-color" style="background:#ddff96"></div>Shrubs</div>
+      <div class="legend-item"><div class="legend-color" style="background:#b6cce1"></div>Water</div>
+    </div>
+
+  </div>
 </div>
 
 <div id="imageModal" class="img-modal">
@@ -161,146 +187,109 @@ html, body {
 
 <script>
 
-/* ================= MAP ================= */
-const map = L.map('map', {
-  center: [0.8, 110.325],
-  zoom: 13,
-  zoomControl: false
-});
-L.control.zoom({ position: 'bottomright' }).addTo(map);
-
-/* SINGLE BASEMAP (SIMPLE) */
+/* MAP */
+const map = L.map('map', { center:[0.8,110.325], zoom:13 });
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}')
 .addTo(map);
 
-/* LULC */
-const lulcTiles = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png');
-lulcTiles.addTo(map);
+L.tileLayer('./data/Tiles/{z}/{x}/{y}.png').addTo(map);
 
-/* ================= BOUNDARY ================= */
+/* BOUNDARY */
 fetch('data/CMI.json')
-.then(res => res.json())
-.then(json => {
-  const boundary = L.geoJSON(json, {
-    style: { color: "#7B1FA2", weight: 3 }
-  }).addTo(map);
-  map.fitBounds(boundary.getBounds());
+.then(r=>r.json())
+.then(j=>{
+  const b=L.geoJSON(j,{style:{color:"#7B1FA2"}}).addTo(map);
+  map.fitBounds(b.getBounds());
 });
 
-/* ================= DATA ================= */
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
+/* DATA */
+let markers=[], categoryCount={}, total=0;
 
-let markers = [];
-let categoryCount = {};
-let total = 0;
+Papa.parse("https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv",{
+download:true, header:true,
+complete:(res)=>{
 
-Papa.parse(sheetURL, {
-  download: true,
-  header: true,
-  complete: (results) => {
+res.data.forEach(r=>{
+const coord=r['data-coordinate'];
+if(!coord) return;
+const [lat,lon]=coord.split(',').map(Number);
+if(isNaN(lat)) return;
 
-    results.data.forEach(row => {
-      const coord = row['data-coordinate'];
-      if (!coord) return;
+total++;
+const cat=r['data-survey-categ']||"Unknown";
+categoryCount[cat]=(categoryCount[cat]||0)+1;
 
-      const [lat, lon] = coord.split(',').map(Number);
-      if (isNaN(lat)) return;
+const img=convert(r['data-documentation-image_1']);
 
-      total++;
-      const cat = row['data-survey-categ'] || "Unknown";
-      categoryCount[cat] = (categoryCount[cat] || 0) + 1;
+const popup=`
+${img?`<img class="popup-img" src="${img}" onclick="openModal('${img}')">`:''}
+<div class="popup-body">
+<div class="popup-title">${cat}</div>
+<div class="popup-meta">${r['data-base_info-nama']||''}</div>
+<div>${r['data-survey-description']||''}</div>
+</div>`;
 
-      const img = convertGoogleDriveLink(row['data-documentation-image_1']);
-
-      const popup = `
-      <div class="popup-card">
-        ${img ? `<img class="popup-img" src="${img}" onclick="openModal('${img}')">` : ''}
-        <div class="popup-body">
-          <div class="popup-title">${cat}</div>
-          <div class="popup-meta">${row['data-base_info-nama'] || ''}</div>
-          <div class="popup-desc">${row['data-survey-description'] || ''}</div>
-        </div>
-      </div>`;
-
-      const marker = L.marker([lat, lon])
-        .bindPopup(popup)
-        .addTo(map);
-
-      marker.category = cat;
-      markers.push(marker);
-    });
-
-    document.getElementById("totalPoints").innerText = total;
-
-    createChart();
-  }
+const m=L.marker([lat,lon]).bindPopup(popup).addTo(map);
+m.category=cat;
+markers.push(m);
 });
 
-/* ================= CHART ================= */
-function createChart() {
-  const labels = Object.keys(categoryCount);
-  const values = Object.values(categoryCount);
+document.getElementById("totalPoints").innerText=total;
+createChart();
+}
+});
 
-  let selectedCategory = null;
+/* CHART */
+function createChart(){
+const labels=Object.keys(categoryCount);
+const values=Object.values(categoryCount);
+let selected=null;
 
-  new Chart(document.getElementById("categoryChart"), {
-    type: 'pie',
-    data: {
-      labels,
-      datasets: [{
-        data: values,
-        backgroundColor: generateColors(labels.length)
-      }]
-    },
-    options: {
-      plugins: {
-        legend: { position: 'bottom' }
-      },
-      onClick: (evt, el) => {
-        if (!el.length) return;
-        const idx = el[0].index;
-        const cat = labels[idx];
+new Chart(document.getElementById("categoryChart"),{
+type:'pie',
+data:{labels,datasets:[{data:values,backgroundColor:colors(labels.length)}]},
+options:{
+plugins:{legend:{position:'bottom'}},
+onClick:(e,el)=>{
+if(!el.length)return;
+const cat=labels[el[0].index];
+selected=selected===cat?null:cat;
+filter(selected);
+}
+}
+});
 
-        selectedCategory = selectedCategory === cat ? null : cat;
-        highlightMarkers(selectedCategory);
-      }
-    }
-  });
-
-  document.getElementById("resetFilter").onclick = () => {
-    selectedCategory = null;
-    highlightMarkers(null);
-  };
+document.getElementById("resetFilter").onclick=()=>{selected=null;filter(null)};
 }
 
-/* ================= FILTER ================= */
-function highlightMarkers(category) {
-  markers.forEach(m => {
-    const visible = !category || m.category === category;
-    m.setOpacity(visible ? 1 : 0.2);
-  });
+/* FILTER */
+function filter(cat){
+markers.forEach(m=>{
+m.setOpacity(!cat||m.category===cat?1:0.2);
+});
 }
 
-/* ================= UTIL ================= */
-function convertGoogleDriveLink(url) {
-  if (!url) return null;
-  const id = url.match(/[-\w]{25,}/);
-  return id ? `https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000` : null;
+/* UTIL */
+function convert(u){
+if(!u)return null;
+const id=u.match(/[-\w]{25,}/);
+return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null;
+}
+function colors(n){
+return Array.from({length:n},(_,i)=>`hsl(${i*360/n},70%,60%)`);
 }
 
-function generateColors(n) {
-  return Array.from({length:n},(_,i)=>`hsl(${i*360/n},70%,60%)`);
-}
+/* MODAL */
+const modal=document.getElementById("imageModal");
+const modalImg=document.getElementById("modalImage");
+function openModal(src){modal.style.display="flex";modalImg.src=src;}
+modal.onclick=()=>modal.style.display="none";
 
-/* ================= IMAGE MODAL ================= */
-const modal = document.getElementById("imageModal");
-const modalImg = document.getElementById("modalImage");
-
-function openModal(src){
-  modal.style.display = "flex";
-  modalImg.src = src;
-}
-modal.onclick = () => modal.style.display = "none";
+/* 🔥 PANEL TOGGLE */
+const panel=document.getElementById("bottomPanel");
+document.getElementById("handle").onclick=()=>{
+panel.classList.toggle("expanded");
+};
 
 </script>
 
