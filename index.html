@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
+<meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Patrol 2 Monitoring</title>
+
+<title>Patrol Monitoring</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -11,113 +12,98 @@
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-html, body { height:100%; margin:0; font-family:'Segoe UI'; }
-#map { height:100%; }
-
-/* 🔥 TOP TITLE */
-#map-title {
-  position:absolute; top:15px; left:20px; z-index:1000;
-  display:flex; align-items:center; gap:10px;
-  background:rgba(255,255,255,0.7);
-  backdrop-filter:blur(10px);
-  padding:8px 14px;
-  border-radius:12px;
-  font-weight:600;
-}
+html,body{margin:0;height:100%;font-family:'Segoe UI'}
+#map{height:100%}
 
 /* 🔥 PANEL RIGHT TOP */
-.panel {
-  position:absolute;
-  top:15px;
-  right:15px;
-  z-index:1000;
-
-  width:300px;
-  background:rgba(255,255,255,0.75);
-  backdrop-filter:blur(14px);
-  border-radius:16px;
-  padding:15px;
-  box-shadow:0 8px 25px rgba(0,0,0,0.15);
+.panel{
+position:absolute;
+top:20px;
+right:20px;
+z-index:1000;
+width:320px;
+background:rgba(255,255,255,0.8);
+backdrop-filter:blur(14px);
+border-radius:16px;
+padding:15px;
+box-shadow:0 8px 25px rgba(0,0,0,0.15);
 }
 
-/* 🔢 TOTAL */
-.total-box {
-  text-align:center;
-  transition:all 0.3s ease;
+/* 🔥 TOTAL FLEX */
+.total-wrapper{
+display:flex;
+justify-content:center;
+align-items:center;
+gap:10px;
+transition:all .3s ease;
 }
-.total-main {
-  font-size:26px;
-  font-weight:700;
+.total-main{
+font-size:28px;
+font-weight:600;
 }
-.total-sub {
-  font-size:14px;
-  color:#444;
-  opacity:0;
-  transform:translateY(-5px);
-}
-.total-sub.show {
-  opacity:1;
-  transform:translateY(0);
+.total-sub{
+font-size:18px;
+color:#FF5722;
+display:none;
 }
 
-/* 📅 DATE FILTER */
-.date-filter {
-  display:flex;
-  gap:5px;
-  margin-bottom:10px;
+/* FILTER */
+.filter-box{
+margin-bottom:10px;
+display:flex;
+gap:5px;
 }
-.date-filter input {
-  width:100%;
-  padding:6px;
-  border-radius:6px;
-  border:1px solid #ccc;
-  font-size:12px;
+.filter-box input{
+flex:1;
+padding:5px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+/* TOGGLE */
+.toggle{
+display:flex;
+justify-content:space-between;
+margin-top:8px;
+font-size:13px;
+}
+.toggle input{
+cursor:pointer;
 }
 
 /* BUTTON */
-#resetFilter {
-  margin-top:8px;
-  width:100%;
-  padding:7px;
-  border:none;
-  border-radius:8px;
-  background:#111;
-  color:white;
-  cursor:pointer;
+#resetFilter{
+margin-top:8px;
+width:100%;
+padding:6px;
+border:none;
+border-radius:6px;
+background:#111;
+color:white;
 }
 
 /* POPUP */
-.leaflet-popup-content-wrapper {
-  border-radius:14px;
-  padding:0;
-  overflow:hidden;
+.popup-img{
+width:100%;
+height:120px;
+object-fit:cover;
+border-radius:10px 10px 0 0;
 }
-.popup-card img {
-  width:100%;
-  height:140px;
-  object-fit:cover;
-}
-.popup-body {
-  padding:10px;
-}
-.popup-title { font-weight:600; }
-.popup-desc { font-size:13px; }
+.popup-body{padding:8px}
+.popup-title{font-weight:600}
 
 /* MODAL */
-.img-modal {
-  display:none;
-  position:fixed;
-  z-index:9999;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.8);
-  justify-content:center;
-  align-items:center;
+.img-modal{
+display:none;
+position:fixed;
+z-index:9999;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.8);
+justify-content:center;
+align-items:center;
 }
-.img-modal img {
-  max-width:90%;
-  max-height:90%;
-}
+.img-modal img{max-width:90%}
 </style>
 </head>
 
@@ -125,185 +111,211 @@ html, body { height:100%; margin:0; font-family:'Segoe UI'; }
 
 <div id="map"></div>
 
-<div id="map-title">Patrol Monitoring</div>
-
 <div class="panel">
-  
-  <!-- 📅 DATE FILTER -->
-  <div class="date-filter">
-    <input type="date" id="startDate">
-    <input type="date" id="endDate">
-  </div>
 
-  <!-- 🔢 TOTAL -->
-  <div class="total-box">
-    <div class="total-main" id="totalPoints">-</div>
-    <div class="total-sub" id="categoryCount"></div>
-  </div>
-
-  <canvas id="categoryChart" height="200"></canvas>
-  <button id="resetFilter">Show All</button>
+<!-- 📅 FILTER -->
+<div class="filter-box">
+<input type="date" id="startDate">
+<input type="date" id="endDate">
 </div>
 
-<div id="imageModal" class="img-modal">
-  <img id="modalImage">
+<!-- 📊 TOTAL -->
+<div class="total-wrapper">
+<div id="totalMain" class="total-main">0</div>
+<div id="totalSub" class="total-sub"></div>
+</div>
+
+<canvas id="chart" height="180"></canvas>
+
+<button id="resetFilter">Show All</button>
+
+<!-- 🔘 LAYER CONTROL -->
+<div class="toggle">
+<span>LULC</span>
+<input type="checkbox" id="toggleLulc" checked>
+</div>
+<div class="toggle">
+<span>Boundary</span>
+<input type="checkbox" id="toggleBoundary" checked>
+</div>
+<div class="toggle">
+<span>Points</span>
+<input type="checkbox" id="togglePoints" checked>
+</div>
+
+</div>
+
+<div id="modal" class="img-modal">
+<img id="modalImg">
 </div>
 
 <script>
 
-/* MAP */
-const map = L.map('map', {
-  center:[0.8,110.325],
-  zoom:13
+/* ================= MAP ================= */
+const map = L.map('map',{center:[0.8,110.325],zoom:13});
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
+
+/* ================= LAYERS ================= */
+const lulc = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png').addTo(map);
+let boundaryLayer;
+let pointLayer = L.layerGroup().addTo(map);
+
+/* ================= BOUNDARY ================= */
+fetch('data/CMI.json')
+.then(r=>r.json())
+.then(j=>{
+boundaryLayer=L.geoJSON(j,{style:{color:"#7B1FA2"}}).addTo(map);
+map.fitBounds(boundaryLayer.getBounds());
 });
 
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}')
-.addTo(map);
+/* ================= DATA ================= */
+const url="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 
-/* GLOBAL */
-let markers = [];
-let rawData = [];
-let selectedCategory = null;
+let rawData=[];
+let chart;
+let selectedCategory=null;
 
-/* LOAD DATA */
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
-
-Papa.parse(sheetURL, {
-  download:true,
-  header:true,
-  complete:(res)=>{
-    rawData = res.data;
-    applyFilter();
-  }
-});
-
-/* FILTER FUNCTION */
-function applyFilter(){
-
-  markers.forEach(m=>map.removeLayer(m));
-  markers = [];
-
-  const start = document.getElementById('startDate').value;
-  const end = document.getElementById('endDate').value;
-
-  let categoryCount = {};
-  let total = 0;
-
-  rawData.forEach(row=>{
-    const coord = row['data-coordinate'];
-    if(!coord) return;
-
-    const date = row['data-start_date'];
-    if(start && date < start) return;
-    if(end && date > end) return;
-
-    const [lat,lon] = coord.split(',').map(Number);
-    if(isNaN(lat)) return;
-
-    total++;
-
-    const cat = row['data-survey-categ'] || "Unknown";
-    categoryCount[cat]=(categoryCount[cat]||0)+1;
-
-    const img = convertGoogleDriveLink(row['data-documentation-image_1']);
-
-    const popup = `
-    <div class="popup-card">
-      ${img ? `<img src="${img}" onclick="openModal('${img}')">` : ''}
-      <div class="popup-body">
-        <div class="popup-title">${cat}</div>
-        <div class="popup-desc">${row['data-survey-description']||''}</div>
-      </div>
-    </div>`;
-
-    const m = L.marker([lat,lon]).bindPopup(popup).addTo(map);
-    m.category = cat;
-    markers.push(m);
-  });
-
-  document.getElementById("totalPoints").innerText = total;
-
-  updateChart(categoryCount);
+Papa.parse(url,{
+download:true,
+header:true,
+complete:(res)=>{
+rawData=res.data;
+updateMap();
 }
+});
+
+/* ================= UPDATE ================= */
+function updateMap(){
+
+pointLayer.clearLayers();
+
+let counts={};
+let total=0;
+
+const start=document.getElementById('startDate').value;
+const end=document.getElementById('endDate').value;
+
+rawData.forEach(r=>{
+
+const coord=r['data-coordinate'];
+if(!coord) return;
+
+const date=r['data-start_date'];
+if(start && date < start) return;
+if(end && date > end) return;
+
+const [lat,lon]=coord.split(',').map(Number);
+if(isNaN(lat)) return;
+
+const cat=r['data-survey-categ']||"Unknown";
+
+counts[cat]=(counts[cat]||0)+1;
+total++;
+
+const img=convert(r['data-documentation-image_1']);
+
+const popup=`
+<div>
+${img?`<img class="popup-img" src="${img}" onclick="openModal('${img}')">`:''}
+<div class="popup-body">
+<div class="popup-title">${cat}</div>
+<div>${r['data-survey-description']||''}</div>
+</div>
+</div>`;
+
+const m=L.marker([lat,lon]).bindPopup(popup);
+m.category=cat;
+pointLayer.addLayer(m);
+
+});
+
+document.getElementById('totalMain').innerText=total;
 
 /* CHART */
-let chart;
+if(chart) chart.destroy();
 
-function updateChart(categoryCount){
-  const labels = Object.keys(categoryCount);
-  const values = Object.values(categoryCount);
+const labels=Object.keys(counts);
+const values=Object.values(counts);
 
-  if(chart) chart.destroy();
+chart=new Chart(document.getElementById('chart'),{
+type:'pie',
+data:{labels,datasets:[{data:values,backgroundColor:gen(labels.length)}]},
+options:{
+plugins:{legend:{position:'bottom'}},
+onClick:(e,el)=>{
+if(!el.length)return;
+const cat=labels[el[0].index];
 
-  chart = new Chart(document.getElementById("categoryChart"),{
-    type:'pie',
-    data:{
-      labels,
-      datasets:[{data:values,backgroundColor:generateColors(labels.length)}]
-    },
-    options:{
-      plugins:{legend:{position:'bottom'}},
-      onClick:(evt,el)=>{
-        if(!el.length) return;
+selectedCategory=selectedCategory===cat?null:cat;
+highlight(cat,counts[cat]);
+}
+}
+});
 
-        const idx = el[0].index;
-        const cat = labels[idx];
-
-        selectedCategory = selectedCategory===cat ? null : cat;
-
-        highlightMarkers(selectedCategory);
-
-        const sub = document.getElementById("categoryCount");
-
-        if(selectedCategory){
-          sub.innerText = `${cat}: ${values[idx]}`;
-          sub.classList.add("show");
-        }else{
-          sub.classList.remove("show");
-        }
-      }
-    }
-  });
 }
 
-/* FILTER MARKER */
-function highlightMarkers(cat){
-  markers.forEach(m=>{
-    const show = !cat || m.category===cat;
-    m.setOpacity(show?1:0.2);
-  });
+/* ================= FILTER ================= */
+function highlight(cat,count){
+
+const sub=document.getElementById('totalSub');
+
+if(!cat){
+sub.style.display='none';
+pointLayer.eachLayer(m=>m.setOpacity(1));
+return;
 }
 
-/* DATE EVENT */
-document.getElementById('startDate').onchange = applyFilter;
-document.getElementById('endDate').onchange = applyFilter;
+sub.style.display='block';
+sub.innerText=count;
 
-/* RESET */
-document.getElementById("resetFilter").onclick = ()=>{
-  selectedCategory=null;
-  document.getElementById("categoryCount").classList.remove("show");
-  highlightMarkers(null);
+pointLayer.eachLayer(m=>{
+m.setOpacity(m.category===cat?1:0.2);
+});
+}
+
+/* ================= EVENTS ================= */
+document.getElementById('resetFilter').onclick=()=>{
+selectedCategory=null;
+updateMap();
 };
 
-/* UTIL */
-function convertGoogleDriveLink(url){
-  if(!url) return null;
-  const id=url.match(/[-\w]{25,}/);
-  return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null;
+document.getElementById('startDate').onchange=updateMap;
+document.getElementById('endDate').onchange=updateMap;
+
+/* LAYER TOGGLE */
+document.getElementById('toggleLulc').onchange=e=>{
+e.target.checked?map.addLayer(lulc):map.removeLayer(lulc);
+};
+
+document.getElementById('toggleBoundary').onchange=e=>{
+if(!boundaryLayer)return;
+e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer);
+};
+
+document.getElementById('togglePoints').onchange=e=>{
+e.target.checked?map.addLayer(pointLayer):map.removeLayer(pointLayer);
+};
+
+/* ================= UTIL ================= */
+function convert(url){
+if(!url)return null;
+const id=url.match(/[-\w]{25,}/);
+return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null;
 }
-function generateColors(n){
-  return Array.from({length:n},(_,i)=>`hsl(${i*360/n},70%,60%)`);
+function gen(n){
+return Array.from({length:n},(_,i)=>`hsl(${i*360/n},70%,60%)`);
 }
 
 /* MODAL */
-const modal=document.getElementById("imageModal");
-const modalImg=document.getElementById("modalImage");
+const modal=document.getElementById('modal');
+const modalImg=document.getElementById('modalImg');
 function openModal(src){
-  modal.style.display="flex";
-  modalImg.src=src;
+modal.style.display='flex';
+modalImg.src=src;
 }
-modal.onclick=()=>modal.style.display="none";
+modal.onclick=()=>modal.style.display='none';
 
 </script>
+
 </body>
 </html>
