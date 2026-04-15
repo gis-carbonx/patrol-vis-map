@@ -1,11 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
+<meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Patrol Monitoring</title>
-
-<link rel="icon" type="image/png" href="./data/CMI-Brandmark-FullColor-BlackBG.png">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -13,131 +10,69 @@
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-html, body { height:100%; margin:0; font-family:'Segoe UI'; }
-#map { height:100%; }
-
-/* TITLE */
-#map-title {
-  position:absolute; top:15px; left:20px; z-index:1000;
-  display:flex; align-items:center; gap:10px;
-  background:rgba(255,255,255,0.7);
-  backdrop-filter:blur(10px);
-  padding:8px 14px;
-  border-radius:12px;
-}
-#map-title img { height:28px; }
-
-/* 🔥 BOTTOM SIDEBAR */
-#bottomPanel {
-  position:absolute;
-  bottom:0;
-  left:0;
-  width:100%;
-  height:60px;
-  background:rgba(255,255,255,0.85);
-  backdrop-filter:blur(14px);
-  border-top-left-radius:20px;
-  border-top-right-radius:20px;
-  transition:all 0.3s ease;
-  z-index:1000;
-  overflow:hidden;
-}
-
-#bottomPanel.expanded {
-  height:65%;
-}
-
-/* HANDLE */
-#handle {
-  width:40px;
-  height:5px;
-  background:#aaa;
-  border-radius:10px;
-  margin:10px auto;
-  cursor:pointer;
-}
-
-/* CONTENT */
-#panelContent {
-  padding:10px 15px;
-  overflow-y:auto;
-  height:calc(100% - 30px);
-}
-
-/* TOTAL */
-.total-box {
-  text-align:center;
-}
-.total-box h1 {
-  margin:0;
-  font-size:26px;
-}
-.total-box span {
-  font-size:13px;
-  color:#666;
-}
-
-/* BUTTON */
-#resetFilter {
-  margin-top:10px;
-  width:100%;
-  padding:8px;
-  border:none;
-  border-radius:8px;
-  background:#111;
-  color:white;
-}
+html,body{height:100%;margin:0;font-family:'Segoe UI'}
+#map{height:100%}
 
 /* LEGEND */
-.legend {
-  margin-top:15px;
+#legend{
+position:absolute;top:15px;right:15px;
+background:rgba(255,255,255,0.85);
+padding:12px;border-radius:12px;
+backdrop-filter:blur(10px);
+z-index:1000;font-size:13px;
 }
-.legend h4 {
-  margin:5px 0;
+.legend-item{display:flex;align-items:center;margin-bottom:4px}
+.legend-color{width:14px;height:14px;margin-right:6px}
+
+/* PANEL */
+#panel{
+position:absolute;bottom:0;width:100%;
+height:60px;background:rgba(255,255,255,0.9);
+backdrop-filter:blur(12px);
+border-top-left-radius:20px;border-top-right-radius:20px;
+transition:.3s;overflow:hidden;z-index:1000;
 }
-.legend-item {
-  display:flex;
-  align-items:center;
-  font-size:13px;
-  margin-bottom:4px;
-}
-.legend-color {
-  width:14px;
-  height:14px;
-  margin-right:6px;
+#panel.open{height:60%}
+#handle{width:40px;height:5px;background:#aaa;margin:10px auto;border-radius:10px;cursor:pointer}
+
+#content{padding:10px;height:calc(100% - 30px);overflow:auto}
+
+/* STATS */
+.stats{display:flex;gap:10px}
+#chartBox{width:35%}
+#tableBox{width:65%}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:13px}
+td{padding:6px;border-bottom:1px solid #ddd;cursor:pointer}
+tr:hover{background:#eee}
+
+/* POPUP FIX WIDTH */
+.leaflet-popup-content-wrapper{width:260px}
+
+/* IMAGE */
+.popup-img{
+width:100%;
+height:140px;
+object-fit:cover;
+border-radius:8px;
+cursor:pointer;
 }
 
-/* POPUP */
-.leaflet-popup-content-wrapper {
-  border-radius:14px;
-  overflow:hidden;
+/* SLIDER */
+.slider-btn{
+background:#000;color:#fff;border:none;
+padding:3px 6px;margin:2px;border-radius:4px;cursor:pointer;
 }
-.popup-img {
-  width:100%;
-  height:130px;
-  object-fit:cover;
-}
-.popup-body {
-  padding:10px;
-}
-.popup-title { font-weight:600; }
-.popup-meta { font-size:12px; color:#666; }
 
 /* MODAL */
-.img-modal {
-  display:none;
-  position:fixed;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.8);
-  justify-content:center;
-  align-items:center;
-  z-index:9999;
+#modal{
+display:none;position:fixed;width:100%;height:100%;
+background:rgba(0,0,0,0.85);
+justify-content:center;align-items:center;
+z-index:9999;
 }
-.img-modal img {
-  max-width:90%;
-  max-height:90%;
-}
+#modal img{max-width:90%;max-height:90%}
 </style>
 </head>
 
@@ -145,88 +80,84 @@ html, body { height:100%; margin:0; font-family:'Segoe UI'; }
 
 <div id="map"></div>
 
-<div id="map-title">
-  <img src="data/CMI-Brandmark-FullColor-BlackBG.png">
-  Patrol Monitoring
+<!-- LEGEND -->
+<div id="legend">
+<b>LULC 2023</b>
+<div class="legend-item"><div class="legend-color" style="background:#ec4040"></div>Building</div>
+<div class="legend-item"><div class="legend-color" style="background:#5c9640"></div>Forest</div>
+<div class="legend-item"><div class="legend-color" style="background:#b6cce1"></div>Water</div>
 </div>
 
-<!-- 🔥 BOTTOM PANEL -->
-<div id="bottomPanel">
-  <div id="handle"></div>
-  <div id="panelContent">
+<!-- PANEL -->
+<div id="panel">
+<div id="handle"></div>
+<div id="content">
 
-    <div class="total-box">
-      <h1 id="totalPoints">-</h1>
-      <span>Total Observations</span>
-    </div>
+<h3 id="total">Total: -</h3>
 
-    <canvas id="categoryChart" height="180"></canvas>
-    <button id="resetFilter">Show All</button>
-
-    <!-- 🔥 LULC LEGEND -->
-    <div class="legend">
-      <h4>Land Cover 2023</h4>
-
-      <div class="legend-item"><div class="legend-color" style="background:#ec4040"></div>Building</div>
-      <div class="legend-item"><div class="legend-color" style="background:#a1a1a1"></div>Bare Land</div>
-      <div class="legend-item"><div class="legend-color" style="background:#ecb240"></div>Oil Palm</div>
-      <div class="legend-item"><div class="legend-color" style="background:#5c9640"></div>Forest</div>
-      <div class="legend-item"><div class="legend-color" style="background:#ffffce"></div>Agriculture</div>
-      <div class="legend-item"><div class="legend-color" style="background:#b2ec40"></div>Old Shrubs</div>
-      <div class="legend-item"><div class="legend-color" style="background:#000"></div>Road</div>
-      <div class="legend-item"><div class="legend-color" style="background:#ddff96"></div>Shrubs</div>
-      <div class="legend-item"><div class="legend-color" style="background:#b6cce1"></div>Water</div>
-    </div>
-
-  </div>
+<div class="stats">
+<div id="chartBox">
+<canvas id="chart"></canvas>
 </div>
 
-<div id="imageModal" class="img-modal">
-  <img id="modalImage">
+<div id="tableBox">
+<table id="table"></table>
 </div>
+</div>
+
+</div>
+</div>
+
+<div id="modal"><img id="modalImg"></div>
 
 <script>
 
-/* MAP */
-const map = L.map('map', { center:[0.8,110.325], zoom:13 });
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}')
-.addTo(map);
+/* MAP (NO ZOOM BUTTON) */
+const map=L.map('map',{zoomControl:false}).setView([0.8,110.325],13);
 
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
 L.tileLayer('./data/Tiles/{z}/{x}/{y}.png').addTo(map);
 
-/* BOUNDARY */
-fetch('data/CMI.json')
-.then(r=>r.json())
-.then(j=>{
-  const b=L.geoJSON(j,{style:{color:"#7B1FA2"}}).addTo(map);
-  map.fitBounds(b.getBounds());
-});
-
 /* DATA */
-let markers=[], categoryCount={}, total=0;
+let markers=[],counts={},total=0;
+let markerData=[];
 
+/* LOAD CSV */
 Papa.parse("https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv",{
-download:true, header:true,
+download:true,header:true,
 complete:(res)=>{
 
-res.data.forEach(r=>{
-const coord=r['data-coordinate'];
-if(!coord) return;
+res.data.forEach((r,i)=>{
+const coord=r['data-coordinate']; if(!coord) return;
 const [lat,lon]=coord.split(',').map(Number);
 if(isNaN(lat)) return;
 
 total++;
 const cat=r['data-survey-categ']||"Unknown";
-categoryCount[cat]=(categoryCount[cat]||0)+1;
+counts[cat]=(counts[cat]||0)+1;
 
-const img=convert(r['data-documentation-image_1']);
+/* COLLECT IMAGES */
+let imgs=[];
+['data-documentation-image_1','data-documentation-image_2'].forEach(k=>{
+const u=convert(r[k]); if(u) imgs.push(u);
+});
 
+/* STORE FOR SLIDER */
+markerData[i]={imgs,index:0};
+
+/* POPUP */
 const popup=`
-${img?`<img class="popup-img" src="${img}" onclick="openModal('${img}')">`:''}
-<div class="popup-body">
-<div class="popup-title">${cat}</div>
-<div class="popup-meta">${r['data-base_info-nama']||''}</div>
-<div>${r['data-survey-description']||''}</div>
+<div>
+<img id="img-${i}" class="popup-img" src="${imgs[0]||''}" onclick="openModal('${imgs[0]||''}')">
+
+${imgs.length>1?`
+<div style="text-align:center;margin-top:5px;">
+<button class="slider-btn" onclick="slide(${i},-1)">◀</button>
+<button class="slider-btn" onclick="slide(${i},1)">▶</button>
+</div>`:''}
+
+<b>${cat}</b><br>
+${r['data-base_info-nama']||''}
 </div>`;
 
 const m=L.marker([lat,lon]).bindPopup(popup).addTo(map);
@@ -234,32 +165,64 @@ m.category=cat;
 markers.push(m);
 });
 
-document.getElementById("totalPoints").innerText=total;
+document.getElementById("total").innerText="Total: "+total;
+
 createChart();
+createTable();
 }
 });
 
-/* CHART */
-function createChart(){
-const labels=Object.keys(categoryCount);
-const values=Object.values(categoryCount);
-let selected=null;
+/* IMAGE SLIDER (FIXED) */
+function slide(id,dir){
+const data=markerData[id];
+data.index=(data.index+dir+data.imgs.length)%data.imgs.length;
 
-new Chart(document.getElementById("categoryChart"),{
+const imgEl=document.getElementById(`img-${id}`);
+imgEl.src=data.imgs[data.index];
+imgEl.onclick=()=>openModal(data.imgs[data.index]);
+}
+
+/* MODAL */
+function openModal(src){
+document.getElementById("modal").style.display="flex";
+document.getElementById("modalImg").src=src;
+}
+document.getElementById("modal").onclick=()=>modal.style.display="none";
+
+/* CHART */
+let selected=null;
+function createChart(){
+const labels=Object.keys(counts);
+const values=Object.values(counts);
+
+new Chart(document.getElementById("chart"),{
 type:'pie',
-data:{labels,datasets:[{data:values,backgroundColor:colors(labels.length)}]},
+data:{labels,datasets:[{data:values}]},
 options:{
 plugins:{legend:{position:'bottom'}},
 onClick:(e,el)=>{
 if(!el.length)return;
 const cat=labels[el[0].index];
 selected=selected===cat?null:cat;
-filter(selected);
+filter(cat);
+highlightRow(cat);
 }
 }
 });
+}
 
-document.getElementById("resetFilter").onclick=()=>{selected=null;filter(null)};
+/* TABLE */
+function createTable(){
+const t=document.getElementById("table");
+t.innerHTML="";
+Object.entries(counts).forEach(([k,v])=>{
+t.innerHTML+=`<tr onclick="rowClick('${k}')"><td>${k}</td><td>${v}</td></tr>`;
+});
+}
+
+function rowClick(cat){
+selected=selected===cat?null:cat;
+filter(cat);
 }
 
 /* FILTER */
@@ -269,27 +232,17 @@ m.setOpacity(!cat||m.category===cat?1:0.2);
 });
 }
 
+/* PANEL */
+document.getElementById("handle").onclick=()=>{
+panel.classList.toggle("open");
+};
+
 /* UTIL */
 function convert(u){
 if(!u)return null;
 const id=u.match(/[-\w]{25,}/);
 return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null;
 }
-function colors(n){
-return Array.from({length:n},(_,i)=>`hsl(${i*360/n},70%,60%)`);
-}
-
-/* MODAL */
-const modal=document.getElementById("imageModal");
-const modalImg=document.getElementById("modalImage");
-function openModal(src){modal.style.display="flex";modalImg.src=src;}
-modal.onclick=()=>modal.style.display="none";
-
-/* 🔥 PANEL TOGGLE */
-const panel=document.getElementById("bottomPanel");
-document.getElementById("handle").onclick=()=>{
-panel.classList.toggle("expanded");
-};
 
 </script>
 
