@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Patrol Monitoring</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -70,17 +71,17 @@ margin-top:8px;
 font-size:13px;
 }
 
-/* ===== POPUP MODERN ===== */
+/* ===== POPUP ===== */
 .leaflet-popup-content-wrapper{
 border-radius:14px;
 padding:0;
 overflow:hidden;
 }
 
-/* IMAGE FIX RATIO */
+/* 🔥 FIXED SIZE IMAGE */
 .popup-img-container{
-width:100%;
-aspect-ratio:1/1; /* 🔥 selalu kotak */
+width:260px;
+height:180px;
 overflow:hidden;
 background:#eee;
 }
@@ -92,13 +93,18 @@ cursor:pointer;
 }
 
 /* CONTENT */
-.popup-body{
-padding:10px;
+.popup-body{padding:10px;}
+.popup-category{
+font-size:10px;
+font-weight:600;
+color:#888;
+text-transform:uppercase;
+margin-bottom:2px;
 }
 .popup-title{
-font-weight:600;
 font-size:14px;
-margin-bottom:4px;
+font-weight:600;
+margin-bottom:6px;
 }
 .popup-meta{
 font-size:11px;
@@ -110,7 +116,7 @@ font-size:12px;
 line-height:1.4;
 }
 
-/* MODAL IMAGE ZOOM */
+/* MODAL */
 .img-modal{
 display:none;
 position:fixed;
@@ -125,8 +131,6 @@ align-items:center;
 max-width:90%;
 max-height:90%;
 border-radius:10px;
-transition:0.3s;
-cursor:zoom-out;
 }
 </style>
 </head>
@@ -136,7 +140,6 @@ cursor:zoom-out;
 <div id="map"></div>
 
 <div class="panel">
-
 <div class="filter-box">
 <input type="date" id="startDate">
 <input type="date" id="endDate">
@@ -150,19 +153,9 @@ cursor:zoom-out;
 <canvas id="chart" height="180"></canvas>
 <button id="resetFilter">Show All</button>
 
-<div class="toggle">
-<span>LULC</span>
-<input type="checkbox" id="toggleLulc" checked>
-</div>
-<div class="toggle">
-<span>Boundary</span>
-<input type="checkbox" id="toggleBoundary" checked>
-</div>
-<div class="toggle">
-<span>Points</span>
-<input type="checkbox" id="togglePoints" checked>
-</div>
-
+<div class="toggle"><span>LULC</span><input type="checkbox" id="toggleLulc" checked></div>
+<div class="toggle"><span>Boundary</span><input type="checkbox" id="toggleBoundary" checked></div>
+<div class="toggle"><span>Points</span><input type="checkbox" id="togglePoints" checked></div>
 </div>
 
 <div id="modal" class="img-modal">
@@ -171,7 +164,7 @@ cursor:zoom-out;
 
 <script>
 
-/* ================= MAP ================= */
+/* MAP */
 const map=L.map('map',{center:[0.8,110.325],zoom:13});
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
 
@@ -179,15 +172,21 @@ const lulc=L.tileLayer('./data/Tiles/{z}/{x}/{y}.png').addTo(map);
 let boundaryLayer;
 let pointLayer=L.layerGroup().addTo(map);
 
-/* ================= BOUNDARY ================= */
+/* BOUNDARY FIX */
 fetch('data/CMI.json')
 .then(r=>r.json())
 .then(j=>{
-boundaryLayer=L.geoJSON(j,{style:{color:"#7B1FA2"}}).addTo(map);
+boundaryLayer=L.geoJSON(j,{
+style:{
+color:"#7B1FA2",
+weight:3,
+fillOpacity:0   // 🔥 TRANSPARENT
+}
+}).addTo(map);
 map.fitBounds(boundaryLayer.getBounds());
 });
 
-/* ================= DATA ================= */
+/* DATA */
 const url="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 
 let rawData=[];
@@ -202,23 +201,20 @@ updateMap();
 }
 });
 
-/* ================= DATE PARSER (FIX 🔥) ================= */
-function parseDate(str){
-if(!str) return null;
-const d=new Date(str);
+/* DATE */
+function parseDate(s){
+const d=new Date(s);
 return isNaN(d)?null:d;
 }
 
-/* ================= UPDATE ================= */
+/* UPDATE */
 function updateMap(){
 
 pointLayer.clearLayers();
 
-let counts={};
-let total=0;
-
-const start=parseDate(document.getElementById('startDate').value);
-const end=parseDate(document.getElementById('endDate').value);
+let counts={}, total=0;
+const start=parseDate(startDate.value);
+const end=parseDate(endDate.value);
 
 rawData.forEach(r=>{
 
@@ -226,15 +222,15 @@ const coord=r['data-coordinate'];
 if(!coord) return;
 
 const d=parseDate(r['data-start_date']);
-
-/* 🔥 DATE FILTER FIX */
-if(start && d && d < start) return;
-if(end && d && d > end) return;
+if(start && d && d<start) return;
+if(end && d && d>end) return;
 
 const [lat,lon]=coord.split(',').map(Number);
 if(isNaN(lat)) return;
 
 const cat=r['data-survey-categ']||"Unknown";
+const finding=r['data-survey-finding']||"-";
+
 counts[cat]=(counts[cat]||0)+1;
 total++;
 
@@ -242,13 +238,13 @@ const img=convert(r['data-documentation-image_1']);
 
 const popup=`
 <div>
-${img?`
-<div class="popup-img-container">
-<img class="popup-img" src="${img}" onclick="openModal('${img}')">
+${img?`<div class="popup-img-container">
+<img class="popup-img zoomable" src="${img}">
 </div>`:''}
 
 <div class="popup-body">
-<div class="popup-title">${cat}</div>
+<div class="popup-category">${cat}</div>
+<div class="popup-title">${finding}</div>
 <div class="popup-meta">
 Officer: ${r['data-base_info-nama']||'-'}<br>
 Date: ${r['data-start_date']||'-'}
@@ -265,7 +261,7 @@ pointLayer.addLayer(m);
 
 });
 
-document.getElementById('totalMain').innerText=total;
+totalMain.innerText=total;
 
 /* CHART */
 if(chart) chart.destroy();
@@ -273,81 +269,62 @@ if(chart) chart.destroy();
 const labels=Object.keys(counts);
 const values=Object.values(counts);
 
-chart=new Chart(document.getElementById('chart'),{
+chart=new Chart(chartCanvas,{
 type:'pie',
 data:{labels,datasets:[{data:values,backgroundColor:gen(labels.length)}]},
 options:{
 plugins:{legend:{position:'bottom'}},
 onClick:(e,el)=>{
 if(!el.length)return;
-const idx=el[0].index;
-const cat=labels[idx];
-highlight(cat,values[idx]);
+highlight(labels[el[0].index],values[el[0].index]);
 }
 }
 });
 }
 
-/* ================= FILTER ================= */
+/* FILTER */
 function highlight(cat,count){
-
-const sub=document.getElementById('totalSub');
-
 if(!cat){
-sub.style.display='none';
+totalSub.style.display='none';
 pointLayer.eachLayer(m=>m.setOpacity(1));
 return;
 }
-
-sub.style.display='block';
-sub.innerText=count;
-
+totalSub.style.display='block';
+totalSub.innerText=count;
 pointLayer.eachLayer(m=>{
 m.setOpacity(m.category===cat?1:0.2);
 });
 }
 
-/* ================= EVENTS ================= */
-document.getElementById('resetFilter').onclick=()=>{
-document.getElementById('startDate').value="";
-document.getElementById('endDate').value="";
+/* EVENTS */
+resetFilter.onclick=()=>{
+startDate.value="";
+endDate.value="";
 updateMap();
 };
-
-document.getElementById('startDate').onchange=updateMap;
-document.getElementById('endDate').onchange=updateMap;
+startDate.onchange=updateMap;
+endDate.onchange=updateMap;
 
 /* LAYER */
-document.getElementById('toggleLulc').onchange=e=>{
-e.target.checked?map.addLayer(lulc):map.removeLayer(lulc);
-};
-document.getElementById('toggleBoundary').onchange=e=>{
-if(!boundaryLayer)return;
-e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer);
-};
-document.getElementById('togglePoints').onchange=e=>{
-e.target.checked?map.addLayer(pointLayer):map.removeLayer(pointLayer);
-};
+toggleLulc.onchange=e=>e.target.checked?map.addLayer(lulc):map.removeLayer(lulc);
+toggleBoundary.onchange=e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
+togglePoints.onchange=e=>e.target.checked?map.addLayer(pointLayer):map.removeLayer(pointLayer);
 
-/* ================= UTIL ================= */
+/* UTIL */
 function convert(url){
 if(!url)return null;
 const id=url.match(/[-\w]{25,}/);
 return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null;
 }
-function gen(n){
-return Array.from({length:n},(_,i)=>`hsl(${i*360/n},70%,60%)`);
-}
+function gen(n){return Array.from({length:n},(_,i)=>`hsl(${i*360/n},70%,60%)`)}
 
-/* ================= IMAGE ZOOM ================= */
-const modal=document.getElementById('modal');
-const modalImg=document.getElementById('modalImg');
-
-function openModal(src){
-modal.style.display="flex";
-modalImg.src=src;
+document.addEventListener('click',function(e){
+if(e.target.classList.contains('zoomable')){
+modal.style.display='flex';
+modalImg.src=e.target.src;
 }
-modal.onclick=()=>modal.style.display="none";
+});
+modal.onclick=()=>modal.style.display='none';
 
 </script>
 
