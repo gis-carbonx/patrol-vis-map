@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
+<meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Patrol Monitoring</title>
+<title>[draft]Patrol Monitoring</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -11,86 +11,73 @@
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-html, body { margin:0; height:100%; font-family:'Segoe UI'; background:#0f172a; }
-#map { height:100%; }
+html,body{margin:0;height:100%;background:#0f172a;font-family:sans-serif}
+#map{height:100%}
 
-/* ===== GLASS UI ===== */
-.glass {
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(12px);
-  border-radius: 16px;
-  color: white;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+/* GLASS */
+.glass{
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(12px);
+  border-radius:16px;
+  color:white;
+  box-shadow:0 4px 20px rgba(0,0,0,0.4);
 }
 
-/* ===== TOP BAR ===== */
-#topbar {
-  position:absolute; top:15px; left:15px; z-index:1000;
-  padding:10px 16px;
-  display:flex; align-items:center; gap:10px;
+/* TOP */
+#topbar{
+  position:absolute;top:15px;left:15px;z-index:1000;
+  padding:10px 16px;display:flex;gap:10px;align-items:center;
 }
-#topbar img { height:30px; }
-#topbar span { font-weight:600; font-size:16px; }
+#topbar img{height:30px}
 
-/* ===== FLOAT BUTTONS ===== */
-.fab-container {
-  position:absolute; right:15px; bottom:120px;
-  display:flex; flex-direction:column; gap:10px;
-  z-index:1000;
+/* BOTTOM PANEL */
+#bottomPanel{
+  position:absolute;bottom:0;left:0;right:0;
+  height:110px;transition:.3s;z-index:1000;
 }
-.fab {
-  width:50px; height:50px;
-  border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
+#bottomPanel.expanded{height:55%}
+
+#panelHandle{text-align:center;cursor:pointer;padding:5px}
+#panelContent{padding:15px}
+
+/* CARD */
+.card{padding:12px;margin-bottom:10px;border-radius:12px}
+
+/* POPUP MODERN */
+.popup-card{
+  font-family:sans-serif;
+}
+.popup-header{
+  font-weight:bold;
+  font-size:14px;
+  margin-bottom:5px;
+}
+.popup-badge{
+  display:inline-block;
+  padding:2px 6px;
+  border-radius:6px;
+  font-size:10px;
+  background:#22c55e;
+  margin-bottom:6px;
+}
+.popup-img{
+  width:100%;
+  border-radius:8px;
+  margin-top:6px;
   cursor:pointer;
-  font-size:20px;
-  transition:0.2s;
+  transition:.2s;
 }
-.fab:hover { transform:scale(1.1); }
+.popup-img:hover{transform:scale(1.03)}
 
-/* ===== BOTTOM PANEL ===== */
-#bottomPanel {
-  position:absolute;
-  bottom:0; left:0; right:0;
-  height:90px;
-  z-index:1000;
-  transition:0.3s;
-  overflow:hidden;
-}
-#bottomPanel.expanded { height:55%; }
-
-#panelHandle {
-  text-align:center;
-  cursor:pointer;
-  padding:6px;
-  font-size:18px;
-}
-
-#panelContent {
-  padding:15px;
-}
-
-/* ===== CARD ===== */
-.card {
-  padding:10px;
-  border-radius:12px;
-  margin-bottom:10px;
-}
-
-/* ===== MODAL ===== */
-.img-modal {
-  display:none; position:fixed; top:0; left:0;
-  width:100%; height:100%;
+.img-modal{
+  display:none;position:fixed;top:0;left:0;
+  width:100%;height:100%;
   background:rgba(0,0,0,0.9);
-  justify-content:center; align-items:center;
+  justify-content:center;align-items:center;
   z-index:9999;
 }
-.img-modal img { max-width:90%; max-height:90%; }
+.img-modal img{max-width:90%;max-height:90%}
 
-/* ===== SLIDER ===== */
-input[type=range] {
-  width:100%;
-}
 </style>
 </head>
 
@@ -98,139 +85,127 @@ input[type=range] {
 
 <div id="map"></div>
 
-<!-- TOP BAR -->
 <div id="topbar" class="glass">
   <img src="data/CMI-Brandmark-FullColor-BlackBG.png">
   <span>Patrol Monitoring</span>
 </div>
 
-<!-- FLOAT BUTTON -->
-<div class="fab-container">
-  <div class="fab glass" id="btnMeasure">📏</div>
-  <div class="fab glass" id="btnLayer">🗺️</div>
-</div>
-
-<!-- BOTTOM PANEL -->
 <div id="bottomPanel" class="glass">
   <div id="panelHandle">▲</div>
   <div id="panelContent">
 
     <div class="card glass">
-      <h3 id="totalPoints">0 Data</h3>
+      <h3 id="totalPoints">0 Observations</h3>
     </div>
 
     <div class="card glass">
       <canvas id="chart"></canvas>
     </div>
 
-    <div class="card glass">
-      <b>LULC Opacity</b>
-      <input id="opacitySlider" type="range" min="0" max="1" step="0.1" value="1">
-    </div>
-
   </div>
 </div>
 
-<!-- IMAGE MODAL -->
 <div id="imageModal" class="img-modal">
   <img id="modalImage">
 </div>
 
 <script>
 
-// ================= MAP =================
-const map = L.map('map', {
-  center:[0.8,110.325],
-  zoom:13,
-  zoomControl:false
-});
+// MAP
+const map=L.map('map',{center:[0.8,110.325],zoom:13});
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
 
-L.control.zoom({ position:'bottomright' }).addTo(map);
-
-const satellite = L.tileLayer(
-  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-).addTo(map);
-
-// ================= LULC =================
-const lulcTiles = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png').addTo(map);
-document.getElementById('opacitySlider').oninput = e => {
-  lulcTiles.setOpacity(e.target.value);
-};
-
-// ================= BOUNDARY =================
+// BOUNDARY
 fetch('data/CMI.json')
-.then(res=>res.json())
-.then(json=>{
-  const layer = L.geoJSON(json,{style:{color:'purple',weight:2}}).addTo(map);
+.then(r=>r.json())
+.then(j=>{
+  const layer=L.geoJSON(j,{style:{color:'purple'}}).addTo(map);
   map.fitBounds(layer.getBounds());
 });
 
-// ================= DATA =================
-let markers=[], categoryCount={}, total=0;
+// DATA
+let total=0, categoryCount={};
 
 Papa.parse("https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv",{
-  download:true, header:true,
+  download:true,header:true,
   complete:(res)=>{
+
     res.data.forEach(row=>{
       const coord=row['data-coordinate'];
-      if(!coord) return;
+      if(!coord)return;
 
       const [lat,lon]=coord.split(',').map(Number);
-      if(isNaN(lat)) return;
+      if(isNaN(lat))return;
 
       total++;
       const cat=row['data-survey-categ']||"Unknown";
       categoryCount[cat]=(categoryCount[cat]||0)+1;
 
-      const marker=L.marker([lat,lon]).addTo(map)
-        .bindPopup(`<b>${cat}</b>`);
+      const img1=convertGoogleDriveLink(row['data-documentation-image_1']);
+      const img2=convertGoogleDriveLink(row['data-documentation-image_2']);
 
-      marker.category=cat;
-      markers.push(marker);
+      const popup=`
+      <div class="popup-card">
+        <div class="popup-badge">${cat}</div>
+        <div class="popup-header">${row['data-survey-finding']||''}</div>
+        <div><b>Officer:</b> ${row['data-base_info-nama']||''}</div>
+        <div><b>Date:</b> ${row['data-start_date']||''}</div>
+        <div>${row['data-survey-description']||''}</div>
+
+        ${img1?`<img class="popup-img" src="${img1}" onclick="openModal('${img1}')">`:''}
+        ${img2?`<img class="popup-img" src="${img2}" onclick="openModal('${img2}')">`:''}
+      </div>`;
+
+      L.marker([lat,lon]).addTo(map).bindPopup(popup);
     });
 
-    document.getElementById("totalPoints").innerText = total + " Observations";
+    document.getElementById("totalPoints").innerText=total+" Observations";
 
+    // SEMI DOUGHNUT CHART
     new Chart(document.getElementById("chart"),{
       type:'doughnut',
       data:{
         labels:Object.keys(categoryCount),
-        datasets:[{data:Object.values(categoryCount)}]
+        datasets:[{
+          data:Object.values(categoryCount),
+          backgroundColor:[
+            '#3b82f6','#f43f5e','#f59e0b','#10b981','#8b5cf6','#9ca3af'
+          ]
+        }]
+      },
+      options:{
+        rotation:-90,
+        circumference:180,
+        plugins:{
+          legend:{position:'bottom'}
+        }
       }
     });
+
   }
 });
 
-// ================= MODAL =================
-const modal=document.getElementById("imageModal");
+// MODAL
 function openModal(src){
-  modal.style.display="flex";
+  const m=document.getElementById("imageModal");
+  m.style.display="flex";
   document.getElementById("modalImage").src=src;
 }
-modal.onclick=()=>modal.style.display="none";
+document.getElementById("imageModal").onclick=()=>{
+  document.getElementById("imageModal").style.display="none";
+};
 
-// ================= BOTTOM PANEL =================
-const panel=document.getElementById("bottomPanel");
+// PANEL
 document.getElementById("panelHandle").onclick=()=>{
-  panel.classList.toggle("expanded");
+  document.getElementById("bottomPanel").classList.toggle("expanded");
 };
 
-// ================= MEASURE =================
-let measuring=false, line;
-
-document.getElementById("btnMeasure").onclick=()=>{
-  measuring=!measuring;
-};
-
-map.on('click',(e)=>{
-  if(!measuring) return;
-
-  if(!line){
-    line=L.polyline([e.latlng],{color:'red'}).addTo(map);
-  } else {
-    line.addLatLng(e.latlng);
-  }
-});
+// DRIVE IMG
+function convertGoogleDriveLink(url){
+  if(!url)return null;
+  const id=url.match(/[-\w]{25,}/);
+  return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null;
+}
 
 </script>
 
