@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Patrol Monitoring</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -15,89 +14,120 @@
 html,body{margin:0;height:100%;font-family:'Segoe UI'}
 #map{height:100%}
 
-
+/* PANEL */
 .panel{
 position:absolute;
 top:20px;
 right:20px;
 z-index:1000;
-width:320px;
-background:rgba(255,255,255,0.8);
+width:330px;
+background:rgba(255,255,255,0.85);
 backdrop-filter:blur(14px);
 border-radius:16px;
 padding:15px;
 box-shadow:0 8px 25px rgba(0,0,0,0.15);
 }
 
+/* TOTAL */
 .total-wrapper{
 display:flex;
 justify-content:center;
 align-items:center;
 gap:10px;
-transition:all .3s ease;
 }
-.total-main{
-font-size:28px;
-font-weight:600;
-}
-.total-sub{
-font-size:18px;
-color:#FF5722;
-display:none;
-}
+.total-main{font-size:28px;font-weight:600;}
+.total-sub{font-size:18px;color:#FF5722;display:none;}
 
+/* FILTER */
 .filter-box{
-margin-bottom:10px;
 display:flex;
 gap:5px;
+margin-bottom:10px;
 }
 .filter-box input{
 flex:1;
-padding:5px;
+padding:6px;
 border-radius:6px;
 border:1px solid #ccc;
 }
 
-.toggle{
-display:flex;
-justify-content:space-between;
-margin-top:8px;
-font-size:13px;
-}
-.toggle input{
-cursor:pointer;
-}
-
+/* BUTTON */
 #resetFilter{
 margin-top:8px;
 width:100%;
-padding:6px;
+padding:7px;
 border:none;
 border-radius:6px;
 background:#111;
 color:white;
 }
 
+/* TOGGLE */
+.toggle{
+display:flex;
+justify-content:space-between;
+margin-top:8px;
+font-size:13px;
+}
+
+/* ===== POPUP MODERN ===== */
+.leaflet-popup-content-wrapper{
+border-radius:14px;
+padding:0;
+overflow:hidden;
+}
+
+/* IMAGE FIX RATIO */
+.popup-img-container{
+width:100%;
+aspect-ratio:1/1; /* 🔥 selalu kotak */
+overflow:hidden;
+background:#eee;
+}
 .popup-img{
 width:100%;
-height:120px;
+height:100%;
 object-fit:cover;
-border-radius:10px 10px 0 0;
+cursor:pointer;
 }
-.popup-body{padding:8px}
-.popup-title{font-weight:600}
 
+/* CONTENT */
+.popup-body{
+padding:10px;
+}
+.popup-title{
+font-weight:600;
+font-size:14px;
+margin-bottom:4px;
+}
+.popup-meta{
+font-size:11px;
+color:#666;
+margin-bottom:6px;
+}
+.popup-desc{
+font-size:12px;
+line-height:1.4;
+}
+
+/* MODAL IMAGE ZOOM */
 .img-modal{
 display:none;
 position:fixed;
 z-index:9999;
 width:100%;
 height:100%;
-background:rgba(0,0,0,0.8);
+background:rgba(0,0,0,0.85);
 justify-content:center;
 align-items:center;
 }
-.img-modal img{max-width:90%}
+.img-modal img{
+max-width:90%;
+max-height:90%;
+border-radius:10px;
+transition:0.3s;
+cursor:zoom-out;
+}
 </style>
 </head>
 
@@ -118,7 +148,6 @@ align-items:center;
 </div>
 
 <canvas id="chart" height="180"></canvas>
-
 <button id="resetFilter">Show All</button>
 
 <div class="toggle">
@@ -142,13 +171,15 @@ align-items:center;
 
 <script>
 
-const map = L.map('map',{center:[0.8,110.325],zoom:13});
+/* ================= MAP ================= */
+const map=L.map('map',{center:[0.8,110.325],zoom:13});
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
 
-const lulc = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png').addTo(map);
+const lulc=L.tileLayer('./data/Tiles/{z}/{x}/{y}.png').addTo(map);
 let boundaryLayer;
-let pointLayer = L.layerGroup().addTo(map);
+let pointLayer=L.layerGroup().addTo(map);
 
+/* ================= BOUNDARY ================= */
 fetch('data/CMI.json')
 .then(r=>r.json())
 .then(j=>{
@@ -156,11 +187,11 @@ boundaryLayer=L.geoJSON(j,{style:{color:"#7B1FA2"}}).addTo(map);
 map.fitBounds(boundaryLayer.getBounds());
 });
 
+/* ================= DATA ================= */
 const url="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 
 let rawData=[];
 let chart;
-let selectedCategory=null;
 
 Papa.parse(url,{
 download:true,
@@ -171,6 +202,14 @@ updateMap();
 }
 });
 
+/* ================= DATE PARSER (FIX 🔥) ================= */
+function parseDate(str){
+if(!str) return null;
+const d=new Date(str);
+return isNaN(d)?null:d;
+}
+
+/* ================= UPDATE ================= */
 function updateMap(){
 
 pointLayer.clearLayers();
@@ -178,23 +217,24 @@ pointLayer.clearLayers();
 let counts={};
 let total=0;
 
-const start=document.getElementById('startDate').value;
-const end=document.getElementById('endDate').value;
+const start=parseDate(document.getElementById('startDate').value);
+const end=parseDate(document.getElementById('endDate').value);
 
 rawData.forEach(r=>{
 
 const coord=r['data-coordinate'];
 if(!coord) return;
 
-const date=r['data-start_date'];
-if(start && date < start) return;
-if(end && date > end) return;
+const d=parseDate(r['data-start_date']);
+
+/* 🔥 DATE FILTER FIX */
+if(start && d && d < start) return;
+if(end && d && d > end) return;
 
 const [lat,lon]=coord.split(',').map(Number);
 if(isNaN(lat)) return;
 
 const cat=r['data-survey-categ']||"Unknown";
-
 counts[cat]=(counts[cat]||0)+1;
 total++;
 
@@ -202,10 +242,20 @@ const img=convert(r['data-documentation-image_1']);
 
 const popup=`
 <div>
-${img?`<img class="popup-img" src="${img}" onclick="openModal('${img}')">`:''}
+${img?`
+<div class="popup-img-container">
+<img class="popup-img" src="${img}" onclick="openModal('${img}')">
+</div>`:''}
+
 <div class="popup-body">
 <div class="popup-title">${cat}</div>
-<div>${r['data-survey-description']||''}</div>
+<div class="popup-meta">
+Officer: ${r['data-base_info-nama']||'-'}<br>
+Date: ${r['data-start_date']||'-'}
+</div>
+<div class="popup-desc">
+${r['data-survey-description']||''}
+</div>
 </div>
 </div>`;
 
@@ -217,6 +267,7 @@ pointLayer.addLayer(m);
 
 document.getElementById('totalMain').innerText=total;
 
+/* CHART */
 if(chart) chart.destroy();
 
 const labels=Object.keys(counts);
@@ -229,16 +280,15 @@ options:{
 plugins:{legend:{position:'bottom'}},
 onClick:(e,el)=>{
 if(!el.length)return;
-const cat=labels[el[0].index];
-
-selectedCategory=selectedCategory===cat?null:cat;
-highlight(cat,counts[cat]);
+const idx=el[0].index;
+const cat=labels[idx];
+highlight(cat,values[idx]);
 }
 }
 });
-
 }
 
+/* ================= FILTER ================= */
 function highlight(cat,count){
 
 const sub=document.getElementById('totalSub');
@@ -257,28 +307,29 @@ m.setOpacity(m.category===cat?1:0.2);
 });
 }
 
+/* ================= EVENTS ================= */
 document.getElementById('resetFilter').onclick=()=>{
-selectedCategory=null;
+document.getElementById('startDate').value="";
+document.getElementById('endDate').value="";
 updateMap();
 };
 
 document.getElementById('startDate').onchange=updateMap;
 document.getElementById('endDate').onchange=updateMap;
 
-/* LAYER TOGGLE */
+/* LAYER */
 document.getElementById('toggleLulc').onchange=e=>{
 e.target.checked?map.addLayer(lulc):map.removeLayer(lulc);
 };
-
 document.getElementById('toggleBoundary').onchange=e=>{
 if(!boundaryLayer)return;
 e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer);
 };
-
 document.getElementById('togglePoints').onchange=e=>{
 e.target.checked?map.addLayer(pointLayer):map.removeLayer(pointLayer);
 };
 
+/* ================= UTIL ================= */
 function convert(url){
 if(!url)return null;
 const id=url.match(/[-\w]{25,}/);
@@ -288,13 +339,15 @@ function gen(n){
 return Array.from({length:n},(_,i)=>`hsl(${i*360/n},70%,60%)`);
 }
 
+/* ================= IMAGE ZOOM ================= */
 const modal=document.getElementById('modal');
 const modalImg=document.getElementById('modalImg');
+
 function openModal(src){
-modal.style.display='flex';
+modal.style.display="flex";
 modalImg.src=src;
 }
-modal.onclick=()=>modal.style.display='none';
+modal.onclick=()=>modal.style.display="none";
 
 </script>
 
