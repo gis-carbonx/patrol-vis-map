@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Patrol V2</title>
+
+<title>Patrol Intelligence Dashboard</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -14,35 +15,84 @@
 html, body { height:100%; margin:0; font-family: 'Segoe UI'; }
 #map { height:100%; }
 
-/* MODERN GLASS PANEL */
-.panel {
+/* TITLE */
+#title {
   position:absolute;
-  background: rgba(255,255,255,0.75);
-  backdrop-filter: blur(10px);
-  border-radius:12px;
-  padding:10px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  top:15px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(255,255,255,0.7);
+  backdrop-filter:blur(8px);
+  padding:8px 16px;
+  border-radius:10px;
+  font-weight:600;
   z-index:1000;
 }
 
+/* SIDEBAR */
 #sidebar {
-  top:15px; left:15px;
-  width:280px;
-}
-
-#info {
-  top:15px; right:15px;
+  position:absolute;
+  left:15px;
+  top:15px;
   width:260px;
+  background:rgba(0,0,0,0.65);
+  backdrop-filter:blur(12px);
+  color:white;
+  padding:15px;
+  border-radius:16px;
+  z-index:1000;
 }
 
+#sidebar h3 { margin-top:10px; }
+
+/* INSIGHT */
+#insight {
+  position:absolute;
+  right:15px;
+  top:15px;
+  width:260px;
+  background:rgba(255,255,255,0.85);
+  backdrop-filter:blur(12px);
+  padding:15px;
+  border-radius:16px;
+  z-index:1000;
+}
+
+/* BUTTON */
 button {
-  width:100%; margin:5px 0;
-  padding:6px; border:none;
-  border-radius:6px;
+  width:100%;
+  margin-top:5px;
+  padding:7px;
+  border:none;
+  border-radius:8px;
   cursor:pointer;
-  background:#444; color:white;
+  background:#444;
+  color:white;
 }
 button:hover { background:#222; }
+
+/* FAB */
+#fab {
+  position:absolute;
+  bottom:20px;
+  right:20px;
+  z-index:1000;
+}
+
+.fab-btn {
+  width:45px;
+  height:45px;
+  border-radius:50%;
+  background:#333;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:8px;
+  cursor:pointer;
+  box-shadow:0 4px 10px rgba(0,0,0,0.3);
+}
+.fab-btn:hover { transform:scale(1.1); }
 
 </style>
 </head>
@@ -51,19 +101,26 @@ button:hover { background:#222; }
 
 <div id="map"></div>
 
-<div id="sidebar" class="panel">
+<div id="title">Patrol Intelligence Dashboard</div>
+
+<div id="sidebar">
   <h3>Filter</h3>
   <select id="categoryFilter"></select>
   <button onclick="resetFilter()">Reset</button>
 
-  <h3>Grid Analysis</h3>
+  <h3>Analysis</h3>
   <button onclick="toggleGrid()">Toggle Grid</button>
 </div>
 
-<div id="info" class="panel">
+<div id="insight">
   <h3>Statistics</h3>
-  <p id="total">Total: -</p>
+  <p id="total">-</p>
   <canvas id="chart"></canvas>
+  <p id="insightText" style="margin-top:10px;font-size:13px;"></p>
+</div>
+
+<div id="fab">
+  <div class="fab-btn" onclick="map.setView([0.8,110.325],13)">📍</div>
 </div>
 
 <script>
@@ -83,22 +140,24 @@ let categoryCount = {};
 let gridLayer;
 let gridVisible = false;
 
-// ================= COLOR FUNCTION =================
+// ================= COLOR =================
 function getColor(cat){
-  const colors = {
+  const map = {
     "Illegal Logging":"red",
     "Wildlife":"green",
     "Encroachment":"orange"
   };
-  return colors[cat] || "blue";
+  return map[cat] || "blue";
 }
 
-// ================= LOAD PATROL DATA =================
-const sheetURL = "YOUR_SHEET_URL_HERE";
+// ================= LOAD DATA =================
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 
 Papa.parse(sheetURL, {
-  download:true, header:true,
+  download:true,
+  header:true,
   complete:(res)=>{
+
     res.data.forEach(row=>{
       const coord = row['data-coordinate'];
       if(!coord) return;
@@ -113,20 +172,21 @@ Papa.parse(sheetURL, {
         color:getColor(cat),
         fillOpacity:0.8
       }).addTo(map)
-      .bindPopup(`<b>${cat}</b><br>${row['data-survey-description']}`);
+      .bindPopup(`<b>${cat}</b><br>${row['data-survey-description'] || ''}`);
 
       marker.category = cat;
       markers.push(marker);
     });
 
-    updateUI();
+    buildUI();
   }
 });
 
-// ================= UPDATE UI =================
-function updateUI(){
+// ================= UI =================
+function buildUI(){
+
   document.getElementById("total").innerText =
-    "Total: " + markers.length;
+    "Total Points: " + markers.length;
 
   const labels = Object.keys(categoryCount);
   const values = Object.values(categoryCount);
@@ -145,6 +205,17 @@ function updateUI(){
   select.onchange = ()=>{
     filterCategory(select.value);
   };
+
+  generateInsight(labels, values);
+}
+
+// ================= INSIGHT =================
+function generateInsight(labels, values){
+  let max = Math.max(...values);
+  let idx = values.indexOf(max);
+
+  document.getElementById("insightText").innerText =
+    "Dominant finding: " + labels[idx];
 }
 
 // ================= FILTER =================
@@ -162,7 +233,7 @@ function resetFilter(){
   filterCategory(null);
 }
 
-// ================= GRID ANALYSIS =================
+// ================= GRID =================
 const gridURL = "https://drive.google.com/uc?export=download&id=148vZDiPQxhCOnxZ-8eqlxvcy0H0__oub";
 
 fetch(gridURL)
@@ -173,30 +244,28 @@ fetch(gridURL)
       color:'#555',
       weight:1,
       fillOpacity:0
-    },
-    onEachFeature:(feature,layer)=>{
-      layer.count = 0;
     }
   });
 });
 
-// ================= COUNT POINT IN GRID =================
+// ================= GRID ANALYSIS =================
 function calculateGrid(){
+
   gridLayer.eachLayer(cell=>{
-    cell.count = 0;
+    let count = 0;
 
     markers.forEach(m=>{
       if(cell.getBounds().contains(m.getLatLng())){
-        cell.count++;
+        count++;
       }
     });
 
     cell.setStyle({
-      fillColor: getGridColor(cell.count),
-      fillOpacity: 0.6
+      fillColor:getGridColor(count),
+      fillOpacity:0.6
     });
 
-    cell.bindPopup("Count: " + cell.count);
+    cell.bindPopup("Count: " + count);
   });
 }
 
