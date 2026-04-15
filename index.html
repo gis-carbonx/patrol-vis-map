@@ -3,293 +3,242 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patrol Intelligence Dashboard</title>
 
-<title>Patrol</title>
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-html, body { height:100%; margin:0; font-family: 'Segoe UI'; }
-#map { height:100%; }
+html, body { height: 100%; margin: 0; font-family: 'Inter', sans-serif; }
+#map { height: 100%; width: 100%; }
 
-/* TITLE */
-#title {
-  position:absolute;
-  top:15px;
-  left:50%;
-  transform:translateX(-50%);
-  background:rgba(255,255,255,0.7);
-  backdrop-filter:blur(8px);
-  padding:8px 16px;
-  border-radius:10px;
-  font-weight:600;
-  z-index:1000;
-}
-
-/* SIDEBAR */
+/* SIDEBAR MODERN */
 #sidebar {
-  position:absolute;
-  left:15px;
-  top:15px;
-  width:260px;
-  background:rgba(0,0,0,0.65);
-  backdrop-filter:blur(12px);
-  color:white;
-  padding:15px;
-  border-radius:16px;
-  z-index:1000;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 320px;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(14px);
+  box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+  padding: 20px;
+  overflow-y: auto;
+  z-index: 1000;
 }
 
-#sidebar h3 { margin-top:10px; }
-
-/* INSIGHT */
-#insight {
-  position:absolute;
-  right:15px;
-  top:15px;
-  width:260px;
-  background:rgba(255,255,255,0.85);
-  backdrop-filter:blur(12px);
-  padding:15px;
-  border-radius:16px;
-  z-index:1000;
+#map-title {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 22px;
+  font-weight: 700;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 12px;
 }
 
-/* BUTTON */
+.section-title {
+  font-weight: 700;
+  margin-top: 15px;
+  margin-bottom: 5px;
+}
+
 button {
-  width:100%;
-  margin-top:5px;
-  padding:7px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  background:#444;
-  color:white;
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px;
+  border-radius: 10px;
+  border: none;
+  background: #1f2937;
+  color: white;
+  cursor: pointer;
 }
-button:hover { background:#222; }
+button:hover { background: #111827; }
 
-/* FAB */
-#fab {
-  position:absolute;
-  bottom:20px;
-  right:20px;
-  z-index:1000;
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  font-size: 13px;
+}
+.legend-color {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  margin-right: 6px;
 }
 
-.fab-btn {
-  width:45px;
-  height:45px;
-  border-radius:50%;
-  background:#333;
-  color:white;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin-top:8px;
-  cursor:pointer;
-  box-shadow:0 4px 10px rgba(0,0,0,0.3);
+/* FLOAT BUTTON */
+.fab {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
-.fab-btn:hover { transform:scale(1.1); }
+
+.fab button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 18px;
+}
+
+canvas { margin-top: 10px; }
 
 </style>
 </head>
 
 <body>
-
 <div id="map"></div>
 
-<div id="title">Patrol Intelligence Dashboard</div>
+<div id="map-title">Patrol Intelligence</div>
 
+<!-- SIDEBAR -->
 <div id="sidebar">
-  <h3>Filter</h3>
-  <select id="categoryFilter"></select>
-  <button onclick="resetFilter()">Reset</button>
 
-  <h3>Analysis</h3>
-  <button onclick="toggleGrid()">Toggle Grid</button>
-</div>
-
-<div id="insight">
-  <h3>Statistics</h3>
-  <p id="total">-</p>
+  <div class="section-title">Statistics</div>
+  <p id="totalPoints">Total: -</p>
   <canvas id="chart"></canvas>
-  <p id="insightText" style="margin-top:10px;font-size:13px;"></p>
+  <button id="resetFilter">Reset Filter</button>
+
+  <div class="section-title">Legend</div>
+  <div id="legend">
+    <div class="legend-item"><div class="legend-color" style="background:red"></div>Illegal Logging</div>
+    <div class="legend-item"><div class="legend-color" style="background:green"></div>Wildlife</div>
+    <div class="legend-item"><div class="legend-color" style="background:orange"></div>Encroachment</div>
+    <div class="legend-item"><div class="legend-color" style="background:blue"></div>Other</div>
+  </div>
+
+  <div class="section-title">LULC Opacity</div>
+  <input id="opacitySlider" type="range" min="0" max="1" step="0.1" value="1">
+
+  <div class="section-title">Basemap</div>
+  <div id="basemapList"></div>
+
 </div>
 
-<div id="fab">
-  <div class="fab-btn" onclick="map.setView([0.8,110.325],13)">📍</div>
+<div class="fab">
+  <button id="btnMeasure">📏</button>
+  <button id="btnClear">🗑</button>
 </div>
 
 <script>
 
-// ================= MAP =================
-const map = L.map('map', {
-  center: [0.8,110.325],
-  zoom: 13,
-  preferCanvas: true
+const map = L.map('map', { center: [0.8,110.325], zoom: 13, preferCanvas:true });
+
+const basemaps = {
+  "Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
+  "OSM": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+};
+
+basemaps["Satellite"].addTo(map);
+
+Object.keys(basemaps).forEach(name=>{
+  const btn=document.createElement('button');
+  btn.innerText=name;
+  btn.onclick=()=>{
+    Object.values(basemaps).forEach(l=>map.removeLayer(l));
+    basemaps[name].addTo(map);
+  };
+  document.getElementById('basemapList').appendChild(btn);
 });
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+// LULC
+const lulc = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png').addTo(map);
+document.getElementById('opacitySlider').oninput=e=> lulc.setOpacity(e.target.value);
 
-// ================= VARIABLES =================
-let markers = [];
-let categoryCount = {};
-let gridLayer;
-let gridVisible = false;
+// Boundary
+fetch('data/CMI.json')
+.then(r=>r.json())
+.then(j=>{
+  const layer=L.geoJSON(j,{color:'purple'}).addTo(map);
+  map.fitBounds(layer.getBounds());
+});
 
-// ================= COLOR =================
-function getColor(cat){
-  const map = {
-    "Illegal Logging":"red",
-    "Wildlife":"green",
-    "Encroachment":"orange"
-  };
-  return map[cat] || "blue";
-}
-
-// ================= LOAD DATA =================
+// DATA
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 
-Papa.parse(sheetURL, {
-  download:true,
-  header:true,
-  complete:(res)=>{
+let markers=[], categoryCount={}, total=0;
 
-    res.data.forEach(row=>{
-      const coord = row['data-coordinate'];
-      if(!coord) return;
+Papa.parse(sheetURL,{
+ download:true, header:true,
+ complete:(res)=>{
+  res.data.forEach(row=>{
+    if(!row['data-coordinate']) return;
+    const [lat,lon]=row['data-coordinate'].split(',').map(Number);
+    if(isNaN(lat)) return;
 
-      const [lat,lon] = coord.split(',').map(Number);
-      const cat = row['data-survey-categ'] || "Unknown";
+    total++;
+    const cat=row['data-survey-categ']||"Unknown";
+    categoryCount[cat]=(categoryCount[cat]||0)+1;
 
-      categoryCount[cat] = (categoryCount[cat]||0)+1;
+    const marker=L.circleMarker([lat,lon],{
+      radius:6,
+      color:getColor(cat),
+      fillOpacity:0.9
+    }).addTo(map);
 
-      const marker = L.circleMarker([lat,lon],{
-        radius:6,
-        color:getColor(cat),
-        fillOpacity:0.8
-      }).addTo(map)
-      .bindPopup(`<b>${cat}</b><br>${row['data-survey-description'] || ''}`);
-
-      marker.category = cat;
-      markers.push(marker);
-    });
-
-    buildUI();
-  }
-});
-
-// ================= UI =================
-function buildUI(){
-
-  document.getElementById("total").innerText =
-    "Total Points: " + markers.length;
-
-  const labels = Object.keys(categoryCount);
-  const values = Object.values(categoryCount);
-
-  new Chart(document.getElementById("chart"), {
-    type:'pie',
-    data:{ labels, datasets:[{ data:values }] }
+    marker.bindPopup(`<b>${cat}</b><br>${row['data-survey-description']||''}`);
+    marker.category=cat;
+    markers.push(marker);
   });
 
-  const select = document.getElementById("categoryFilter");
-  select.innerHTML = `<option value="">All</option>`;
-  labels.forEach(c=>{
-    select.innerHTML += `<option value="${c}">${c}</option>`;
+  document.getElementById('totalPoints').innerText=`Total: ${total}`;
+
+  const labels=Object.keys(categoryCount);
+  const values=Object.values(categoryCount);
+
+  const chart=new Chart(document.getElementById('chart'),{
+    type:'doughnut',
+    data:{labels,datasets:[{data:values}]}
   });
 
-  select.onchange = ()=>{
-    filterCategory(select.value);
+  let selected=null;
+  chart.options.onClick=(e,el)=>{
+    if(!el.length) return;
+    const cat=labels[el[0].index];
+    selected=selected===cat?null:cat;
+    filter(cat);
   };
 
-  generateInsight(labels, values);
-}
-
-// ================= INSIGHT =================
-function generateInsight(labels, values){
-  let max = Math.max(...values);
-  let idx = values.indexOf(max);
-
-  document.getElementById("insightText").innerText =
-    "Dominant finding: " + labels[idx];
-}
-
-// ================= FILTER =================
-function filterCategory(cat){
-  markers.forEach(m=>{
-    if(!cat || m.category===cat){
-      m.setStyle({opacity:1, fillOpacity:0.8});
-    } else {
-      m.setStyle({opacity:0.1, fillOpacity:0.1});
-    }
-  });
-}
-
-function resetFilter(){
-  filterCategory(null);
-}
-
-// ================= GRID =================
-const gridURL = "https://drive.google.com/uc?export=download&id=148vZDiPQxhCOnxZ-8eqlxvcy0H0__oub";
-
-fetch(gridURL)
-.then(res=>res.json())
-.then(data=>{
-  gridLayer = L.geoJSON(data,{
-    style:{
-      color:'#555',
-      weight:1,
-      fillOpacity:0
-    }
-  });
+  document.getElementById('resetFilter').onclick=()=>{
+    selected=null; filter(null);
+  };
+ }
 });
 
-// ================= GRID ANALYSIS =================
-function calculateGrid(){
-
-  gridLayer.eachLayer(cell=>{
-    let count = 0;
-
-    markers.forEach(m=>{
-      if(cell.getBounds().contains(m.getLatLng())){
-        count++;
-      }
-    });
-
-    cell.setStyle({
-      fillColor:getGridColor(count),
-      fillOpacity:0.6
-    });
-
-    cell.bindPopup("Count: " + count);
-  });
+function filter(cat){
+ markers.forEach(m=>{
+  const show=!cat||m.category===cat;
+  m.setStyle({opacity:show?1:0.1, fillOpacity:show?0.9:0.1});
+ });
 }
 
-function getGridColor(c){
-  return c > 10 ? '#800026' :
-         c > 5  ? '#BD0026' :
-         c > 2  ? '#E31A1C' :
-         c > 1  ? '#FC4E2A' :
-                  '#FFEDA0';
+function getColor(cat){
+ const colors={
+  "Illegal Logging":"red",
+  "Wildlife":"green",
+  "Encroachment":"orange"
+ };
+ return colors[cat]||"blue";
 }
 
-// ================= TOGGLE GRID =================
-function toggleGrid(){
-  if(!gridLayer) return;
+// MEASURE SIMPLE
+let line=null;
+map.on('click',e=>{
+ if(!line){ line=L.polyline([e.latlng]).addTo(map); }
+ else{ line.addLatLng(e.latlng); }
+});
 
-  if(!gridVisible){
-    gridLayer.addTo(map);
-    calculateGrid();
-    gridVisible = true;
-  } else {
-    map.removeLayer(gridLayer);
-    gridVisible = false;
-  }
-}
+document.getElementById('btnClear').onclick=()=>{
+ if(line){ map.removeLayer(line); line=null; }
+};
 
 </script>
 </body>
