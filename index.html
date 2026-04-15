@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Patrol Monitoring</title>
+<title>Patrol x Monitoring</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -78,7 +78,6 @@ padding:0;
 overflow:hidden;
 }
 
-/* 🔥 FIXED SIZE IMAGE */
 .popup-img-container{
 width:260px;
 height:180px;
@@ -180,7 +179,7 @@ boundaryLayer=L.geoJSON(j,{
 style:{
 color:"#7B1FA2",
 weight:3,
-fillOpacity:0   // 🔥 TRANSPARENT
+fillOpacity:0
 }
 }).addTo(map);
 map.fitBounds(boundaryLayer.getBounds());
