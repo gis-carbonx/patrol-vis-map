@@ -15,7 +15,7 @@
 html,body{margin:0;height:100%;font-family:'Segoe UI'}
 #map{height:100%}
 
-/* 🔥 PANEL RIGHT TOP */
+
 .panel{
 position:absolute;
 top:20px;
@@ -29,7 +29,6 @@ padding:15px;
 box-shadow:0 8px 25px rgba(0,0,0,0.15);
 }
 
-/* 🔥 TOTAL FLEX */
 .total-wrapper{
 display:flex;
 justify-content:center;
@@ -47,7 +46,6 @@ color:#FF5722;
 display:none;
 }
 
-/* FILTER */
 .filter-box{
 margin-bottom:10px;
 display:flex;
@@ -60,7 +58,6 @@ border-radius:6px;
 border:1px solid #ccc;
 }
 
-/* TOGGLE */
 .toggle{
 display:flex;
 justify-content:space-between;
@@ -71,7 +68,6 @@ font-size:13px;
 cursor:pointer;
 }
 
-/* BUTTON */
 #resetFilter{
 margin-top:8px;
 width:100%;
@@ -82,7 +78,6 @@ background:#111;
 color:white;
 }
 
-/* POPUP */
 .popup-img{
 width:100%;
 height:120px;
@@ -92,7 +87,6 @@ border-radius:10px 10px 0 0;
 .popup-body{padding:8px}
 .popup-title{font-weight:600}
 
-/* MODAL */
 .img-modal{
 display:none;
 position:fixed;
@@ -113,13 +107,11 @@ align-items:center;
 
 <div class="panel">
 
-<!-- 📅 FILTER -->
 <div class="filter-box">
 <input type="date" id="startDate">
 <input type="date" id="endDate">
 </div>
 
-<!-- 📊 TOTAL -->
 <div class="total-wrapper">
 <div id="totalMain" class="total-main">0</div>
 <div id="totalSub" class="total-sub"></div>
@@ -129,7 +121,6 @@ align-items:center;
 
 <button id="resetFilter">Show All</button>
 
-<!-- 🔘 LAYER CONTROL -->
 <div class="toggle">
 <span>LULC</span>
 <input type="checkbox" id="toggleLulc" checked>
@@ -151,16 +142,13 @@ align-items:center;
 
 <script>
 
-/* ================= MAP ================= */
 const map = L.map('map',{center:[0.8,110.325],zoom:13});
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
 
-/* ================= LAYERS ================= */
 const lulc = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png').addTo(map);
 let boundaryLayer;
 let pointLayer = L.layerGroup().addTo(map);
 
-/* ================= BOUNDARY ================= */
 fetch('data/CMI.json')
 .then(r=>r.json())
 .then(j=>{
@@ -168,7 +156,6 @@ boundaryLayer=L.geoJSON(j,{style:{color:"#7B1FA2"}}).addTo(map);
 map.fitBounds(boundaryLayer.getBounds());
 });
 
-/* ================= DATA ================= */
 const url="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 
 let rawData=[];
@@ -184,7 +171,6 @@ updateMap();
 }
 });
 
-/* ================= UPDATE ================= */
 function updateMap(){
 
 pointLayer.clearLayers();
@@ -231,7 +217,6 @@ pointLayer.addLayer(m);
 
 document.getElementById('totalMain').innerText=total;
 
-/* CHART */
 if(chart) chart.destroy();
 
 const labels=Object.keys(counts);
@@ -254,7 +239,6 @@ highlight(cat,counts[cat]);
 
 }
 
-/* ================= FILTER ================= */
 function highlight(cat,count){
 
 const sub=document.getElementById('totalSub');
@@ -273,7 +257,6 @@ m.setOpacity(m.category===cat?1:0.2);
 });
 }
 
-/* ================= EVENTS ================= */
 document.getElementById('resetFilter').onclick=()=>{
 selectedCategory=null;
 updateMap();
@@ -296,7 +279,6 @@ document.getElementById('togglePoints').onchange=e=>{
 e.target.checked?map.addLayer(pointLayer):map.removeLayer(pointLayer);
 };
 
-/* ================= UTIL ================= */
 function convert(url){
 if(!url)return null;
 const id=url.match(/[-\w]{25,}/);
@@ -306,7 +288,6 @@ function gen(n){
 return Array.from({length:n},(_,i)=>`hsl(${i*360/n},70%,60%)`);
 }
 
-/* MODAL */
 const modal=document.getElementById('modal');
 const modalImg=document.getElementById('modalImg');
 function openModal(src){
