@@ -14,45 +14,58 @@
 html,body{margin:0;height:100%;font-family:'Segoe UI'}
 #map{height:100%}
 
-/* PANEL */
 .panel{
   position:absolute;
   top:20px;
   right:20px;
   z-index:1000;
-  width:340px;
-  background:rgba(255,255,255,0.9);
+  width:330px;
+  background:rgba(255,255,255,0.85);
   backdrop-filter:blur(14px);
   border-radius:16px;
   padding:15px;
-  box-shadow:0 8px 25px rgba(0,0,0,0.2);
+  box-shadow:0 8px 25px rgba(0,0,0,0.15);
 }
 
-/* TOTAL */
 .total-wrapper{
   display:flex;
   justify-content:center;
   align-items:center;
   gap:10px;
 }
-.total-main{font-size:28px;font-weight:700;}
+.total-main{font-size:28px;font-weight:600;}
 .total-sub{font-size:18px;color:#FF5722;display:none;}
 
-/* FILTER */
-.filter-box{
+/* FILTER — date row */
+.filter-date{
   display:flex;
-  flex-direction:column;
-  gap:6px;
-  margin-bottom:10px;
+  gap:5px;
+  margin-bottom:6px;
 }
-.filter-box input, .filter-box select{
+.filter-date input{
+  flex:1;
   padding:6px;
   border-radius:6px;
   border:1px solid #ccc;
-  font-size:13px;
+  font-size:12px;
 }
 
-/* BUTTON */
+/* FILTER — dropdown rows */
+.filter-select{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  margin-bottom:10px;
+}
+.filter-select select{
+  width:100%;
+  padding:6px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  font-size:12px;
+  background:#fff;
+}
+
 #resetFilter{
   margin-top:8px;
   width:100%;
@@ -64,7 +77,6 @@ html,body{margin:0;height:100%;font-family:'Segoe UI'}
   cursor:pointer;
 }
 
-/* TOGGLE */
 .toggle{
   display:flex;
   justify-content:space-between;
@@ -72,16 +84,14 @@ html,body{margin:0;height:100%;font-family:'Segoe UI'}
   font-size:13px;
 }
 
-/* ===== POPUP ===== */
 .leaflet-popup-content-wrapper{
   border-radius:14px;
   padding:0;
   overflow:hidden;
-  width:280px;
 }
 
 .popup-img-container{
-  width:100%;
+  width:260px;
   height:180px;
   overflow:hidden;
   background:#eee;
@@ -93,17 +103,16 @@ html,body{margin:0;height:100%;font-family:'Segoe UI'}
   cursor:pointer;
 }
 
-/* CONTENT */
 .popup-body{padding:10px;}
 .popup-category{
   font-size:10px;
-  font-weight:700;
+  font-weight:600;
   color:#888;
   text-transform:uppercase;
 }
 .popup-title{
   font-size:14px;
-  font-weight:700;
+  font-weight:600;
   margin:4px 0;
 }
 .popup-meta{
@@ -111,18 +120,14 @@ html,body{margin:0;height:100%;font-family:'Segoe UI'}
   color:#666;
   margin-bottom:6px;
 }
-.popup-desc{
-  font-size:12px;
-  line-height:1.4;
-}
+.popup-desc{font-size:12px;}
 
-/* MODAL */
 .img-modal{
   display:none;
   position:fixed;
   z-index:9999;
-  width:100%;
-  height:100%;
+  top:0;left:0;
+  width:100%;height:100%;
   background:rgba(0,0,0,0.9);
   justify-content:center;
   align-items:center;
@@ -132,27 +137,37 @@ html,body{margin:0;height:100%;font-family:'Segoe UI'}
   max-height:90%;
   border-radius:10px;
 }
+.img-modal span{
+  position:absolute;
+  top:20px;right:40px;
+  color:white;font-size:40px;
+  cursor:pointer;
+}
 </style>
 </head>
 
 <body>
-
 <div id="map"></div>
 
 <div class="panel">
 
-  <div class="filter-box">
+  <!-- DATE FILTER -->
+  <div class="filter-date">
     <input type="date" id="startDate">
     <input type="date" id="endDate">
+  </div>
 
-    <!-- Filter 1: Officer (data-base_info-nama) -->
-    <select id="filterOfficer"><option value="">All Officer</option></select>
-
-    <!-- Filter 2: Category (data-survey-categ) — AND with Officer -->
-    <select id="filterCategory"><option value="">All Category</option></select>
-
-    <!-- Filter 3: Finding (data-survey-finding) — AND with Officer & Category -->
-    <select id="filterFinding"><option value="">All Finding</option></select>
+  <!-- DROPDOWN FILTERS (NEW) -->
+  <div class="filter-select">
+    <select id="filterOfficer">
+      <option value="">All Officer</option>
+    </select>
+    <select id="filterCategory">
+      <option value="">All Category</option>
+    </select>
+    <select id="filterFinding">
+      <option value="">All Finding</option>
+    </select>
   </div>
 
   <div class="total-wrapper">
@@ -160,24 +175,23 @@ html,body{margin:0;height:100%;font-family:'Segoe UI'}
     <div id="totalSub" class="total-sub"></div>
   </div>
 
-  <canvas id="chart" height="180"></canvas>
-
+  <canvas id="chartCanvas" height="180"></canvas>
   <button id="resetFilter">Show All</button>
 
   <div class="toggle"><span>LULC</span><input type="checkbox" id="toggleLulc" checked></div>
   <div class="toggle"><span>Boundary</span><input type="checkbox" id="toggleBoundary" checked></div>
   <div class="toggle"><span>Points</span><input type="checkbox" id="togglePoints" checked></div>
-
 </div>
 
-<div id="modal" class="img-modal">
-  <img id="modalImg">
+<div id="imageModal" class="img-modal">
+  <span id="closeModal">&times;</span>
+  <img id="modalImage">
 </div>
 
 <script>
 
 /* ── MAP ── */
-const map = L.map('map', { center: [0.8, 110.325], zoom: 13 });
+const map = L.map('map', {center:[0.8,110.325], zoom:13});
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
 
 const lulc = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png').addTo(map);
@@ -189,117 +203,99 @@ fetch('data/CMI.json')
   .then(r => r.json())
   .then(j => {
     boundaryLayer = L.geoJSON(j, {
-      style: { color: "#7B1FA2", weight: 3, fillOpacity: 0 }
+      style:{color:"#7B1FA2", weight:3, fillOpacity:0}
     }).addTo(map);
     map.fitBounds(boundaryLayer.getBounds());
   });
 
 /* ── DATA ── */
-const url = "YOUR_CSV_URL";
+const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 
-let rawData = [];
-let chart;
-let selectedChart = null;  // category selected via pie chart click
+let rawData = [], chart, highlightCat = null;
 
 Papa.parse(url, {
-  download: true,
-  header: true,
-  complete: (res) => {
+  download:true,
+  header:true,
+  complete:(res) => {
     rawData = res.data;
-    initDropdowns();
+    initDropdowns();   // populate selects after data loaded
     updateMap();
   }
 });
 
-/* ── DATE PARSE (robust dd-MMM-yyyy) ── */
-function parseDate(s) {
-  if (!s) return null;
-  const d = new Date(s);
-  if (!isNaN(d)) return d;
-  const parts = s.split("-");
-  if (parts.length === 3) {
-    const day   = parseInt(parts[0]);
-    const month = new Date(parts[1] + " 1, 2000").getMonth();
-    const year  = parseInt(parts[2]);
-    return new Date(year, month, day);
+/* ── DATE PARSE ── */
+function parseDate(s){
+  if(!s) return null;
+  // try dd-MMM-yyyy (e.g. 24-Oct-2025)
+  const p = s.split('-');
+  if(p.length === 3 && isNaN(p[0]) === false){
+    const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,
+                    Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    if(months[p[1]] !== undefined)
+      return new Date(parseInt(p[2]), months[p[1]], parseInt(p[0]));
   }
-  return null;
+  const d = new Date(s);
+  return isNaN(d) ? null : d;
 }
 
-/* ── DROPDOWN INIT ──
-   Populate from rawData — no pre-filtering so all unique values appear.
-   AND logic is enforced in updateMap(), not here.
-*/
-function initDropdowns() {
-  const officers = new Set();
-  const cats     = new Set();
-  const finds    = new Set();
+/* ── INIT DROPDOWNS ── */
+// Reads unique values from CSV and fills the three selects
+function initDropdowns(){
+  const officers  = new Set();
+  const cats      = new Set();
+  const findings  = new Set();
 
   rawData.forEach(r => {
-    if (r['data-base_info-nama'])   officers.add(r['data-base_info-nama']);
-    if (r['data-survey-categ'])     cats.add(r['data-survey-categ']);
-    if (r['data-survey-finding'])   finds.add(r['data-survey-finding']);
+    if(r['data-base_info-nama'])   officers.add(r['data-base_info-nama']);
+    if(r['data-survey-categ'])     cats.add(r['data-survey-categ']);
+    if(r['data-survey-finding'])   findings.add(r['data-survey-finding']);
   });
 
-  fillSelect(filterOfficer,   officers);
-  fillSelect(filterCategory,  cats);
-  fillSelect(filterFinding,   finds);
+  fillSelect('filterOfficer',  [...officers].sort());
+  fillSelect('filterCategory', [...cats].sort());
+  fillSelect('filterFinding',  [...findings].sort());
 }
 
-function fillSelect(el, set) {
-  set.forEach(v => {
-    if (!v) return;
-    const opt = document.createElement("option");
-    opt.value       = v;
+function fillSelect(id, values){
+  const el = document.getElementById(id);
+  values.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v;
     opt.textContent = v;
     el.appendChild(opt);
   });
 }
 
-/* ── MAIN UPDATE ──
-   All active filters are applied with AND logic:
-   date range  AND  officer  AND  category  AND  finding  AND  chart-click
-*/
-function updateMap() {
-
+/* ── MAIN UPDATE ── */
+function updateMap(){
   pointLayer.clearLayers();
 
-  const counts = {};
-  let total = 0;
+  const start  = parseDate(document.getElementById('startDate').value);
+  const end    = parseDate(document.getElementById('endDate').value);
 
-  const start = parseDate(startDate.value);
-  const end   = parseDate(endDate.value);
+  // Read dropdown values (AND logic)
+  const selOfficer   = document.getElementById('filterOfficer').value;
+  const selCategory  = document.getElementById('filterCategory').value;
+  const selFinding   = document.getElementById('filterFinding').value;
 
-  // Current filter values
-  const selOfficer  = filterOfficer.value;
-  const selCategory = filterCategory.value;
-  const selFinding  = filterFinding.value;
+  let counts = {}, total = 0;
 
   rawData.forEach(r => {
-
     const coord = r['data-coordinate'];
-    if (!coord) return;
+    if(!coord) return;
 
-    // ── FILTER: date range (AND) ──
+    // ── AND FILTERS ──
     const d = parseDate(r['data-start_date']);
-    if (start && d && d < start) return;
-    if (end   && d && d > end)   return;
+    if(start && d && d < start) return;
+    if(end   && d && d > end)   return;
 
-    // ── FILTER: officer (AND) ──
-    if (selOfficer  && r['data-base_info-nama']  !== selOfficer)  return;
+    if(selOfficer  && r['data-base_info-nama']  !== selOfficer)  return;
+    if(selCategory && r['data-survey-categ']    !== selCategory) return;
+    if(selFinding  && r['data-survey-finding']  !== selFinding)  return;
+    // ─────────────────
 
-    // ── FILTER: category (AND) ──
-    if (selCategory && r['data-survey-categ']    !== selCategory) return;
-
-    // ── FILTER: finding (AND) ──
-    if (selFinding  && r['data-survey-finding']  !== selFinding)  return;
-
-    // ── FILTER: pie chart click (AND) ──
-    if (selectedChart && r['data-survey-categ']  !== selectedChart) return;
-
-    // ── PASSED ALL FILTERS — plot point ──
     const [lat, lon] = coord.split(',').map(Number);
-    if (isNaN(lat)) return;
+    if(isNaN(lat)) return;
 
     const cat     = r['data-survey-categ']    || "Unknown";
     const finding = r['data-survey-finding']  || "-";
@@ -312,104 +308,101 @@ function updateMap() {
     const popup = `
       <div>
         ${img ? `<div class="popup-img-container">
-          <img class="popup-img zoomable" src="${img}">
+          <img class="popup-img" src="${img}" onclick="openModal('${img}')">
         </div>` : ''}
         <div class="popup-body">
           <div class="popup-category">${cat}</div>
           <div class="popup-title">${finding}</div>
           <div class="popup-meta">
-            ${r['data-base_info-nama'] || '-'}<br>
-            ${r['data-start_date']     || '-'}
+            Officer: ${r['data-base_info-nama'] || '-'}<br>
+            Date: ${r['data-start_date'] || '-'}
           </div>
-          <div class="popup-desc">
-            ${r['data-survey-description'] || ''}
-          </div>
+          <div class="popup-desc">${r['data-survey-description'] || ''}</div>
         </div>
       </div>`;
 
     const m = L.marker([lat, lon]).bindPopup(popup);
     m.category = cat;
+
+    // restore highlight state if active
+    if(highlightCat) m.setOpacity(m.category === highlightCat ? 1 : 0.2);
+
     pointLayer.addLayer(m);
   });
 
-  /* ── TOTAL DISPLAY ── */
   totalMain.innerText = total;
 
-  /* ── PIE CHART ── */
-  if (chart) chart.destroy();
+  /* ── CHART ── */
+  if(chart) chart.destroy();
 
   const labels = Object.keys(counts);
   const values = Object.values(counts);
 
-  chart = new Chart(document.getElementById('chart'), {
-    type: 'pie',
-    data: {
-      labels,
-      datasets: [{ data: values, backgroundColor: gen(labels.length) }]
-    },
-    options: {
-      plugins: { legend: { position: 'bottom' } },
-      onClick: (e, el) => {
-        if (!el.length) return;
-
+  chart = new Chart(chartCanvas, {
+    type:'pie',
+    data:{labels, datasets:[{data:values, backgroundColor:gen(labels.length)}]},
+    options:{
+      plugins:{legend:{position:'bottom'}},
+      onClick:(e, el) => {
+        if(!el.length) return;
         const cat = labels[el[0].index];
         const val = values[el[0].index];
-
-        if (selectedChart === cat) {
-          // second click → deselect
-          selectedChart = null;
+        if(highlightCat === cat){
+          // toggle off
+          highlightCat = null;
           totalSub.style.display = 'none';
+          pointLayer.eachLayer(m => m.setOpacity(1));
         } else {
-          selectedChart = cat;
+          highlightCat = cat;
           totalSub.style.display = 'block';
           totalSub.innerText = val;
+          pointLayer.eachLayer(m => m.setOpacity(m.category === cat ? 1 : 0.2));
         }
-
-        updateMap();
       }
     }
   });
 }
 
-/* ── EVENT LISTENERS ── */
-[startDate, endDate, filterOfficer, filterCategory, filterFinding].forEach(el => {
-  el.onchange = updateMap;
-});
+/* ── EVENTS ── */
+['startDate','endDate','filterOfficer','filterCategory','filterFinding']
+  .forEach(id => document.getElementById(id).addEventListener('change', () => {
+    highlightCat = null;               // reset highlight when any filter changes
+    totalSub.style.display = 'none';
+    updateMap();
+  }));
 
-resetFilter.onclick = () => {
-  startDate.value       = "";
-  endDate.value         = "";
-  filterOfficer.value   = "";
-  filterCategory.value  = "";
-  filterFinding.value   = "";
-  selectedChart         = null;
+document.getElementById('resetFilter').onclick = () => {
+  document.getElementById('startDate').value    = '';
+  document.getElementById('endDate').value      = '';
+  document.getElementById('filterOfficer').value   = '';
+  document.getElementById('filterCategory').value  = '';
+  document.getElementById('filterFinding').value   = '';
+  highlightCat = null;
   totalSub.style.display = 'none';
   updateMap();
 };
 
 /* ── LAYER TOGGLES ── */
-toggleLulc.onchange     = e => e.target.checked ? map.addLayer(lulc)          : map.removeLayer(lulc);
+toggleLulc.onchange     = e => e.target.checked ? map.addLayer(lulc)           : map.removeLayer(lulc);
 toggleBoundary.onchange = e => boundaryLayer && (e.target.checked ? map.addLayer(boundaryLayer) : map.removeLayer(boundaryLayer));
-togglePoints.onchange   = e => e.target.checked ? map.addLayer(pointLayer)    : map.removeLayer(pointLayer);
+togglePoints.onchange   = e => e.target.checked ? map.addLayer(pointLayer)     : map.removeLayer(pointLayer);
 
-/* ── IMAGE MODAL ── */
-document.addEventListener('click', function(e) {
-  if (e.target.classList.contains('zoomable')) {
-    modal.style.display = 'flex';
-    modalImg.src = e.target.src;
-  }
-});
-modal.onclick = () => modal.style.display = 'none';
+/* ── MODAL ── */
+function openModal(src){
+  imageModal.style.display = 'flex';
+  modalImage.src = src;
+}
+document.getElementById('closeModal').onclick = () => imageModal.style.display = 'none';
+imageModal.onclick = e => { if(e.target === imageModal) imageModal.style.display = 'none'; };
 
-/* ── UTILITIES ── */
-function convert(url) {
-  if (!url) return null;
+/* ── UTILS ── */
+function convert(url){
+  if(!url) return null;
   const id = url.match(/[-\w]{25,}/);
   return id ? `https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000` : null;
 }
-
-function gen(n) {
-  return Array.from({ length: n }, (_, i) => `hsl(${i * 360 / n}, 70%, 60%)`);
+function gen(n){
+  return Array.from({length:n}, (_,i) => `hsl(${i*360/n},70%,60%)`);
 }
 
 </script>
