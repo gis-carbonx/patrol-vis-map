@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Patrol Monitoring</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -70,14 +71,14 @@ margin-top:8px;
 font-size:13px;
 }
 
-/* ===== POPUP STYLE ===== */
+/* POPUP */
 .leaflet-popup-content-wrapper{
 border-radius:14px;
 padding:0;
 overflow:hidden;
 }
 
-/* IMAGE FIX SIZE (NOT RATIO) */
+/* IMAGE FIX SIZE */
 .popup-img-container{
 width:260px;
 height:180px;
@@ -98,12 +99,11 @@ font-size:10px;
 font-weight:600;
 color:#888;
 text-transform:uppercase;
-margin-bottom:2px;
 }
 .popup-title{
 font-size:14px;
 font-weight:600;
-margin-bottom:6px;
+margin:4px 0;
 }
 .popup-meta{
 font-size:11px;
@@ -112,24 +112,35 @@ margin-bottom:6px;
 }
 .popup-desc{
 font-size:12px;
-line-height:1.4;
 }
 
-/* MODAL ZOOM */
+/* ===== FULLSCREEN MODAL ===== */
 .img-modal{
 display:none;
 position:fixed;
 z-index:9999;
+top:0;
+left:0;
 width:100%;
 height:100%;
-background:rgba(0,0,0,0.85);
+background:rgba(0,0,0,0.9);
 justify-content:center;
 align-items:center;
 }
+
 .img-modal img{
 max-width:90%;
 max-height:90%;
 border-radius:10px;
+}
+
+.img-modal span{
+position:absolute;
+top:20px;
+right:40px;
+color:white;
+font-size:40px;
+cursor:pointer;
 }
 </style>
 </head>
@@ -158,13 +169,14 @@ border-radius:10px;
 </div>
 
 <!-- MODAL -->
-<div id="modal" class="img-modal">
-<img id="modalImg">
+<div id="imageModal" class="img-modal">
+<span id="closeModal">&times;</span>
+<img id="modalImage">
 </div>
 
 <script>
 
-/* ================= MAP ================= */
+/* MAP */
 const map=L.map('map',{center:[0.8,110.325],zoom:13});
 
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}')
@@ -175,7 +187,7 @@ const lulc=L.tileLayer('./data/Tiles/{z}/{x}/{y}.png').addTo(map);
 let boundaryLayer;
 let pointLayer=L.layerGroup().addTo(map);
 
-/* ================= BOUNDARY ================= */
+/* BOUNDARY */
 fetch('data/CMI.json')
 .then(r=>r.json())
 .then(j=>{
@@ -183,18 +195,17 @@ boundaryLayer=L.geoJSON(j,{
 style:{
 color:"#7B1FA2",
 weight:3,
-fillOpacity:0   // FIX transparan
+fillOpacity:0
 }
 }).addTo(map);
 
 map.fitBounds(boundaryLayer.getBounds());
 });
 
-/* ================= DATA ================= */
+/* DATA */
 const url="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 
-let rawData=[];
-let chart;
+let rawData=[], chart;
 
 Papa.parse(url,{
 download:true,
@@ -205,30 +216,22 @@ updateMap();
 }
 });
 
-/* ================= DATE PARSER (FIX STRONG) ================= */
+/* DATE */
 function parseDate(s){
 if(!s) return null;
-
-/* handle multiple format */
 let d=new Date(s);
 if(!isNaN(d)) return d;
-
-/* fallback: dd/mm/yyyy */
-const parts=s.split('/');
-if(parts.length===3){
-return new Date(parts[2],parts[1]-1,parts[0]);
-}
-
+const p=s.split('/');
+if(p.length===3) return new Date(p[2],p[1]-1,p[0]);
 return null;
 }
 
-/* ================= UPDATE ================= */
+/* UPDATE */
 function updateMap(){
 
 pointLayer.clearLayers();
 
 let counts={}, total=0;
-
 const start=parseDate(startDate.value);
 const end=parseDate(endDate.value);
 
@@ -238,10 +241,8 @@ const coord=r['data-coordinate'];
 if(!coord) return;
 
 const d=parseDate(r['data-start_date']);
-
-/* FILTER FIX */
-if(start && d && d < start) return;
-if(end && d && d > end) return;
+if(start && d && d<start) return;
+if(end && d && d>end) return;
 
 const [lat,lon]=coord.split(',').map(Number);
 if(isNaN(lat)) return;
@@ -254,13 +255,12 @@ total++;
 
 const img=convert(r['data-documentation-image_1']);
 
-/* ===== POPUP MODERN ===== */
 const popup=`
 <div>
 
 ${img?`
 <div class="popup-img-container">
-<img class="popup-img zoomable" src="${img}">
+<img class="popup-img" src="${img}" onclick="openModal('${img}')">
 </div>`:''}
 
 <div class="popup-body">
@@ -287,7 +287,7 @@ pointLayer.addLayer(m);
 
 totalMain.innerText=total;
 
-/* ================= CHART ================= */
+/* CHART */
 if(chart) chart.destroy();
 
 const labels=Object.keys(counts);
@@ -306,7 +306,7 @@ highlight(labels[el[0].index],values[el[0].index]);
 });
 }
 
-/* ================= FILTER ================= */
+/* FILTER */
 function highlight(cat,count){
 if(!cat){
 totalSub.style.display='none';
@@ -321,7 +321,7 @@ m.setOpacity(m.category===cat?1:0.2);
 });
 }
 
-/* ================= EVENTS ================= */
+/* EVENTS */
 resetFilter.onclick=()=>{
 startDate.value="";
 endDate.value="";
@@ -331,29 +331,28 @@ updateMap();
 startDate.onchange=updateMap;
 endDate.onchange=updateMap;
 
-/* ================= LAYER CONTROL ================= */
+/* LAYER */
 toggleLulc.onchange=e=>e.target.checked?map.addLayer(lulc):map.removeLayer(lulc);
+toggleBoundary.onchange=e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
+togglePoints.onchange=e=>e.target.checked?map.addLayer(pointLayer):map.removeLayer(pointLayer);
 
-toggleBoundary.onchange=e=>{
-if(!boundaryLayer) return;
-e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer);
-};
-
-togglePoints.onchange=e=>{
-e.target.checked?map.addLayer(pointLayer):map.removeLayer(pointLayer);
-};
-
-/* ================= IMAGE ZOOM FIX ================= */
-document.addEventListener('click',function(e){
-if(e.target.classList.contains('zoomable')){
-modal.style.display='flex';
-modalImg.src=e.target.src;
+/* ===== MODAL FUNCTION (KEY PART) ===== */
+function openModal(src){
+const modal=document.getElementById("imageModal");
+const img=document.getElementById("modalImage");
+modal.style.display="flex";
+img.src=src;
 }
-});
 
-modal.onclick=()=>modal.style.display='none';
+document.getElementById("closeModal").onclick=()=>{
+imageModal.style.display="none";
+};
 
-/* ================= UTIL ================= */
+imageModal.onclick=(e)=>{
+if(e.target===imageModal) imageModal.style.display="none";
+};
+
+/* UTIL */
 function convert(url){
 if(!url)return null;
 const id=url.match(/[-\w]{25,}/);
