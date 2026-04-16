@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Patrol Monitoring</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -20,9 +21,9 @@ position:absolute;
 top:20px;
 right:20px;
 z-index:1000;
-width:340px;
-background:rgba(255,255,255,0.85);
-backdrop-filter:blur(14px);
+width:360px;
+background:rgba(255,255,255,0.9);
+backdrop-filter:blur(12px);
 border-radius:16px;
 padding:15px;
 box-shadow:0 8px 25px rgba(0,0,0,0.15);
@@ -31,11 +32,13 @@ box-shadow:0 8px 25px rgba(0,0,0,0.15);
 /* FILTER */
 .filter-box{
 display:flex;
-gap:5px;
+gap:6px;
+flex-wrap:wrap;
 margin-bottom:8px;
 }
-.filter-box input, .filter-box select{
-flex:1;
+.filter-box input,
+.filter-box select{
+flex:1 1 48%;
 padding:6px;
 border-radius:6px;
 border:1px solid #ccc;
@@ -48,19 +51,21 @@ display:flex;
 justify-content:center;
 align-items:center;
 gap:10px;
+margin:10px 0;
 }
 .total-main{font-size:26px;font-weight:600;}
 .total-sub{font-size:16px;color:#ff5722;display:none;}
 
 /* BUTTON */
 #resetFilter{
-margin-top:8px;
+margin-top:10px;
 width:100%;
-padding:7px;
+padding:8px;
 border:none;
-border-radius:6px;
+border-radius:8px;
 background:#111;
 color:white;
+cursor:pointer;
 }
 
 /* TOGGLE */
@@ -112,7 +117,7 @@ margin-bottom:6px;
 font-size:12px;
 }
 
-/* IMAGE MODAL */
+/* MODAL */
 .img-modal{
 display:none;
 position:fixed;
@@ -141,9 +146,6 @@ cursor:zoom-out;
 <div class="filter-box">
 <input type="date" id="startDate">
 <input type="date" id="endDate">
-</div>
-
-<div class="filter-box">
 <select id="filterOfficer"><option value="">Officer</option></select>
 <select id="filterCategory"><option value="">Category</option></select>
 <select id="filterFinding"><option value="">Finding</option></select>
@@ -154,7 +156,7 @@ cursor:zoom-out;
 <div id="totalSub" class="total-sub"></div>
 </div>
 
-<canvas id="chart" height="180"></canvas>
+<canvas id="chart"></canvas>
 
 <button id="resetFilter">Reset Filter</button>
 
@@ -169,6 +171,11 @@ cursor:zoom-out;
 </div>
 
 <script>
+
+/* FIX ELEMENT BINDING */
+const chartCanvas=document.getElementById('chart');
+const modal=document.getElementById('modal');
+const modalImg=document.getElementById('modalImg');
 
 /* MAP */
 const map=L.map('map',{center:[0.8,110.325],zoom:13});
@@ -204,17 +211,15 @@ updateMap();
 }
 });
 
-/* DATE FIX (robust parsing) */
+/* DATE FIX */
 function parseDate(str){
 if(!str) return null;
-const parts=str.split("-");
-if(parts.length===3){
-return new Date(parts[2],parts[1]-1,parts[0]); // DD-MM-YYYY FIX
-}
+const p=str.split("-");
+if(p.length===3) return new Date(p[2],p[1]-1,p[0]);
 return new Date(str);
 }
 
-/* INIT FILTER OPTIONS */
+/* FILTER INIT */
 function initFilters(){
 const officers=new Set(),cats=new Set(),finds=new Set();
 
@@ -224,21 +229,20 @@ if(r['data-survey-categ']) cats.add(r['data-survey-categ']);
 if(r['data-survey-finding']) finds.add(r['data-survey-finding']);
 });
 
-fillSelect(filterOfficer,officers);
-fillSelect(filterCategory,cats);
-fillSelect(filterFinding,finds);
+fill(filterOfficer,officers);
+fill(filterCategory,cats);
+fill(filterFinding,finds);
 }
 
-function fillSelect(el,set){
+function fill(el,set){
 [...set].sort().forEach(v=>{
-const opt=document.createElement('option');
-opt.value=v;
-opt.textContent=v;
-el.appendChild(opt);
+const o=document.createElement('option');
+o.value=v;o.textContent=v;
+el.appendChild(o);
 });
 }
 
-/* UPDATE MAP */
+/* UPDATE */
 function updateMap(){
 
 pointLayer.clearLayers();
@@ -249,8 +253,8 @@ const start=parseDate(startDate.value);
 const end=parseDate(endDate.value);
 
 const officer=filterOfficer.value;
-const catFilter=filterCategory.value;
-const findFilter=filterFinding.value;
+const catF=filterCategory.value;
+const findF=filterFinding.value;
 
 rawData.forEach(r=>{
 
@@ -260,18 +264,16 @@ if(!coord) return;
 const d=parseDate(r['data-start_date']);
 
 let pass=true;
-
 if(start && d && d<start) pass=false;
 if(end && d && d>end) pass=false;
 if(officer && r['data-base_info-nama']!==officer) pass=false;
-if(catFilter && r['data-survey-categ']!==catFilter) pass=false;
-if(findFilter && r['data-survey-finding']!==findFilter) pass=false;
+if(catF && r['data-survey-categ']!==catF) pass=false;
+if(findF && r['data-survey-finding']!==findF) pass=false;
 
 const [lat,lon]=coord.split(',').map(Number);
 if(isNaN(lat)) return;
 
 const cat=r['data-survey-categ']||"Unknown";
-const finding=r['data-survey-finding']||"-";
 
 counts[cat]=(counts[cat]||0)+1;
 total++;
@@ -285,30 +287,29 @@ ${img?`<div class="popup-img-container">
 </div>`:''}
 <div class="popup-body">
 <div class="popup-category">${cat}</div>
-<div class="popup-title">${finding}</div>
+<div class="popup-title">${r['data-survey-finding']||'-'}</div>
 <div class="popup-meta">
-Officer: ${r['data-base_info-nama']||'-'}<br>
-Date: ${r['data-start_date']||'-'}
+${r['data-base_info-nama']||'-'}<br>
+${r['data-start_date']||'-'}
 </div>
-<div class="popup-desc">
-${r['data-survey-description']||''}
-</div>
+<div class="popup-desc">${r['data-survey-description']||''}</div>
 </div>
 </div>`;
 
 const m=L.marker([lat,lon]).bindPopup(popup);
 m.category=cat;
 
-/* 🔥 transparency logic */
+/* TRANSPARANSI */
 m.setOpacity(pass?1:0.1);
 
 pointLayer.addLayer(m);
 
 });
 
+/* TOTAL */
 totalMain.innerText=total;
 
-/* CHART */
+/* CHART FIX */
 if(chart) chart.destroy();
 
 const labels=Object.keys(counts);
@@ -316,29 +317,17 @@ const values=Object.values(counts);
 
 chart=new Chart(chartCanvas,{
 type:'pie',
-data:{labels,datasets:[{data:values,backgroundColor:gen(labels.length)}]},
+data:{
+labels,
+datasets:[{
+data:values,
+backgroundColor:labels.map((_,i)=>`hsl(${i*360/labels.length},70%,60%)`)
+}]
+},
 options:{
 plugins:{legend:{position:'bottom'}},
-onClick:(e,el)=>{
-if(!el.length)return;
-highlight(labels[el[0].index],values[el[0].index]);
+responsive:true
 }
-}
-});
-}
-
-/* HIGHLIGHT */
-function highlight(cat,count){
-if(!cat){
-totalSub.style.display='none';
-pointLayer.eachLayer(m=>m.setOpacity(1));
-return;
-}
-totalSub.style.display='block';
-totalSub.innerText=count;
-
-pointLayer.eachLayer(m=>{
-m.setOpacity(m.category===cat?1:0.1);
 });
 }
 
@@ -360,8 +349,8 @@ toggleLulc.onchange=e=>e.target.checked?map.addLayer(lulc):map.removeLayer(lulc)
 toggleBoundary.onchange=e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
 togglePoints.onchange=e=>e.target.checked?map.addLayer(pointLayer):map.removeLayer(pointLayer);
 
-/* IMAGE ZOOM */
-document.addEventListener('click',function(e){
+/* IMAGE ZOOM FIX */
+document.addEventListener('click',e=>{
 if(e.target.classList.contains('zoomable')){
 modal.style.display='flex';
 modalImg.src=e.target.src;
@@ -375,7 +364,6 @@ if(!url)return null;
 const id=url.match(/[-\w]{25,}/);
 return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null;
 }
-function gen(n){return Array.from({length:n},(_,i)=>`hsl(${i*360/n},70%,60%)`)}
 
 </script>
 
