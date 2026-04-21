@@ -3,419 +3,485 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patrol Monitoring</title>
+  <title>Patrol x Monitoring</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
-    html,body{margin:0;height:100%;font-family:'Segoe UI'}
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif}
     #map{height:100%}
+
+    /* ── PANEL ── */
     .panel{
       position:absolute;
-      top:20px;
-      right:20px;
+      top:16px;right:16px;
       z-index:1000;
-      width:330px;
-      background:rgba(255,255,255,0.85);
-      backdrop-filter:blur(14px);
-      border-radius:16px;
-      padding:15px;
-      box-shadow:0 8px 25px rgba(0,0,0,0.15);
-    }
-    .total-wrapper{
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      gap:10px;
-    }
-    .total-main{font-size:28px;font-weight:600;}
-    .total-sub{font-size:18px;color:#FF5722;display:none;}
-    .filter-date{
-      display:flex;
-      gap:5px;
-      margin-bottom:6px;
-    }
-    .filter-date input{
-      flex:1;
-      padding:6px;
-      border-radius:6px;
-      border:1px solid #ccc;
-      font-size:12px;
-    }
-    .filter-select{
-      display:flex;
-      flex-direction:column;
-      gap:5px;
-      margin-bottom:10px;
-    }
-    .filter-select select{
-      width:100%;
-      padding:6px;
-      border-radius:6px;
-      border:1px solid #ccc;
-      font-size:12px;
+      width:300px;
       background:#fff;
-    }
-    #resetFilter{
-      margin-top:8px;
-      width:100%;
-      padding:7px;
-      border:none;
-      border-radius:6px;
-      background:#111;
-      color:white;
-      cursor:pointer;
-    }
-    .toggle{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-top:8px;
-      font-size:13px;
-    }
-    .leaflet-popup-content-wrapper{
-      border-radius:14px;
-      padding:0;
+      border-radius:16px;
+      box-shadow:0 2px 16px rgba(0,0,0,0.12);
       overflow:hidden;
-    }
-    .leaflet-popup-content{
-      margin:0;
-      width:260px !important;
     }
 
-    /* ── SLIDER ── */
-    .popup-slider{
-      position:relative;
-      width:260px;
-      height:180px;
+    /* header strip */
+    .panel-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:14px 16px 10px;
+      border-bottom:1px solid #f0f0f0;
+    }
+    .panel-title{font-size:13px;font-weight:600;letter-spacing:.5px;color:#111;text-transform:uppercase}
+
+    /* collapse toggle */
+    .panel-toggle{
+      background:none;border:none;cursor:pointer;
+      padding:4px;border-radius:6px;
+      color:#888;font-size:18px;line-height:1;
+      transition:background .15s;
+    }
+    .panel-toggle:hover{background:#f4f4f4}
+
+    .panel-body{padding:14px 16px}
+
+    /* ── FILTER SECTION ── */
+    .section-label{
+      font-size:10px;font-weight:600;letter-spacing:.6px;
+      color:#aaa;text-transform:uppercase;margin-bottom:6px;
+    }
+    .filter-date{display:flex;gap:6px;margin-bottom:10px}
+    .filter-date input{
+      flex:1;padding:7px 9px;
+      border:1px solid #e8e8e8;border-radius:8px;
+      font-size:12px;color:#333;background:#fafafa;
+      outline:none;transition:border .15s;
+    }
+    .filter-date input:focus{border-color:#6c63ff;background:#fff}
+
+    .filter-selects{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+    .filter-selects select{
+      width:100%;padding:7px 9px;
+      border:1px solid #e8e8e8;border-radius:8px;
+      font-size:12px;color:#333;background:#fafafa;
+      outline:none;cursor:pointer;transition:border .15s;
+      appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23aaa'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 10px center;
+      padding-right:28px;
+    }
+    .filter-selects select:focus{border-color:#6c63ff;background-color:#fff}
+
+    /* ── STAT ── */
+    .stat-row{
+      display:flex;align-items:baseline;gap:8px;
+      margin:4px 0 10px;
+    }
+    .stat-main{font-size:30px;font-weight:700;color:#111;line-height:1}
+    .stat-sub{font-size:16px;font-weight:600;color:#ff5722;display:none}
+
+    /* ── CHART ── */
+    .chart-wrap{margin-bottom:12px}
+
+    /* ── RESET BTN ── */
+    .btn-reset{
+      width:100%;padding:8px;
+      border:none;border-radius:8px;
+      background:#111;color:#fff;
+      font-size:12px;font-weight:600;letter-spacing:.4px;
+      cursor:pointer;transition:background .15s;
+    }
+    .btn-reset:hover{background:#333}
+
+    /* ── LAYER CONTROL ── */
+    .layer-section{
+      border-top:1px solid #f0f0f0;
+      margin-top:12px;
+    }
+    .layer-header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:10px 0 0;
+      cursor:pointer;user-select:none;
+    }
+    .layer-header:hover .section-label{color:#6c63ff}
+    .layer-chevron{
+      font-size:11px;color:#aaa;
+      transition:transform .2s;
+    }
+    .layer-chevron.open{transform:rotate(180deg)}
+    .layer-list{
       overflow:hidden;
-      background:#eee;
+      max-height:0;
+      transition:max-height .25s ease;
+    }
+    .layer-list.open{max-height:300px}
+
+    .toggle-row{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:7px 0;
+      border-bottom:1px solid #f7f7f7;
+    }
+    .toggle-row:last-child{border-bottom:none}
+    .toggle-label{font-size:12px;color:#444;display:flex;align-items:center;gap:7px}
+    .layer-dot{
+      width:8px;height:8px;border-radius:50%;flex-shrink:0;
+    }
+
+    /* custom toggle switch */
+    .switch{position:relative;width:32px;height:18px;flex-shrink:0}
+    .switch input{opacity:0;width:0;height:0}
+    .slider-sw{
+      position:absolute;inset:0;
+      background:#ddd;border-radius:18px;
+      cursor:pointer;transition:background .2s;
+    }
+    .slider-sw:before{
+      content:'';position:absolute;
+      width:12px;height:12px;border-radius:50%;
+      background:#fff;
+      left:3px;top:3px;
+      transition:transform .2s;
+    }
+    .switch input:checked + .slider-sw{background:#6c63ff}
+    .switch input:checked + .slider-sw:before{transform:translateX(14px)}
+
+    /* ── POPUP ── */
+    .leaflet-popup-content-wrapper{
+      border-radius:14px;padding:0;overflow:hidden;
+      box-shadow:0 4px 20px rgba(0,0,0,0.15);
+    }
+    .leaflet-popup-content{margin:0;width:260px !important}
+    .leaflet-popup-tip-container{margin-top:-1px}
+
+    .popup-slider{
+      position:relative;width:260px;height:175px;
+      overflow:hidden;background:#eee;
     }
     .popup-slider .slides{
-      display:flex;
-      height:100%;
-      transition:transform 0.3s ease;
+      display:flex;height:100%;
+      transition:transform .3s ease;
     }
-    .popup-slider .slide{
-      min-width:260px;
-      height:180px;
-      overflow:hidden;
-    }
+    .popup-slider .slide{min-width:260px;height:175px;overflow:hidden}
     .popup-slider .slide img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      cursor:pointer;
-      display:block;
+      width:100%;height:100%;object-fit:cover;cursor:pointer;display:block;
     }
     .slider-btn{
-      position:absolute;
-      top:50%;
-      transform:translateY(-50%);
-      background:rgba(0,0,0,0.45);
-      color:#fff;
-      border:none;
-      border-radius:50%;
-      width:28px;
-      height:28px;
-      font-size:16px;
-      line-height:28px;
-      text-align:center;
-      cursor:pointer;
-      z-index:10;
-      padding:0;
+      position:absolute;top:50%;transform:translateY(-50%);
+      background:rgba(0,0,0,0.4);color:#fff;
+      border:none;border-radius:50%;
+      width:26px;height:26px;font-size:15px;
+      line-height:26px;text-align:center;
+      cursor:pointer;z-index:10;padding:0;
+      transition:background .15s;
     }
-    .slider-btn.prev{left:6px;}
-    .slider-btn.next{right:6px;}
-    .slider-btn:hover{background:rgba(0,0,0,0.7);}
+    .slider-btn.prev{left:6px}
+    .slider-btn.next{right:6px}
+    .slider-btn:hover{background:rgba(0,0,0,0.65)}
     .slider-dots{
-      position:absolute;
-      bottom:6px;
-      width:100%;
-      display:flex;
-      justify-content:center;
-      gap:5px;
+      position:absolute;bottom:6px;width:100%;
+      display:flex;justify-content:center;gap:5px;
     }
     .slider-dots span{
-      width:7px;
-      height:7px;
-      border-radius:50%;
-      background:rgba(255,255,255,0.5);
-      display:inline-block;
+      width:6px;height:6px;border-radius:50%;
+      background:rgba(255,255,255,0.45);
     }
-    .slider-dots span.active{background:#fff;}
+    .slider-dots span.active{background:#fff}
 
-    .popup-body{padding:10px;}
-    .popup-category{
-      font-size:10px;
-      font-weight:600;
-      color:#888;
-      text-transform:uppercase;
-    }
-    .popup-title{
-      font-size:14px;
-      font-weight:600;
-      margin:4px 0;
-    }
-    .popup-meta{
-      font-size:11px;
-      color:#666;
-      margin-bottom:6px;
-    }
-    .popup-desc{font-size:12px;}
+    .popup-body{padding:11px 12px}
+    .popup-category{font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.5px}
+    .popup-title{font-size:13px;font-weight:600;margin:3px 0 5px;color:#111}
+    .popup-meta{font-size:11px;color:#888;margin-bottom:5px;line-height:1.6}
+    .popup-desc{font-size:11px;color:#555;line-height:1.5}
+
+    /* ── MODAL ── */
     .img-modal{
-      display:none;
-      position:fixed;
-      z-index:9999;
-      top:0;left:0;
-      width:100%;height:100%;
-      background:rgba(0,0,0,0.9);
-      justify-content:center;
-      align-items:center;
+      display:none;position:fixed;z-index:9999;
+      inset:0;background:rgba(0,0,0,0.88);
+      justify-content:center;align-items:center;
     }
-    .img-modal img{
-      max-width:90%;
-      max-height:90%;
-      border-radius:10px;
+    .img-modal img{max-width:90%;max-height:90%;border-radius:10px}
+    .modal-close{
+      position:absolute;top:18px;right:32px;
+      color:#fff;font-size:36px;cursor:pointer;
+      line-height:1;opacity:.8;transition:opacity .15s;
     }
-    .img-modal span{
-      position:absolute;
-      top:20px;right:40px;
-      color:white;font-size:40px;
-      cursor:pointer;
-    }
+    .modal-close:hover{opacity:1}
   </style>
 </head>
 <body>
 <div id="map"></div>
-<div class="panel">
-  <div class="filter-date">
-    <input type="date" id="startDate">
-    <input type="date" id="endDate">
+
+<div class="panel" id="mainPanel">
+  <!-- HEADER -->
+  <div class="panel-header">
+    <span class="panel-title">Patrol Monitor</span>
+    <button class="panel-toggle" id="collapseBtn" title="Minimize">&#8722;</button>
   </div>
-  <div class="filter-select">
-    <select id="filterOfficer">
-      <option value="">All Officer</option>
-    </select>
-    <select id="filterCategory">
-      <option value="">All Category</option>
-    </select>
-    <select id="filterFinding">
-      <option value="">All Finding</option>
-    </select>
-  </div>
-  <div class="total-wrapper">
-    <div id="totalMain" class="total-main">0</div>
-    <div id="totalSub" class="total-sub"></div>
-  </div>
-  <canvas id="chartCanvas" height="180"></canvas>
-  <button id="resetFilter">Show All</button>
-  <div class="toggle"><span>LULC 2023</span><input type="checkbox" id="toggleLulc" checked></div>
-  <div class="toggle"><span>LULC 2025</span><input type="checkbox" id="toggleLulc2025"></div>
-  <div class="toggle"><span>Landsat 2024</span><input type="checkbox" id="toggleLandsat2024"></div>
-  <div class="toggle"><span>Landsat 2025</span><input type="checkbox" id="toggleLandsat2025"></div>
-  <div class="toggle"><span>Boundary</span><input type="checkbox" id="toggleBoundary" checked></div>
-  <div class="toggle"><span>Points</span><input type="checkbox" id="togglePoints" checked></div>
-</div>
+
+  <!-- BODY -->
+  <div class="panel-body" id="panelBody">
+
+    <!-- DATE -->
+    <div class="section-label">Date range</div>
+    <div class="filter-date">
+      <input type="date" id="startDate">
+      <input type="date" id="endDate">
+    </div>
+
+    <!-- DROPDOWNS -->
+    <div class="section-label">Filter</div>
+    <div class="filter-selects">
+      <select id="filterOfficer"><option value="">All Officers</option></select>
+      <select id="filterCategory"><option value="">All Categories</option></select>
+      <select id="filterFinding"><option value="">All Findings</option></select>
+    </div>
+
+    <!-- STAT -->
+    <div class="stat-row">
+      <span class="stat-main" id="totalMain">0</span>
+      <span class="stat-sub" id="totalSub"></span>
+    </div>
+
+    <!-- CHART -->
+    <div class="chart-wrap">
+      <canvas id="chartCanvas" height="170"></canvas>
+    </div>
+
+    <!-- RESET -->
+    <button class="btn-reset" id="resetFilter">Show All</button>
+
+    <!-- LAYER CONTROL -->
+    <div class="layer-section">
+      <div class="layer-header" id="layerHeader">
+        <span class="section-label" style="margin:0">Layers</span>
+        <span class="layer-chevron" id="layerChevron">&#9660;</span>
+      </div>
+      <div class="layer-list" id="layerList">
+        <div style="padding-top:8px">
+
+          <div class="toggle-row">
+            <span class="toggle-label">
+              <span class="layer-dot" style="background:#4CAF50"></span>LULC 2023
+            </span>
+            <label class="switch">
+              <input type="checkbox" id="toggleLulc" checked>
+              <span class="slider-sw"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">
+              <span class="layer-dot" style="background:#00BCD4"></span>LULC 2025
+            </span>
+            <label class="switch">
+              <input type="checkbox" id="toggleLulc2025">
+              <span class="slider-sw"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">
+              <span class="layer-dot" style="background:#FF9800"></span>Landsat 2024
+            </span>
+            <label class="switch">
+              <input type="checkbox" id="toggleLandsat2024">
+              <span class="slider-sw"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">
+              <span class="layer-dot" style="background:#F44336"></span>Landsat 2025
+            </span>
+            <label class="switch">
+              <input type="checkbox" id="toggleLandsat2025">
+              <span class="slider-sw"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">
+              <span class="layer-dot" style="background:#7B1FA2"></span>Boundary
+            </span>
+            <label class="switch">
+              <input type="checkbox" id="toggleBoundary" checked>
+              <span class="slider-sw"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">
+              <span class="layer-dot" style="background:#2196F3"></span>Points
+            </span>
+            <label class="switch">
+              <input type="checkbox" id="togglePoints" checked>
+              <span class="slider-sw"></span>
+            </label>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /panel-body -->
+</div><!-- /panel -->
+
 <div id="imageModal" class="img-modal">
-  <span id="closeModal">&times;</span>
+  <span class="modal-close" id="closeModal">&times;</span>
   <img id="modalImage">
 </div>
+
 <script>
   /* ── MAP ── */
-  const map = L.map('map', {center:[0.8,110.325], zoom:13});
+  const map = L.map('map',{center:[0.8,110.325],zoom:13});
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
 
-  /* ── RASTER LAYERS — opacity:1 (100%) ── */
-  const lulc         = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png',          {opacity:1}).addTo(map);
-  const lulc2025     = L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',     {opacity:1});
-  const landsat2024  = L.tileLayer('./data/landsat-2024/{z}/{x}/{y}.png',   {opacity:1});
-  const landsat2025  = L.tileLayer('./data/landsat-2025/{z}/{x}/{y}.png',   {opacity:1});
+  const lulc        = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png',         {opacity:1}).addTo(map);
+  const lulc2025    = L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',    {opacity:1});
+  const landsat2024 = L.tileLayer('./data/landsat-2024/{z}/{x}/{y}.png',  {opacity:1});
+  const landsat2025 = L.tileLayer('./data/landsat-2025/{z}/{x}/{y}.png',  {opacity:1});
 
   let boundaryLayer;
   let pointLayer = L.layerGroup().addTo(map);
 
   /* ── BOUNDARY ── */
   fetch('data/CMI.json')
-    .then(r => r.json())
-    .then(j => {
-      boundaryLayer = L.geoJSON(j, {
-        style:{color:"#7B1FA2", weight:3, fillOpacity:0}
-      }).addTo(map);
+    .then(r=>r.json())
+    .then(j=>{
+      boundaryLayer = L.geoJSON(j,{style:{color:"#7B1FA2",weight:3,fillOpacity:0}}).addTo(map);
       map.fitBounds(boundaryLayer.getBounds());
     });
 
   /* ── DATA ── */
-  const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
-  let rawData = [], chart, highlightCat = null;
-  Papa.parse(url, {
-    download:true, header:true,
-    complete:(res) => {
-      rawData = res.data;
-      initDropdowns();
-      updateMap();
-    }
+  const url="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
+  let rawData=[],chart,highlightCat=null;
+  Papa.parse(url,{
+    download:true,header:true,
+    complete:(res)=>{rawData=res.data;initDropdowns();updateMap();}
   });
 
   /* ── DATE PARSE ── */
   function parseDate(s){
     if(!s) return null;
-    const p = s.split('-');
-    if(p.length === 3 && isNaN(p[0]) === false){
-      const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,
-                      Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-      if(months[p[1]] !== undefined)
-        return new Date(parseInt(p[2]), months[p[1]], parseInt(p[0]));
+    const p=s.split('-');
+    if(p.length===3&&!isNaN(p[0])){
+      const months={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+      if(months[p[1]]!==undefined) return new Date(parseInt(p[2]),months[p[1]],parseInt(p[0]));
     }
-    const d = new Date(s);
-    return isNaN(d) ? null : d;
+    const d=new Date(s);return isNaN(d)?null:d;
   }
 
-  /* ── INIT DROPDOWNS ── */
+  /* ── DROPDOWNS ── */
   function initDropdowns(){
-    const officers = new Set();
-    const cats     = new Set();
-    const findings = new Set();
-    rawData.forEach(r => {
-      if(r['data-base_info-nama'])  officers.add(r['data-base_info-nama']);
-      if(r['data-survey-categ'])    cats.add(r['data-survey-categ']);
-      if(r['data-survey-finding'])  findings.add(r['data-survey-finding']);
+    const o=new Set(),c=new Set(),f=new Set();
+    rawData.forEach(r=>{
+      if(r['data-base_info-nama']) o.add(r['data-base_info-nama']);
+      if(r['data-survey-categ'])   c.add(r['data-survey-categ']);
+      if(r['data-survey-finding']) f.add(r['data-survey-finding']);
     });
-    fillSelect('filterOfficer',  [...officers].sort());
-    fillSelect('filterCategory', [...cats].sort());
-    fillSelect('filterFinding',  [...findings].sort());
+    fillSelect('filterOfficer',[...o].sort());
+    fillSelect('filterCategory',[...c].sort());
+    fillSelect('filterFinding',[...f].sort());
+  }
+  function fillSelect(id,values){
+    const el=document.getElementById(id);
+    values.forEach(v=>{const opt=document.createElement('option');opt.value=v;opt.textContent=v;el.appendChild(opt);});
   }
 
-  function fillSelect(id, values){
-    const el = document.getElementById(id);
-    values.forEach(v => {
-      const opt = document.createElement('option');
-      opt.value = v; opt.textContent = v;
-      el.appendChild(opt);
-    });
-  }
-
-  /* ── BUILD SLIDER ── */
+  /* ── SLIDER ── */
   function buildSlider(imgs){
     if(!imgs.length) return '';
-    if(imgs.length === 1){
-      return `<div class="popup-slider">
-        <div class="slides">
-          <div class="slide">
-            <img src="${imgs[0]}" onclick="openModal('${imgs[0]}')">
-          </div>
-        </div>
-      </div>`;
+    if(imgs.length===1){
+      return `<div class="popup-slider"><div class="slides"><div class="slide"><img src="${imgs[0]}" onclick="openModal('${imgs[0]}')"></div></div></div>`;
     }
-    const slides = imgs.map(src =>
-      `<div class="slide"><img src="${src}" onclick="openModal('${src}')"></div>`
-    ).join('');
-    const dots = imgs.map((_,i) =>
-      `<span class="${i===0?'active':''}"></span>`
-    ).join('');
-    const uid = 'sl_' + Math.random().toString(36).slice(2,7);
+    const slides=imgs.map(s=>`<div class="slide"><img src="${s}" onclick="openModal('${s}')"></div>`).join('');
+    const dots=imgs.map((_,i)=>`<span class="${i===0?'active':''}"></span>`).join('');
+    const uid='sl_'+Math.random().toString(36).slice(2,7);
     return `<div class="popup-slider" id="${uid}">
       <div class="slides">${slides}</div>
       <button class="slider-btn prev" onclick="slideMove('${uid}',-1)">&#8249;</button>
-      <button class="slider-btn next" onclick="slideMove('${uid}', 1)">&#8250;</button>
+      <button class="slider-btn next" onclick="slideMove('${uid}',1)">&#8250;</button>
       <div class="slider-dots">${dots}</div>
     </div>`;
   }
-
-  /* ── SLIDER LOGIC ── */
-  const sliderIndex = {};
-  function slideMove(uid, dir){
-    const container = document.getElementById(uid);
-    if(!container) return;
-    const slides = container.querySelectorAll('.slide');
-    const dots   = container.querySelectorAll('.slider-dots span');
-    const n = slides.length;
-    let idx = (sliderIndex[uid] || 0) + dir;
-    if(idx < 0)  idx = n - 1;
-    if(idx >= n) idx = 0;
-    sliderIndex[uid] = idx;
-    container.querySelector('.slides').style.transform = `translateX(-${idx * 260}px)`;
-    dots.forEach((d,i) => d.classList.toggle('active', i === idx));
+  const sliderIndex={};
+  function slideMove(uid,dir){
+    const c=document.getElementById(uid);if(!c)return;
+    const slides=c.querySelectorAll('.slide');
+    const dots=c.querySelectorAll('.slider-dots span');
+    const n=slides.length;
+    let idx=(sliderIndex[uid]||0)+dir;
+    if(idx<0)idx=n-1;if(idx>=n)idx=0;
+    sliderIndex[uid]=idx;
+    c.querySelector('.slides').style.transform=`translateX(-${idx*260}px)`;
+    dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
   }
 
-  /* ── MAIN UPDATE ── */
+  /* ── UPDATE MAP ── */
   function updateMap(){
     pointLayer.clearLayers();
-    const start = parseDate(document.getElementById('startDate').value);
-    const end   = parseDate(document.getElementById('endDate').value);
-    const selOfficer  = document.getElementById('filterOfficer').value;
-    const selCategory = document.getElementById('filterCategory').value;
-    const selFinding  = document.getElementById('filterFinding').value;
+    const start=parseDate(document.getElementById('startDate').value);
+    const end=parseDate(document.getElementById('endDate').value);
+    const selO=document.getElementById('filterOfficer').value;
+    const selC=document.getElementById('filterCategory').value;
+    const selF=document.getElementById('filterFinding').value;
+    let counts={},total=0;
 
-    let counts = {}, total = 0;
-    rawData.forEach(r => {
-      const coord = r['data-coordinate'];
-      if(!coord) return;
+    rawData.forEach(r=>{
+      const coord=r['data-coordinate'];if(!coord)return;
+      const d=parseDate(r['data-start_date']);
+      if(start&&d&&d<start)return;
+      if(end&&d&&d>end)return;
+      if(selO&&r['data-base_info-nama']!==selO)return;
+      if(selC&&r['data-survey-categ']!==selC)return;
+      if(selF&&r['data-survey-finding']!==selF)return;
 
-      const d = parseDate(r['data-start_date']);
-      if(start && d && d < start) return;
-      if(end   && d && d > end)   return;
-      if(selOfficer  && r['data-base_info-nama']  !== selOfficer)  return;
-      if(selCategory && r['data-survey-categ']    !== selCategory) return;
-      if(selFinding  && r['data-survey-finding']  !== selFinding)  return;
+      const[lat,lon]=coord.split(',').map(Number);if(isNaN(lat))return;
+      const cat=r['data-survey-categ']||"Unknown";
+      const finding=r['data-survey-finding']||"-";
+      counts[cat]=(counts[cat]||0)+1;total++;
 
-      const [lat, lon] = coord.split(',').map(Number);
-      if(isNaN(lat)) return;
-
-      const cat     = r['data-survey-categ']   || "Unknown";
-      const finding = r['data-survey-finding'] || "-";
-      counts[cat] = (counts[cat] || 0) + 1;
-      total++;
-
-      const imgs = [
-        convert(r['data-documentation-image_1']),
-        convert(r['data-documentation-image_2'])
-      ].filter(Boolean);
-
-      const popup = `<div>
+      const imgs=[convert(r['data-documentation-image_1']),convert(r['data-documentation-image_2'])].filter(Boolean);
+      const popup=`<div>
         ${buildSlider(imgs)}
         <div class="popup-body">
           <div class="popup-category">${cat}</div>
           <div class="popup-title">${finding}</div>
-          <div class="popup-meta">
-            Officer: ${r['data-base_info-nama'] || '-'}<br>
-            Date: ${r['data-start_date'] || '-'}
-          </div>
-          <div class="popup-desc">${r['data-survey-description'] || ''}</div>
+          <div class="popup-meta">Officer: ${r['data-base_info-nama']||'-'}<br>Date: ${r['data-start_date']||'-'}</div>
+          <div class="popup-desc">${r['data-survey-description']||''}</div>
         </div>
       </div>`;
 
-      const m = L.marker([lat, lon]).bindPopup(popup, {maxWidth:260});
-      m.category = cat;
-      if(highlightCat) m.setOpacity(m.category === highlightCat ? 1 : 0.2);
+      const m=L.marker([lat,lon]).bindPopup(popup,{maxWidth:260});
+      m.category=cat;
+      if(highlightCat) m.setOpacity(m.category===highlightCat?1:0.2);
       pointLayer.addLayer(m);
     });
 
-    totalMain.innerText = total;
+    document.getElementById('totalMain').innerText=total;
 
-    /* ── CHART ── */
     if(chart) chart.destroy();
-    const labels = Object.keys(counts);
-    const values = Object.values(counts);
-    chart = new Chart(chartCanvas, {
+    const labels=Object.keys(counts);
+    const values=Object.values(counts);
+    chart=new Chart(chartCanvas,{
       type:'pie',
-      data:{labels, datasets:[{data:values, backgroundColor:gen(labels.length)}]},
+      data:{labels,datasets:[{data:values,backgroundColor:gen(labels.length),borderWidth:1.5,borderColor:'#fff'}]},
       options:{
-        plugins:{legend:{position:'bottom'}},
-        onClick:(e, el) => {
-          if(!el.length) return;
-          const cat = labels[el[0].index];
-          const val = values[el[0].index];
-          if(highlightCat === cat){
-            highlightCat = null;
-            totalSub.style.display = 'none';
-            pointLayer.eachLayer(m => m.setOpacity(1));
+        plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:10,boxWidth:10}}},
+        onClick:(e,el)=>{
+          if(!el.length)return;
+          const cat=labels[el[0].index];
+          const val=values[el[0].index];
+          if(highlightCat===cat){
+            highlightCat=null;
+            document.getElementById('totalSub').style.display='none';
+            pointLayer.eachLayer(m=>m.setOpacity(1));
           } else {
-            highlightCat = cat;
-            totalSub.style.display = 'block';
-            totalSub.innerText = val;
-            pointLayer.eachLayer(m => m.setOpacity(m.category === cat ? 1 : 0.2));
+            highlightCat=cat;
+            const sub=document.getElementById('totalSub');
+            sub.style.display='block';sub.innerText=val;
+            pointLayer.eachLayer(m=>m.setOpacity(m.category===cat?1:0.2));
           }
         }
       }
@@ -424,47 +490,64 @@
 
   /* ── EVENTS ── */
   ['startDate','endDate','filterOfficer','filterCategory','filterFinding']
-    .forEach(id => document.getElementById(id).addEventListener('change', () => {
-      highlightCat = null;
-      totalSub.style.display = 'none';
+    .forEach(id=>document.getElementById(id).addEventListener('change',()=>{
+      highlightCat=null;
+      document.getElementById('totalSub').style.display='none';
       updateMap();
     }));
 
-  document.getElementById('resetFilter').onclick = () => {
-    document.getElementById('startDate').value = '';
-    document.getElementById('endDate').value = '';
-    document.getElementById('filterOfficer').value = '';
-    document.getElementById('filterCategory').value = '';
-    document.getElementById('filterFinding').value = '';
-    highlightCat = null;
-    totalSub.style.display = 'none';
+  document.getElementById('resetFilter').onclick=()=>{
+    ['startDate','endDate'].forEach(id=>document.getElementById(id).value='');
+    ['filterOfficer','filterCategory','filterFinding'].forEach(id=>document.getElementById(id).value='');
+    highlightCat=null;
+    document.getElementById('totalSub').style.display='none';
     updateMap();
   };
 
+  /* ── PANEL COLLAPSE ── */
+  const collapseBtn=document.getElementById('collapseBtn');
+  const panelBody=document.getElementById('panelBody');
+  let panelOpen=true;
+  collapseBtn.onclick=()=>{
+    panelOpen=!panelOpen;
+    panelBody.style.display=panelOpen?'block':'none';
+    collapseBtn.innerHTML=panelOpen?'&#8722;':'&#43;';
+    collapseBtn.title=panelOpen?'Minimize':'Expand';
+  };
+
+  /* ── LAYER ACCORDION ── */
+  const layerHeader=document.getElementById('layerHeader');
+  const layerList=document.getElementById('layerList');
+  const layerChevron=document.getElementById('layerChevron');
+  let layerOpen=false;
+  layerHeader.onclick=()=>{
+    layerOpen=!layerOpen;
+    layerList.classList.toggle('open',layerOpen);
+    layerChevron.classList.toggle('open',layerOpen);
+  };
+
   /* ── LAYER TOGGLES ── */
-  toggleLulc.onchange        = e => e.target.checked ? map.addLayer(lulc)        : map.removeLayer(lulc);
-  toggleLulc2025.onchange    = e => e.target.checked ? map.addLayer(lulc2025)    : map.removeLayer(lulc2025);
-  toggleLandsat2024.onchange = e => e.target.checked ? map.addLayer(landsat2024) : map.removeLayer(landsat2024);
-  toggleLandsat2025.onchange = e => e.target.checked ? map.addLayer(landsat2025) : map.removeLayer(landsat2025);
-  toggleBoundary.onchange    = e => boundaryLayer && (e.target.checked ? map.addLayer(boundaryLayer) : map.removeLayer(boundaryLayer));
-  togglePoints.onchange      = e => e.target.checked ? map.addLayer(pointLayer)  : map.removeLayer(pointLayer);
+  toggleLulc.onchange        = e=>e.target.checked?map.addLayer(lulc)       :map.removeLayer(lulc);
+  toggleLulc2025.onchange    = e=>e.target.checked?map.addLayer(lulc2025)   :map.removeLayer(lulc2025);
+  toggleLandsat2024.onchange = e=>e.target.checked?map.addLayer(landsat2024):map.removeLayer(landsat2024);
+  toggleLandsat2025.onchange = e=>e.target.checked?map.addLayer(landsat2025):map.removeLayer(landsat2025);
+  toggleBoundary.onchange    = e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
+  togglePoints.onchange      = e=>e.target.checked?map.addLayer(pointLayer) :map.removeLayer(pointLayer);
 
   /* ── MODAL ── */
-  function openModal(src){
-    imageModal.style.display = 'flex';
-    modalImage.src = src;
-  }
-  document.getElementById('closeModal').onclick = () => imageModal.style.display = 'none';
-  imageModal.onclick = e => { if(e.target === imageModal) imageModal.style.display = 'none'; };
+  function openModal(src){imageModal.style.display='flex';modalImage.src=src;}
+  document.getElementById('closeModal').onclick=()=>imageModal.style.display='none';
+  imageModal.onclick=e=>{if(e.target===imageModal)imageModal.style.display='none';};
 
   /* ── UTILS ── */
   function convert(url){
-    if(!url) return null;
-    const id = url.match(/[-\w]{25,}/);
-    return id ? `https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000` : null;
+    if(!url)return null;
+    const id=url.match(/[-\w]{25,}/);
+    return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null;
   }
   function gen(n){
-    return Array.from({length:n}, (_,i) => `hsl(${i*360/n},70%,60%)`);
+    const palette=['#6C63FF','#FF6B6B','#4ECDC4','#FFD93D','#6BCB77','#FF922B','#74C0FC','#F06595','#A9E34B','#63E6BE'];
+    return Array.from({length:n},(_,i)=>palette[i%palette.length]);
   }
 </script>
 </body>
