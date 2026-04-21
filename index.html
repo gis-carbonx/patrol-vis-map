@@ -31,7 +31,6 @@
     }
     .total-main{font-size:28px;font-weight:600;}
     .total-sub{font-size:18px;color:#FF5722;display:none;}
-    /* FILTER — date row */
     .filter-date{
       display:flex;
       gap:5px;
@@ -44,7 +43,6 @@
       border:1px solid #ccc;
       font-size:12px;
     }
-    /* FILTER — dropdown rows */
     .filter-select{
       display:flex;
       flex-direction:column;
@@ -80,18 +78,25 @@
       padding:0;
       overflow:hidden;
     }
-    .popup-img-container{
-      width:260px;
-      height:180px;
-      overflow:hidden;
-      background:#eee;
+
+    /* ── PHOTO STRIP (NEW) ── */
+    .popup-img-strip{
+      display:flex;
+      gap:3px;
+      background:#ddd;
     }
-    .popup-img{
-      width:100%;
-      height:100%;
+    .popup-img-strip img{
+      flex:1;
+      height:170px;
       object-fit:cover;
       cursor:pointer;
+      display:block;
     }
+    /* single photo keeps original look */
+    .popup-img-strip.single img{
+      height:180px;
+    }
+
     .popup-body{padding:10px;}
     .popup-category{
       font-size:10px;
@@ -136,12 +141,10 @@
 <body>
 <div id="map"></div>
 <div class="panel">
-  <!-- DATE FILTER -->
   <div class="filter-date">
     <input type="date" id="startDate">
     <input type="date" id="endDate">
   </div>
-  <!-- DROPDOWN FILTERS -->
   <div class="filter-select">
     <select id="filterOfficer">
       <option value="">All Officer</option>
@@ -173,7 +176,7 @@
   const map = L.map('map', {center:[0.8,110.325], zoom:13});
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
   const lulc = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png').addTo(map);
-  const lulc2025 = L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png'); // tidak addTo(map) agar default off
+  const lulc2025 = L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png');
   let boundaryLayer;
   let pointLayer = L.layerGroup().addTo(map);
 
@@ -216,16 +219,16 @@
   /* ── INIT DROPDOWNS ── */
   function initDropdowns(){
     const officers = new Set();
-    const cats = new Set();
+    const cats     = new Set();
     const findings = new Set();
     rawData.forEach(r => {
-      if(r['data-base_info-nama']) officers.add(r['data-base_info-nama']);
-      if(r['data-survey-categ']) cats.add(r['data-survey-categ']);
-      if(r['data-survey-finding']) findings.add(r['data-survey-finding']);
+      if(r['data-base_info-nama'])  officers.add(r['data-base_info-nama']);
+      if(r['data-survey-categ'])    cats.add(r['data-survey-categ']);
+      if(r['data-survey-finding'])  findings.add(r['data-survey-finding']);
     });
-    fillSelect('filterOfficer', [...officers].sort());
+    fillSelect('filterOfficer',  [...officers].sort());
     fillSelect('filterCategory', [...cats].sort());
-    fillSelect('filterFinding', [...findings].sort());
+    fillSelect('filterFinding',  [...findings].sort());
   }
 
   function fillSelect(id, values){
@@ -235,6 +238,17 @@
       opt.value = v; opt.textContent = v;
       el.appendChild(opt);
     });
+  }
+
+  /* ── BUILD PHOTO STRIP (NEW) ── */
+  function buildPhotoStrip(img1, img2){
+    if(!img1 && !img2) return '';
+    const imgs = [img1, img2].filter(Boolean);
+    const cls  = imgs.length === 1 ? 'single' : '';
+    const tags = imgs.map(src =>
+      `<img src="${src}" onclick="openModal('${src}')" />`
+    ).join('');
+    return `<div class="popup-img-strip ${cls}">${tags}</div>`;
   }
 
   /* ── MAIN UPDATE ── */
@@ -250,26 +264,28 @@
     rawData.forEach(r => {
       const coord = r['data-coordinate'];
       if(!coord) return;
+
       const d = parseDate(r['data-start_date']);
       if(start && d && d < start) return;
       if(end   && d && d > end)   return;
-      if(selOfficer  && r['data-base_info-nama']   !== selOfficer)  return;
-      if(selCategory && r['data-survey-categ']     !== selCategory) return;
-      if(selFinding  && r['data-survey-finding']   !== selFinding)  return;
+      if(selOfficer  && r['data-base_info-nama']  !== selOfficer)  return;
+      if(selCategory && r['data-survey-categ']    !== selCategory) return;
+      if(selFinding  && r['data-survey-finding']  !== selFinding)  return;
 
       const [lat, lon] = coord.split(',').map(Number);
       if(isNaN(lat)) return;
 
-      const cat     = r['data-survey-categ']    || "Unknown";
-      const finding = r['data-survey-finding']  || "-";
+      const cat     = r['data-survey-categ']   || "Unknown";
+      const finding = r['data-survey-finding'] || "-";
       counts[cat] = (counts[cat] || 0) + 1;
       total++;
 
-      const img = convert(r['data-documentation-image_1']);
+      /* both photos (NEW) */
+      const img1 = convert(r['data-documentation-image_1']);
+      const img2 = convert(r['data-documentation-image_2']);
+
       const popup = `<div>
-        ${img ? `<div class="popup-img-container">
-          <img class="popup-img" src="${img}" onclick="openModal('${img}')">
-        </div>` : ''}
+        ${buildPhotoStrip(img1, img2)}
         <div class="popup-body">
           <div class="popup-category">${cat}</div>
           <div class="popup-title">${finding}</div>
@@ -337,10 +353,10 @@
   };
 
   /* ── LAYER TOGGLES ── */
-  toggleLulc.onchange     = e => e.target.checked ? map.addLayer(lulc)        : map.removeLayer(lulc);
-  toggleLulc2025.onchange = e => e.target.checked ? map.addLayer(lulc2025)    : map.removeLayer(lulc2025);
+  toggleLulc.onchange     = e => e.target.checked ? map.addLayer(lulc)       : map.removeLayer(lulc);
+  toggleLulc2025.onchange = e => e.target.checked ? map.addLayer(lulc2025)   : map.removeLayer(lulc2025);
   toggleBoundary.onchange = e => boundaryLayer && (e.target.checked ? map.addLayer(boundaryLayer) : map.removeLayer(boundaryLayer));
-  togglePoints.onchange   = e => e.target.checked ? map.addLayer(pointLayer)  : map.removeLayer(pointLayer);
+  togglePoints.onchange   = e => e.target.checked ? map.addLayer(pointLayer) : map.removeLayer(pointLayer);
 
   /* ── MODAL ── */
   function openModal(src){
