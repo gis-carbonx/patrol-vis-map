@@ -1,163 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Patrol Monitoring</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patrol Monitoring</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    html,body{margin:0;height:100%;font-family:'Segoe UI'}
+    #map{height:100%}
+    .panel{
+      position:absolute;
+      top:20px;
+      right:20px;
+      z-index:1000;
+      width:330px;
+      background:rgba(255,255,255,0.85);
+      backdrop-filter:blur(14px);
+      border-radius:16px;
+      padding:15px;
+      box-shadow:0 8px 25px rgba(0,0,0,0.15);
+    }
+    .total-wrapper{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:10px;
+    }
+    .total-main{font-size:28px;font-weight:600;}
+    .total-sub{font-size:18px;color:#FF5722;display:none;}
+    .filter-date{
+      display:flex;
+      gap:5px;
+      margin-bottom:6px;
+    }
+    .filter-date input{
+      flex:1;
+      padding:6px;
+      border-radius:6px;
+      border:1px solid #ccc;
+      font-size:12px;
+    }
+    .filter-select{
+      display:flex;
+      flex-direction:column;
+      gap:5px;
+      margin-bottom:10px;
+    }
+    .filter-select select{
+      width:100%;
+      padding:6px;
+      border-radius:6px;
+      border:1px solid #ccc;
+      font-size:12px;
+      background:#fff;
+    }
+    #resetFilter{
+      margin-top:8px;
+      width:100%;
+      padding:7px;
+      border:none;
+      border-radius:6px;
+      background:#111;
+      color:white;
+      cursor:pointer;
+    }
+    .toggle{
+      display:flex;
+      justify-content:space-between;
+      margin-top:8px;
+      font-size:13px;
+    }
+    .leaflet-popup-content-wrapper{
+      border-radius:14px;
+      padding:0;
+      overflow:hidden;
+    }
+    .leaflet-popup-content{
+      margin:0;
+      width:260px !important;
+    }
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+    /* ── SLIDER (NEW) ── */
+    .popup-slider{
+      position:relative;
+      width:260px;
+      height:180px;
+      overflow:hidden;
+      background:#eee;
+    }
+    .popup-slider .slides{
+      display:flex;
+      height:100%;
+      transition:transform 0.3s ease;
+    }
+    .popup-slider .slide{
+      min-width:260px;
+      height:180px;
+      overflow:hidden;
+    }
+    .popup-slider .slide img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      cursor:pointer;
+      display:block;
+    }
+    /* prev / next buttons */
+    .slider-btn{
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      background:rgba(0,0,0,0.45);
+      color:#fff;
+      border:none;
+      border-radius:50%;
+      width:28px;
+      height:28px;
+      font-size:16px;
+      line-height:28px;
+      text-align:center;
+      cursor:pointer;
+      z-index:10;
+      padding:0;
+    }
+    .slider-btn.prev{left:6px;}
+    .slider-btn.next{right:6px;}
+    .slider-btn:hover{background:rgba(0,0,0,0.7);}
+    /* dot indicator */
+    .slider-dots{
+      position:absolute;
+      bottom:6px;
+      width:100%;
+      display:flex;
+      justify-content:center;
+      gap:5px;
+    }
+    .slider-dots span{
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:rgba(255,255,255,0.5);
+      display:inline-block;
+    }
+    .slider-dots span.active{background:#fff;}
 
-<style>
-html,body{margin:0;height:100%;font-family:'Segoe UI'}
-#map{height:100%}
-
-.panel{
-  position:absolute;
-  top:20px;
-  right:20px;
-  z-index:1000;
-  width:330px;
-  background:rgba(255,255,255,0.85);
-  backdrop-filter:blur(14px);
-  border-radius:16px;
-  padding:15px;
-  box-shadow:0 8px 25px rgba(0,0,0,0.15);
-}
-
-.total-wrapper{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:10px;
-}
-.total-main{font-size:28px;font-weight:600;}
-.total-sub{font-size:18px;color:#FF5722;display:none;}
-
-/* FILTER — date row */
-.filter-date{
-  display:flex;
-  gap:5px;
-  margin-bottom:6px;
-}
-.filter-date input{
-  flex:1;
-  padding:6px;
-  border-radius:6px;
-  border:1px solid #ccc;
-  font-size:12px;
-}
-
-/* FILTER — dropdown rows */
-.filter-select{
-  display:flex;
-  flex-direction:column;
-  gap:5px;
-  margin-bottom:10px;
-}
-.filter-select select{
-  width:100%;
-  padding:6px;
-  border-radius:6px;
-  border:1px solid #ccc;
-  font-size:12px;
-  background:#fff;
-}
-
-#resetFilter{
-  margin-top:8px;
-  width:100%;
-  padding:7px;
-  border:none;
-  border-radius:6px;
-  background:#111;
-  color:white;
-  cursor:pointer;
-}
-
-.toggle{
-  display:flex;
-  justify-content:space-between;
-  margin-top:8px;
-  font-size:13px;
-}
-
-.leaflet-popup-content-wrapper{
-  border-radius:14px;
-  padding:0;
-  overflow:hidden;
-}
-
-.popup-img-container{
-  width:260px;
-  height:180px;
-  overflow:hidden;
-  background:#eee;
-}
-.popup-img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  cursor:pointer;
-}
-
-.popup-body{padding:10px;}
-.popup-category{
-  font-size:10px;
-  font-weight:600;
-  color:#888;
-  text-transform:uppercase;
-}
-.popup-title{
-  font-size:14px;
-  font-weight:600;
-  margin:4px 0;
-}
-.popup-meta{
-  font-size:11px;
-  color:#666;
-  margin-bottom:6px;
-}
-.popup-desc{font-size:12px;}
-
-.img-modal{
-  display:none;
-  position:fixed;
-  z-index:9999;
-  top:0;left:0;
-  width:100%;height:100%;
-  background:rgba(0,0,0,0.9);
-  justify-content:center;
-  align-items:center;
-}
-.img-modal img{
-  max-width:90%;
-  max-height:90%;
-  border-radius:10px;
-}
-.img-modal span{
-  position:absolute;
-  top:20px;right:40px;
-  color:white;font-size:40px;
-  cursor:pointer;
-}
-</style>
+    .popup-body{padding:10px;}
+    .popup-category{
+      font-size:10px;
+      font-weight:600;
+      color:#888;
+      text-transform:uppercase;
+    }
+    .popup-title{
+      font-size:14px;
+      font-weight:600;
+      margin:4px 0;
+    }
+    .popup-meta{
+      font-size:11px;
+      color:#666;
+      margin-bottom:6px;
+    }
+    .popup-desc{font-size:12px;}
+    .img-modal{
+      display:none;
+      position:fixed;
+      z-index:9999;
+      top:0;left:0;
+      width:100%;height:100%;
+      background:rgba(0,0,0,0.9);
+      justify-content:center;
+      align-items:center;
+    }
+    .img-modal img{
+      max-width:90%;
+      max-height:90%;
+      border-radius:10px;
+    }
+    .img-modal span{
+      position:absolute;
+      top:20px;right:40px;
+      color:white;font-size:40px;
+      cursor:pointer;
+    }
+  </style>
 </head>
-
 <body>
 <div id="map"></div>
-
 <div class="panel">
-
-  <!-- DATE FILTER -->
   <div class="filter-date">
     <input type="date" id="startDate">
     <input type="date" id="endDate">
   </div>
-
-  <!-- DROPDOWN FILTERS (NEW) -->
   <div class="filter-select">
     <select id="filterOfficer">
       <option value="">All Officer</option>
@@ -169,147 +206,180 @@ html,body{margin:0;height:100%;font-family:'Segoe UI'}
       <option value="">All Finding</option>
     </select>
   </div>
-
   <div class="total-wrapper">
     <div id="totalMain" class="total-main">0</div>
     <div id="totalSub" class="total-sub"></div>
   </div>
-
   <canvas id="chartCanvas" height="180"></canvas>
   <button id="resetFilter">Show All</button>
-
-  <div class="toggle"><span>LULC</span><input type="checkbox" id="toggleLulc" checked></div>
+  <div class="toggle"><span>LULC 2023</span><input type="checkbox" id="toggleLulc" checked></div>
+  <div class="toggle"><span>LULC 2025</span><input type="checkbox" id="toggleLulc2025"></div>
   <div class="toggle"><span>Boundary</span><input type="checkbox" id="toggleBoundary" checked></div>
   <div class="toggle"><span>Points</span><input type="checkbox" id="togglePoints" checked></div>
 </div>
-
 <div id="imageModal" class="img-modal">
   <span id="closeModal">&times;</span>
   <img id="modalImage">
 </div>
-
 <script>
+  /* ── MAP ── */
+  const map = L.map('map', {center:[0.8,110.325], zoom:13});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
+  const lulc     = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png').addTo(map);
+  const lulc2025 = L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png');
+  let boundaryLayer;
+  let pointLayer = L.layerGroup().addTo(map);
 
-/* ── MAP ── */
-const map = L.map('map', {center:[0.8,110.325], zoom:13});
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
+  /* ── BOUNDARY ── */
+  fetch('data/CMI.json')
+    .then(r => r.json())
+    .then(j => {
+      boundaryLayer = L.geoJSON(j, {
+        style:{color:"#7B1FA2", weight:3, fillOpacity:0}
+      }).addTo(map);
+      map.fitBounds(boundaryLayer.getBounds());
+    });
 
-const lulc = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png').addTo(map);
-let boundaryLayer;
-let pointLayer = L.layerGroup().addTo(map);
-
-/* ── BOUNDARY ── */
-fetch('data/CMI.json')
-  .then(r => r.json())
-  .then(j => {
-    boundaryLayer = L.geoJSON(j, {
-      style:{color:"#7B1FA2", weight:3, fillOpacity:0}
-    }).addTo(map);
-    map.fitBounds(boundaryLayer.getBounds());
+  /* ── DATA ── */
+  const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
+  let rawData = [], chart, highlightCat = null;
+  Papa.parse(url, {
+    download:true, header:true,
+    complete:(res) => {
+      rawData = res.data;
+      initDropdowns();
+      updateMap();
+    }
   });
 
-/* ── DATA ── */
-const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
-
-let rawData = [], chart, highlightCat = null;
-
-Papa.parse(url, {
-  download:true,
-  header:true,
-  complete:(res) => {
-    rawData = res.data;
-    initDropdowns();   // populate selects after data loaded
-    updateMap();
+  /* ── DATE PARSE ── */
+  function parseDate(s){
+    if(!s) return null;
+    const p = s.split('-');
+    if(p.length === 3 && isNaN(p[0]) === false){
+      const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,
+                      Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+      if(months[p[1]] !== undefined)
+        return new Date(parseInt(p[2]), months[p[1]], parseInt(p[0]));
+    }
+    const d = new Date(s);
+    return isNaN(d) ? null : d;
   }
-});
 
-/* ── DATE PARSE ── */
-function parseDate(s){
-  if(!s) return null;
-  // try dd-MMM-yyyy (e.g. 24-Oct-2025)
-  const p = s.split('-');
-  if(p.length === 3 && isNaN(p[0]) === false){
-    const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,
-                    Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-    if(months[p[1]] !== undefined)
-      return new Date(parseInt(p[2]), months[p[1]], parseInt(p[0]));
+  /* ── INIT DROPDOWNS ── */
+  function initDropdowns(){
+    const officers = new Set();
+    const cats     = new Set();
+    const findings = new Set();
+    rawData.forEach(r => {
+      if(r['data-base_info-nama'])  officers.add(r['data-base_info-nama']);
+      if(r['data-survey-categ'])    cats.add(r['data-survey-categ']);
+      if(r['data-survey-finding'])  findings.add(r['data-survey-finding']);
+    });
+    fillSelect('filterOfficer',  [...officers].sort());
+    fillSelect('filterCategory', [...cats].sort());
+    fillSelect('filterFinding',  [...findings].sort());
   }
-  const d = new Date(s);
-  return isNaN(d) ? null : d;
-}
 
-/* ── INIT DROPDOWNS ── */
-// Reads unique values from CSV and fills the three selects
-function initDropdowns(){
-  const officers  = new Set();
-  const cats      = new Set();
-  const findings  = new Set();
+  function fillSelect(id, values){
+    const el = document.getElementById(id);
+    values.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v; opt.textContent = v;
+      el.appendChild(opt);
+    });
+  }
 
-  rawData.forEach(r => {
-    if(r['data-base_info-nama'])   officers.add(r['data-base_info-nama']);
-    if(r['data-survey-categ'])     cats.add(r['data-survey-categ']);
-    if(r['data-survey-finding'])   findings.add(r['data-survey-finding']);
-  });
+  /* ── BUILD SLIDER HTML (NEW) ── */
+  function buildSlider(imgs){
+    // imgs = array of src strings (1 or 2 items)
+    if(!imgs.length) return '';
 
-  fillSelect('filterOfficer',  [...officers].sort());
-  fillSelect('filterCategory', [...cats].sort());
-  fillSelect('filterFinding',  [...findings].sort());
-}
+    // only 1 photo → no buttons/dots needed
+    if(imgs.length === 1){
+      return `<div class="popup-slider">
+        <div class="slides">
+          <div class="slide">
+            <img src="${imgs[0]}" onclick="openModal('${imgs[0]}')">
+          </div>
+        </div>
+      </div>`;
+    }
 
-function fillSelect(id, values){
-  const el = document.getElementById(id);
-  values.forEach(v => {
-    const opt = document.createElement('option');
-    opt.value = v;
-    opt.textContent = v;
-    el.appendChild(opt);
-  });
-}
+    // 2+ photos → full slider
+    const slides = imgs.map(src =>
+      `<div class="slide"><img src="${src}" onclick="openModal('${src}')"></div>`
+    ).join('');
 
-/* ── MAIN UPDATE ── */
-function updateMap(){
-  pointLayer.clearLayers();
+    const dots = imgs.map((_,i) =>
+      `<span class="${i===0?'active':''}"></span>`
+    ).join('');
 
-  const start  = parseDate(document.getElementById('startDate').value);
-  const end    = parseDate(document.getElementById('endDate').value);
+    // unique id per popup so multiple open popups don't clash
+    const uid = 'sl_' + Math.random().toString(36).slice(2,7);
 
-  // Read dropdown values (AND logic)
-  const selOfficer   = document.getElementById('filterOfficer').value;
-  const selCategory  = document.getElementById('filterCategory').value;
-  const selFinding   = document.getElementById('filterFinding').value;
+    return `<div class="popup-slider" id="${uid}">
+      <div class="slides">${slides}</div>
+      <button class="slider-btn prev" onclick="slideMove('${uid}',-1)">&#8249;</button>
+      <button class="slider-btn next" onclick="slideMove('${uid}', 1)">&#8250;</button>
+      <div class="slider-dots">${dots}</div>
+    </div>`;
+  }
 
-  let counts = {}, total = 0;
+  /* ── SLIDER LOGIC (NEW) ── */
+  // track current index per slider id
+  const sliderIndex = {};
+  function slideMove(uid, dir){
+    const container = document.getElementById(uid);
+    if(!container) return;
+    const slides = container.querySelectorAll('.slide');
+    const dots   = container.querySelectorAll('.slider-dots span');
+    const n = slides.length;
+    let idx = (sliderIndex[uid] || 0) + dir;
+    if(idx < 0)   idx = n - 1;
+    if(idx >= n)  idx = 0;
+    sliderIndex[uid] = idx;
+    container.querySelector('.slides').style.transform = `translateX(-${idx * 260}px)`;
+    dots.forEach((d,i) => d.classList.toggle('active', i === idx));
+  }
 
-  rawData.forEach(r => {
-    const coord = r['data-coordinate'];
-    if(!coord) return;
+  /* ── MAIN UPDATE ── */
+  function updateMap(){
+    pointLayer.clearLayers();
+    const start = parseDate(document.getElementById('startDate').value);
+    const end   = parseDate(document.getElementById('endDate').value);
+    const selOfficer  = document.getElementById('filterOfficer').value;
+    const selCategory = document.getElementById('filterCategory').value;
+    const selFinding  = document.getElementById('filterFinding').value;
 
-    // ── AND FILTERS ──
-    const d = parseDate(r['data-start_date']);
-    if(start && d && d < start) return;
-    if(end   && d && d > end)   return;
+    let counts = {}, total = 0;
+    rawData.forEach(r => {
+      const coord = r['data-coordinate'];
+      if(!coord) return;
 
-    if(selOfficer  && r['data-base_info-nama']  !== selOfficer)  return;
-    if(selCategory && r['data-survey-categ']    !== selCategory) return;
-    if(selFinding  && r['data-survey-finding']  !== selFinding)  return;
-    // ─────────────────
+      const d = parseDate(r['data-start_date']);
+      if(start && d && d < start) return;
+      if(end   && d && d > end)   return;
+      if(selOfficer  && r['data-base_info-nama']  !== selOfficer)  return;
+      if(selCategory && r['data-survey-categ']    !== selCategory) return;
+      if(selFinding  && r['data-survey-finding']  !== selFinding)  return;
 
-    const [lat, lon] = coord.split(',').map(Number);
-    if(isNaN(lat)) return;
+      const [lat, lon] = coord.split(',').map(Number);
+      if(isNaN(lat)) return;
 
-    const cat     = r['data-survey-categ']    || "Unknown";
-    const finding = r['data-survey-finding']  || "-";
+      const cat     = r['data-survey-categ']   || "Unknown";
+      const finding = r['data-survey-finding'] || "-";
+      counts[cat] = (counts[cat] || 0) + 1;
+      total++;
 
-    counts[cat] = (counts[cat] || 0) + 1;
-    total++;
+      /* collect available photos */
+      const imgs = [
+        convert(r['data-documentation-image_1']),
+        convert(r['data-documentation-image_2'])
+      ].filter(Boolean);
 
-    const img = convert(r['data-documentation-image_1']);
-
-    const popup = `
-      <div>
-        ${img ? `<div class="popup-img-container">
-          <img class="popup-img" src="${img}" onclick="openModal('${img}')">
-        </div>` : ''}
+      const popup = `<div>
+        ${buildSlider(imgs)}
         <div class="popup-body">
           <div class="popup-category">${cat}</div>
           <div class="popup-title">${finding}</div>
@@ -321,90 +391,84 @@ function updateMap(){
         </div>
       </div>`;
 
-    const m = L.marker([lat, lon]).bindPopup(popup);
-    m.category = cat;
+      const m = L.marker([lat, lon]).bindPopup(popup, {maxWidth:260});
+      m.category = cat;
+      if(highlightCat) m.setOpacity(m.category === highlightCat ? 1 : 0.2);
+      pointLayer.addLayer(m);
+    });
 
-    // restore highlight state if active
-    if(highlightCat) m.setOpacity(m.category === highlightCat ? 1 : 0.2);
+    totalMain.innerText = total;
 
-    pointLayer.addLayer(m);
-  });
-
-  totalMain.innerText = total;
-
-  /* ── CHART ── */
-  if(chart) chart.destroy();
-
-  const labels = Object.keys(counts);
-  const values = Object.values(counts);
-
-  chart = new Chart(chartCanvas, {
-    type:'pie',
-    data:{labels, datasets:[{data:values, backgroundColor:gen(labels.length)}]},
-    options:{
-      plugins:{legend:{position:'bottom'}},
-      onClick:(e, el) => {
-        if(!el.length) return;
-        const cat = labels[el[0].index];
-        const val = values[el[0].index];
-        if(highlightCat === cat){
-          // toggle off
-          highlightCat = null;
-          totalSub.style.display = 'none';
-          pointLayer.eachLayer(m => m.setOpacity(1));
-        } else {
-          highlightCat = cat;
-          totalSub.style.display = 'block';
-          totalSub.innerText = val;
-          pointLayer.eachLayer(m => m.setOpacity(m.category === cat ? 1 : 0.2));
+    /* ── CHART ── */
+    if(chart) chart.destroy();
+    const labels = Object.keys(counts);
+    const values = Object.values(counts);
+    chart = new Chart(chartCanvas, {
+      type:'pie',
+      data:{labels, datasets:[{data:values, backgroundColor:gen(labels.length)}]},
+      options:{
+        plugins:{legend:{position:'bottom'}},
+        onClick:(e, el) => {
+          if(!el.length) return;
+          const cat = labels[el[0].index];
+          const val = values[el[0].index];
+          if(highlightCat === cat){
+            highlightCat = null;
+            totalSub.style.display = 'none';
+            pointLayer.eachLayer(m => m.setOpacity(1));
+          } else {
+            highlightCat = cat;
+            totalSub.style.display = 'block';
+            totalSub.innerText = val;
+            pointLayer.eachLayer(m => m.setOpacity(m.category === cat ? 1 : 0.2));
+          }
         }
       }
-    }
-  });
-}
+    });
+  }
 
-/* ── EVENTS ── */
-['startDate','endDate','filterOfficer','filterCategory','filterFinding']
-  .forEach(id => document.getElementById(id).addEventListener('change', () => {
-    highlightCat = null;               // reset highlight when any filter changes
+  /* ── EVENTS ── */
+  ['startDate','endDate','filterOfficer','filterCategory','filterFinding']
+    .forEach(id => document.getElementById(id).addEventListener('change', () => {
+      highlightCat = null;
+      totalSub.style.display = 'none';
+      updateMap();
+    }));
+
+  document.getElementById('resetFilter').onclick = () => {
+    document.getElementById('startDate').value = '';
+    document.getElementById('endDate').value = '';
+    document.getElementById('filterOfficer').value = '';
+    document.getElementById('filterCategory').value = '';
+    document.getElementById('filterFinding').value = '';
+    highlightCat = null;
     totalSub.style.display = 'none';
     updateMap();
-  }));
+  };
 
-document.getElementById('resetFilter').onclick = () => {
-  document.getElementById('startDate').value    = '';
-  document.getElementById('endDate').value      = '';
-  document.getElementById('filterOfficer').value   = '';
-  document.getElementById('filterCategory').value  = '';
-  document.getElementById('filterFinding').value   = '';
-  highlightCat = null;
-  totalSub.style.display = 'none';
-  updateMap();
-};
+  /* ── LAYER TOGGLES ── */
+  toggleLulc.onchange     = e => e.target.checked ? map.addLayer(lulc)       : map.removeLayer(lulc);
+  toggleLulc2025.onchange = e => e.target.checked ? map.addLayer(lulc2025)   : map.removeLayer(lulc2025);
+  toggleBoundary.onchange = e => boundaryLayer && (e.target.checked ? map.addLayer(boundaryLayer) : map.removeLayer(boundaryLayer));
+  togglePoints.onchange   = e => e.target.checked ? map.addLayer(pointLayer) : map.removeLayer(pointLayer);
 
-/* ── LAYER TOGGLES ── */
-toggleLulc.onchange     = e => e.target.checked ? map.addLayer(lulc)           : map.removeLayer(lulc);
-toggleBoundary.onchange = e => boundaryLayer && (e.target.checked ? map.addLayer(boundaryLayer) : map.removeLayer(boundaryLayer));
-togglePoints.onchange   = e => e.target.checked ? map.addLayer(pointLayer)     : map.removeLayer(pointLayer);
+  /* ── MODAL ── */
+  function openModal(src){
+    imageModal.style.display = 'flex';
+    modalImage.src = src;
+  }
+  document.getElementById('closeModal').onclick = () => imageModal.style.display = 'none';
+  imageModal.onclick = e => { if(e.target === imageModal) imageModal.style.display = 'none'; };
 
-/* ── MODAL ── */
-function openModal(src){
-  imageModal.style.display = 'flex';
-  modalImage.src = src;
-}
-document.getElementById('closeModal').onclick = () => imageModal.style.display = 'none';
-imageModal.onclick = e => { if(e.target === imageModal) imageModal.style.display = 'none'; };
-
-/* ── UTILS ── */
-function convert(url){
-  if(!url) return null;
-  const id = url.match(/[-\w]{25,}/);
-  return id ? `https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000` : null;
-}
-function gen(n){
-  return Array.from({length:n}, (_,i) => `hsl(${i*360/n},70%,60%)`);
-}
-
+  /* ── UTILS ── */
+  function convert(url){
+    if(!url) return null;
+    const id = url.match(/[-\w]{25,}/);
+    return id ? `https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000` : null;
+  }
+  function gen(n){
+    return Array.from({length:n}, (_,i) => `hsl(${i*360/n},70%,60%)`);
+  }
 </script>
 </body>
 </html>
