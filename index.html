@@ -70,6 +70,7 @@
     .toggle{
       display:flex;
       justify-content:space-between;
+      align-items:center;
       margin-top:8px;
       font-size:13px;
     }
@@ -83,7 +84,7 @@
       width:260px !important;
     }
 
-    /* ── SLIDER (NEW) ── */
+    /* ── SLIDER ── */
     .popup-slider{
       position:relative;
       width:260px;
@@ -108,7 +109,6 @@
       cursor:pointer;
       display:block;
     }
-    /* prev / next buttons */
     .slider-btn{
       position:absolute;
       top:50%;
@@ -129,7 +129,6 @@
     .slider-btn.prev{left:6px;}
     .slider-btn.next{right:6px;}
     .slider-btn:hover{background:rgba(0,0,0,0.7);}
-    /* dot indicator */
     .slider-dots{
       position:absolute;
       bottom:6px;
@@ -214,6 +213,8 @@
   <button id="resetFilter">Show All</button>
   <div class="toggle"><span>LULC 2023</span><input type="checkbox" id="toggleLulc" checked></div>
   <div class="toggle"><span>LULC 2025</span><input type="checkbox" id="toggleLulc2025"></div>
+  <div class="toggle"><span>Landsat 2024</span><input type="checkbox" id="toggleLandsat2024"></div>
+  <div class="toggle"><span>Landsat 2025</span><input type="checkbox" id="toggleLandsat2025"></div>
   <div class="toggle"><span>Boundary</span><input type="checkbox" id="toggleBoundary" checked></div>
   <div class="toggle"><span>Points</span><input type="checkbox" id="togglePoints" checked></div>
 </div>
@@ -225,8 +226,13 @@
   /* ── MAP ── */
   const map = L.map('map', {center:[0.8,110.325], zoom:13});
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
-  const lulc     = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png').addTo(map);
-  const lulc2025 = L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png');
+
+  /* ── RASTER LAYERS — opacity:1 (100%) ── */
+  const lulc         = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png',          {opacity:1}).addTo(map);
+  const lulc2025     = L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',     {opacity:1});
+  const landsat2024  = L.tileLayer('./data/landsat-2024/{z}/{x}/{y}.png',   {opacity:1});
+  const landsat2025  = L.tileLayer('./data/landsat-2025/{z}/{x}/{y}.png',   {opacity:1});
+
   let boundaryLayer;
   let pointLayer = L.layerGroup().addTo(map);
 
@@ -290,12 +296,9 @@
     });
   }
 
-  /* ── BUILD SLIDER HTML (NEW) ── */
+  /* ── BUILD SLIDER ── */
   function buildSlider(imgs){
-    // imgs = array of src strings (1 or 2 items)
     if(!imgs.length) return '';
-
-    // only 1 photo → no buttons/dots needed
     if(imgs.length === 1){
       return `<div class="popup-slider">
         <div class="slides">
@@ -305,19 +308,13 @@
         </div>
       </div>`;
     }
-
-    // 2+ photos → full slider
     const slides = imgs.map(src =>
       `<div class="slide"><img src="${src}" onclick="openModal('${src}')"></div>`
     ).join('');
-
     const dots = imgs.map((_,i) =>
       `<span class="${i===0?'active':''}"></span>`
     ).join('');
-
-    // unique id per popup so multiple open popups don't clash
     const uid = 'sl_' + Math.random().toString(36).slice(2,7);
-
     return `<div class="popup-slider" id="${uid}">
       <div class="slides">${slides}</div>
       <button class="slider-btn prev" onclick="slideMove('${uid}',-1)">&#8249;</button>
@@ -326,8 +323,7 @@
     </div>`;
   }
 
-  /* ── SLIDER LOGIC (NEW) ── */
-  // track current index per slider id
+  /* ── SLIDER LOGIC ── */
   const sliderIndex = {};
   function slideMove(uid, dir){
     const container = document.getElementById(uid);
@@ -336,8 +332,8 @@
     const dots   = container.querySelectorAll('.slider-dots span');
     const n = slides.length;
     let idx = (sliderIndex[uid] || 0) + dir;
-    if(idx < 0)   idx = n - 1;
-    if(idx >= n)  idx = 0;
+    if(idx < 0)  idx = n - 1;
+    if(idx >= n) idx = 0;
     sliderIndex[uid] = idx;
     container.querySelector('.slides').style.transform = `translateX(-${idx * 260}px)`;
     dots.forEach((d,i) => d.classList.toggle('active', i === idx));
@@ -372,7 +368,6 @@
       counts[cat] = (counts[cat] || 0) + 1;
       total++;
 
-      /* collect available photos */
       const imgs = [
         convert(r['data-documentation-image_1']),
         convert(r['data-documentation-image_2'])
@@ -447,10 +442,12 @@
   };
 
   /* ── LAYER TOGGLES ── */
-  toggleLulc.onchange     = e => e.target.checked ? map.addLayer(lulc)       : map.removeLayer(lulc);
-  toggleLulc2025.onchange = e => e.target.checked ? map.addLayer(lulc2025)   : map.removeLayer(lulc2025);
-  toggleBoundary.onchange = e => boundaryLayer && (e.target.checked ? map.addLayer(boundaryLayer) : map.removeLayer(boundaryLayer));
-  togglePoints.onchange   = e => e.target.checked ? map.addLayer(pointLayer) : map.removeLayer(pointLayer);
+  toggleLulc.onchange        = e => e.target.checked ? map.addLayer(lulc)        : map.removeLayer(lulc);
+  toggleLulc2025.onchange    = e => e.target.checked ? map.addLayer(lulc2025)    : map.removeLayer(lulc2025);
+  toggleLandsat2024.onchange = e => e.target.checked ? map.addLayer(landsat2024) : map.removeLayer(landsat2024);
+  toggleLandsat2025.onchange = e => e.target.checked ? map.addLayer(landsat2025) : map.removeLayer(landsat2025);
+  toggleBoundary.onchange    = e => boundaryLayer && (e.target.checked ? map.addLayer(boundaryLayer) : map.removeLayer(boundaryLayer));
+  togglePoints.onchange      = e => e.target.checked ? map.addLayer(pointLayer)  : map.removeLayer(pointLayer);
 
   /* ── MODAL ── */
   function openModal(src){
