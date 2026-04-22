@@ -18,196 +18,179 @@
 
     /* ── PANEL ── */
     .panel{
-      position:absolute;
-      top:16px;right:16px;
-      z-index:1000;
-      width:300px;
-      background:#fff;
-      border-radius:16px;
-      box-shadow:0 2px 16px rgba(0,0,0,0.12);
+      position:absolute;top:16px;right:16px;
+      z-index:1000;width:300px;
+      background:#fff;border-radius:20px;
+      box-shadow:0 8px 32px rgba(0,0,0,0.13);
       overflow:hidden;
     }
-
-    /* header strip */
     .panel-header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:14px 16px 10px;
-      border-bottom:1px solid #f0f0f0;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:15px 18px 12px;
+      border-bottom:1px solid #f2f2f2;
     }
-    .panel-title{font-size:13px;font-weight:600;letter-spacing:.5px;color:#111;text-transform:uppercase}
-
-    /* collapse toggle */
+    .panel-title{font-size:12px;font-weight:700;letter-spacing:.8px;color:#1a1a2e;text-transform:uppercase}
     .panel-toggle{
       background:none;border:none;cursor:pointer;
-      padding:4px;border-radius:6px;
-      color:#888;font-size:18px;line-height:1;
-      transition:background .15s;
+      width:26px;height:26px;border-radius:8px;
+      color:#999;font-size:18px;line-height:26px;text-align:center;
+      transition:background .15s;display:flex;align-items:center;justify-content:center;
     }
-    .panel-toggle:hover{background:#f4f4f4}
+    .panel-toggle:hover{background:#f5f5f5}
+    .panel-body{padding:15px 18px}
 
-    .panel-body{padding:14px 16px}
-
-    /* ── FILTER SECTION ── */
+    /* ── FILTERS ── */
     .section-label{
-      font-size:10px;font-weight:600;letter-spacing:.6px;
-      color:#aaa;text-transform:uppercase;margin-bottom:6px;
+      font-size:9px;font-weight:700;letter-spacing:.9px;
+      color:#bbb;text-transform:uppercase;margin-bottom:7px;
     }
     .filter-date{display:flex;gap:6px;margin-bottom:10px}
     .filter-date input{
-      flex:1;padding:7px 9px;
-      border:1px solid #e8e8e8;border-radius:8px;
-      font-size:12px;color:#333;background:#fafafa;
-      outline:none;transition:border .15s;
+      flex:1;padding:8px 10px;
+      border:1.5px solid #f0f0f0;border-radius:10px;
+      font-size:11px;font-family:'Montserrat',sans-serif;
+      color:#333;background:#fafafa;outline:none;transition:border .15s,background .15s;
     }
-    .filter-date input:focus{border-color:#6c63ff;background:#fff}
-
-    .filter-selects{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+    .filter-date input:focus{border-color:#f5a623;background:#fff}
+    .filter-selects{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
     .filter-selects select{
-      width:100%;padding:7px 9px;
-      border:1px solid #e8e8e8;border-radius:8px;
-      font-size:12px;color:#333;background:#fafafa;
-      outline:none;cursor:pointer;transition:border .15s;
-      appearance:none;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23aaa'/%3E%3C/svg%3E");
-      background-repeat:no-repeat;background-position:right 10px center;
-      padding-right:28px;
+      width:100%;padding:8px 10px;
+      border:1.5px solid #f0f0f0;border-radius:10px;
+      font-size:11px;font-family:'Montserrat',sans-serif;
+      color:#333;background:#fafafa;outline:none;cursor:pointer;
+      appearance:none;transition:border .15s;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;
     }
-    .filter-selects select:focus{border-color:#6c63ff;background-color:#fff}
+    .filter-selects select:focus{border-color:#f5a623;background:#fff}
 
     /* ── STAT ── */
-    .stat-row{
-      display:flex;align-items:baseline;gap:8px;
-      margin:4px 0 10px;
-    }
-    .stat-main{font-size:30px;font-weight:700;color:#111;line-height:1}
-    .stat-sub{font-size:16px;font-weight:600;color:#ff5722;display:none}
+    .stat-row{display:flex;align-items:baseline;gap:8px;margin:2px 0 12px}
+    .stat-main{font-size:32px;font-weight:700;color:#1a1a2e;line-height:1}
+    .stat-sub{font-size:15px;font-weight:700;color:#f5a623;display:none}
+    .stat-hint{font-size:10px;color:#bbb;font-weight:500;margin-left:2px;align-self:center}
 
     /* ── CHART ── */
-    .chart-wrap{margin-bottom:12px}
+    .chart-wrap{margin-bottom:14px;position:relative}
 
     /* ── RESET BTN ── */
     .btn-reset{
-      width:100%;padding:8px;
-      border:none;border-radius:8px;
-      background:#111;color:#fff;
-      font-size:12px;font-weight:600;letter-spacing:.4px;
+      width:100%;padding:9px;border:none;border-radius:10px;
+      background:#1a1a2e;color:#fff;
+      font-size:11px;font-weight:700;letter-spacing:.5px;font-family:'Montserrat',sans-serif;
       cursor:pointer;transition:background .15s;
     }
-    .btn-reset:hover{background:#333}
+    .btn-reset:hover{background:#f5a623}
 
-    /* ── LAYER CONTROL ── */
-    .layer-section{
-      border-top:1px solid #f0f0f0;
-      margin-top:12px;
-    }
+    /* ── LAYER SECTION ── */
+    .layer-section{border-top:1px solid #f2f2f2;margin-top:13px}
     .layer-header{
       display:flex;align-items:center;justify-content:space-between;
-      padding:10px 0 0;
-      cursor:pointer;user-select:none;
+      padding:11px 0 0;cursor:pointer;user-select:none;
     }
-    .layer-header:hover .section-label{color:#6c63ff}
-    .layer-chevron{
-      font-size:11px;color:#aaa;
-      transition:transform .2s;
-    }
+    .layer-header:hover .section-label{color:#f5a623}
+    .layer-chevron{font-size:10px;color:#ccc;transition:transform .22s}
     .layer-chevron.open{transform:rotate(180deg)}
-    .layer-list{
-      overflow:hidden;
-      max-height:0;
-      transition:max-height .25s ease;
-    }
-    .layer-list.open{max-height:300px}
-
+    .layer-list{overflow:hidden;max-height:0;transition:max-height .28s ease}
+    .layer-list.open{max-height:320px}
     .toggle-row{
       display:flex;align-items:center;justify-content:space-between;
-      padding:7px 0;
-      border-bottom:1px solid #f7f7f7;
+      padding:7px 0;border-bottom:1px solid #f7f7f7;
     }
     .toggle-row:last-child{border-bottom:none}
-    .toggle-label{font-size:12px;color:#444;display:flex;align-items:center;gap:7px}
-    .layer-dot{
-      width:8px;height:8px;border-radius:50%;flex-shrink:0;
-    }
-
-    /* custom toggle switch */
+    .toggle-label{font-size:11px;font-weight:500;color:#444;display:flex;align-items:center;gap:8px}
+    .layer-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
     .switch{position:relative;width:32px;height:18px;flex-shrink:0}
     .switch input{opacity:0;width:0;height:0}
     .slider-sw{
-      position:absolute;inset:0;
-      background:#ddd;border-radius:18px;
+      position:absolute;inset:0;background:#e8e8e8;border-radius:18px;
       cursor:pointer;transition:background .2s;
     }
     .slider-sw:before{
       content:'';position:absolute;
-      width:12px;height:12px;border-radius:50%;
-      background:#fff;
-      left:3px;top:3px;
-      transition:transform .2s;
+      width:12px;height:12px;border-radius:50%;background:#fff;
+      left:3px;top:3px;transition:transform .2s;
     }
-    .switch input:checked + .slider-sw{background:#6c63ff}
+    .switch input:checked + .slider-sw{background:#f5a623}
     .switch input:checked + .slider-sw:before{transform:translateX(14px)}
 
-    /* ── POPUP ── */
+    /* ── POPUP — card style ── */
     .leaflet-popup-content-wrapper{
-      border-radius:14px;padding:0;overflow:hidden;
-      box-shadow:0 4px 20px rgba(0,0,0,0.15);
+      border-radius:20px;padding:0;overflow:hidden;border:none;
+      box-shadow:0 12px 40px rgba(0,0,0,0.18);
     }
-    .leaflet-popup-content{margin:0;width:260px !important}
-    .leaflet-popup-tip-container{margin-top:-1px}
+    .leaflet-popup-content{margin:0;width:270px !important}
+    .leaflet-popup-tip{background:#fff}
 
+    /* photo slider */
     .popup-slider{
-      position:relative;width:260px;height:175px;
-      overflow:hidden;background:#eee;
+      position:relative;width:270px;height:180px;
+      overflow:hidden;background:#f0f0f0;
     }
-    .popup-slider .slides{
-      display:flex;height:100%;
-      transition:transform .3s ease;
-    }
-    .popup-slider .slide{min-width:260px;height:175px;overflow:hidden}
-    .popup-slider .slide img{
-      width:100%;height:100%;object-fit:cover;cursor:pointer;display:block;
-    }
+    .popup-slider .slides{display:flex;height:100%;transition:transform .3s ease}
+    .popup-slider .slide{min-width:270px;height:180px;overflow:hidden}
+    .popup-slider .slide img{width:100%;height:100%;object-fit:cover;cursor:pointer;display:block}
     .slider-btn{
       position:absolute;top:50%;transform:translateY(-50%);
-      background:rgba(0,0,0,0.4);color:#fff;
+      background:rgba(255,255,255,0.85);color:#333;
       border:none;border-radius:50%;
-      width:26px;height:26px;font-size:15px;
-      line-height:26px;text-align:center;
+      width:28px;height:28px;font-size:16px;
+      line-height:28px;text-align:center;
       cursor:pointer;z-index:10;padding:0;
-      transition:background .15s;
+      box-shadow:0 2px 8px rgba(0,0,0,0.15);transition:background .15s;
     }
-    .slider-btn.prev{left:6px}
-    .slider-btn.next{right:6px}
-    .slider-btn:hover{background:rgba(0,0,0,0.65)}
-    .slider-dots{
-      position:absolute;bottom:6px;width:100%;
-      display:flex;justify-content:center;gap:5px;
-    }
-    .slider-dots span{
-      width:6px;height:6px;border-radius:50%;
-      background:rgba(255,255,255,0.45);
-    }
-    .slider-dots span.active{background:#fff}
+    .slider-btn.prev{left:8px}
+    .slider-btn.next{right:8px}
+    .slider-btn:hover{background:#fff}
+    .slider-dots{position:absolute;bottom:8px;width:100%;display:flex;justify-content:center;gap:5px}
+    .slider-dots span{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.5)}
+    .slider-dots span.active{background:#fff;width:14px;border-radius:4px}
 
-    .popup-body{padding:11px 12px}
-    .popup-category{font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.5px}
-    .popup-title{font-size:13px;font-weight:600;margin:3px 0 5px;color:#111}
-    .popup-meta{font-size:11px;color:#888;margin-bottom:5px;line-height:1.6}
-    .popup-desc{font-size:11px;color:#555;line-height:1.5}
+    /* card body */
+    .popup-card{padding:14px 16px 16px}
+
+    /* category badge */
+    .popup-badge{
+      display:inline-block;padding:3px 9px;border-radius:20px;
+      font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+      background:#fff5e6;color:#f5a623;margin-bottom:8px;
+    }
+
+    .popup-title{font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:10px;line-height:1.4}
+
+    /* meta chips row */
+    .popup-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+    .chip{
+      display:flex;align-items:center;gap:4px;
+      padding:4px 9px;border-radius:20px;background:#f7f7f7;
+      font-size:10px;font-weight:600;color:#555;
+    }
+    .chip-icon{font-size:11px}
+
+    /* description */
+    .popup-desc{
+      font-size:11px;color:#888;line-height:1.6;
+      padding-top:10px;border-top:1px solid #f2f2f2;
+    }
+
+    /* no-photo fallback */
+    .popup-no-photo{
+      height:70px;background:linear-gradient(135deg,#fff5e6,#fff);
+      display:flex;align-items:center;justify-content:center;
+      font-size:28px;
+    }
 
     /* ── MODAL ── */
     .img-modal{
       display:none;position:fixed;z-index:9999;
-      inset:0;background:rgba(0,0,0,0.88);
+      inset:0;background:rgba(10,10,20,0.92);
       justify-content:center;align-items:center;
     }
-    .img-modal img{max-width:90%;max-height:90%;border-radius:10px}
+    .img-modal img{max-width:92%;max-height:88%;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.5)}
     .modal-close{
-      position:absolute;top:18px;right:32px;
-      color:#fff;font-size:36px;cursor:pointer;
-      line-height:1;opacity:.8;transition:opacity .15s;
+      position:absolute;top:20px;right:32px;
+      color:#fff;font-size:34px;cursor:pointer;
+      opacity:.7;transition:opacity .15s;line-height:1;
     }
     .modal-close:hover{opacity:1}
   </style>
@@ -216,23 +199,19 @@
 <div id="map"></div>
 
 <div class="panel" id="mainPanel">
-  <!-- HEADER -->
   <div class="panel-header">
     <span class="panel-title">CMI Patrol Data</span>
     <button class="panel-toggle" id="collapseBtn" title="Minimize">&#8722;</button>
   </div>
 
-  <!-- BODY -->
   <div class="panel-body" id="panelBody">
 
-    <!-- DATE -->
     <div class="section-label">Date range</div>
     <div class="filter-date">
       <input type="date" id="startDate">
       <input type="date" id="endDate">
     </div>
 
-    <!-- DROPDOWNS -->
     <div class="section-label">Filter</div>
     <div class="filter-selects">
       <select id="filterOfficer"><option value="">All Officers</option></select>
@@ -240,21 +219,18 @@
       <select id="filterFinding"><option value="">All Findings</option></select>
     </div>
 
-    <!-- STAT -->
     <div class="stat-row">
       <span class="stat-main" id="totalMain">0</span>
       <span class="stat-sub" id="totalSub"></span>
+      <span class="stat-hint">findings</span>
     </div>
 
-    <!-- CHART -->
     <div class="chart-wrap">
-      <canvas id="chartCanvas" height="170"></canvas>
+      <canvas id="chartCanvas"></canvas>
     </div>
 
-    <!-- RESET -->
     <button class="btn-reset" id="resetFilter">Show All</button>
 
-    <!-- LAYER CONTROL -->
     <div class="layer-section">
       <div class="layer-header" id="layerHeader">
         <span class="section-label" style="margin:0">Layers</span>
@@ -262,73 +238,36 @@
       </div>
       <div class="layer-list" id="layerList">
         <div style="padding-top:8px">
-
           <div class="toggle-row">
-            <span class="toggle-label">
-              <span class="layer-dot" style="background:#4CAF50"></span>LULC 2023
-            </span>
-            <label class="switch">
-              <input type="checkbox" id="toggleLulc" checked>
-              <span class="slider-sw"></span>
-            </label>
+            <span class="toggle-label"><span class="layer-dot" style="background:#4CAF50"></span>LULC 2023</span>
+            <label class="switch"><input type="checkbox" id="toggleLulc" checked><span class="slider-sw"></span></label>
           </div>
-
           <div class="toggle-row">
-            <span class="toggle-label">
-              <span class="layer-dot" style="background:#00BCD4"></span>LULC 2025
-            </span>
-            <label class="switch">
-              <input type="checkbox" id="toggleLulc2025">
-              <span class="slider-sw"></span>
-            </label>
+            <span class="toggle-label"><span class="layer-dot" style="background:#00BCD4"></span>LULC 2025</span>
+            <label class="switch"><input type="checkbox" id="toggleLulc2025"><span class="slider-sw"></span></label>
           </div>
-
           <div class="toggle-row">
-            <span class="toggle-label">
-              <span class="layer-dot" style="background:#FF9800"></span>Landsat 2024
-            </span>
-            <label class="switch">
-              <input type="checkbox" id="toggleLandsat2024">
-              <span class="slider-sw"></span>
-            </label>
+            <span class="toggle-label"><span class="layer-dot" style="background:#FF9800"></span>Landsat 2024</span>
+            <label class="switch"><input type="checkbox" id="toggleLandsat2024"><span class="slider-sw"></span></label>
           </div>
-
           <div class="toggle-row">
-            <span class="toggle-label">
-              <span class="layer-dot" style="background:#F44336"></span>Landsat 2025
-            </span>
-            <label class="switch">
-              <input type="checkbox" id="toggleLandsat2025">
-              <span class="slider-sw"></span>
-            </label>
+            <span class="toggle-label"><span class="layer-dot" style="background:#F44336"></span>Landsat 2025</span>
+            <label class="switch"><input type="checkbox" id="toggleLandsat2025"><span class="slider-sw"></span></label>
           </div>
-
           <div class="toggle-row">
-            <span class="toggle-label">
-              <span class="layer-dot" style="background:#7B1FA2"></span>Boundary
-            </span>
-            <label class="switch">
-              <input type="checkbox" id="toggleBoundary" checked>
-              <span class="slider-sw"></span>
-            </label>
+            <span class="toggle-label"><span class="layer-dot" style="background:#7B1FA2"></span>Boundary</span>
+            <label class="switch"><input type="checkbox" id="toggleBoundary" checked><span class="slider-sw"></span></label>
           </div>
-
           <div class="toggle-row">
-            <span class="toggle-label">
-              <span class="layer-dot" style="background:#2196F3"></span>Points
-            </span>
-            <label class="switch">
-              <input type="checkbox" id="togglePoints" checked>
-              <span class="slider-sw"></span>
-            </label>
+            <span class="toggle-label"><span class="layer-dot" style="background:#2196F3"></span>Points</span>
+            <label class="switch"><input type="checkbox" id="togglePoints" checked><span class="slider-sw"></span></label>
           </div>
-
         </div>
       </div>
     </div>
 
-  </div><!-- /panel-body -->
-</div><!-- /panel -->
+  </div>
+</div>
 
 <div id="imageModal" class="img-modal">
   <span class="modal-close" id="closeModal">&times;</span>
@@ -340,15 +279,14 @@
   const map = L.map('map',{center:[0.8,110.325],zoom:13});
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
 
-  const lulc        = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png',         {opacity:1}).addTo(map);
-  const lulc2025    = L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',    {opacity:1});
-  const landsat2024 = L.tileLayer('./data/landsat-2024/{z}/{x}/{y}.png',  {opacity:1});
-  const landsat2025 = L.tileLayer('./data/landsat-2025/{z}/{x}/{y}.png',  {opacity:1});
+  const lulc        = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png',        {opacity:1}).addTo(map);
+  const lulc2025    = L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',   {opacity:1});
+  const landsat2024 = L.tileLayer('./data/landsat-2024/{z}/{x}/{y}.png', {opacity:1});
+  const landsat2025 = L.tileLayer('./data/landsat-2025/{z}/{x}/{y}.png', {opacity:1});
 
   let boundaryLayer;
   let pointLayer = L.layerGroup().addTo(map);
 
-  /* ── BOUNDARY ── */
   fetch('data/CMI.json')
     .then(r=>r.json())
     .then(j=>{
@@ -356,7 +294,6 @@
       map.fitBounds(boundaryLayer.getBounds());
     });
 
-  /* ── DATA ── */
   const url="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
   let rawData=[],chart,highlightCat=null;
   Papa.parse(url,{
@@ -366,11 +303,11 @@
 
   /* ── DATE PARSE ── */
   function parseDate(s){
-    if(!s) return null;
+    if(!s)return null;
     const p=s.split('-');
     if(p.length===3&&!isNaN(p[0])){
-      const months={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-      if(months[p[1]]!==undefined) return new Date(parseInt(p[2]),months[p[1]],parseInt(p[0]));
+      const m={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+      if(m[p[1]]!==undefined)return new Date(parseInt(p[2]),m[p[1]],parseInt(p[0]));
     }
     const d=new Date(s);return isNaN(d)?null:d;
   }
@@ -379,25 +316,34 @@
   function initDropdowns(){
     const o=new Set(),c=new Set(),f=new Set();
     rawData.forEach(r=>{
-      if(r['data-base_info-nama']) o.add(r['data-base_info-nama']);
-      if(r['data-survey-categ'])   c.add(r['data-survey-categ']);
-      if(r['data-survey-finding']) f.add(r['data-survey-finding']);
+      if(r['data-base_info-nama'])o.add(r['data-base_info-nama']);
+      if(r['data-survey-categ'])c.add(r['data-survey-categ']);
+      if(r['data-survey-finding'])f.add(r['data-survey-finding']);
     });
     fillSelect('filterOfficer',[...o].sort());
     fillSelect('filterCategory',[...c].sort());
     fillSelect('filterFinding',[...f].sort());
   }
-  function fillSelect(id,values){
+  function fillSelect(id,vals){
     const el=document.getElementById(id);
-    values.forEach(v=>{const opt=document.createElement('option');opt.value=v;opt.textContent=v;el.appendChild(opt);});
+    vals.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;el.appendChild(o);});
   }
 
-  /* ── SLIDER ── */
-  function buildSlider(imgs){
-    if(!imgs.length) return '';
-    if(imgs.length===1){
-      return `<div class="popup-slider"><div class="slides"><div class="slide"><img src="${imgs[0]}" onclick="openModal('${imgs[0]}')"></div></div></div>`;
+  /* ── POPUP BUILDER ── */
+  const PALETTE=['#f5a623','#6C63FF','#4ECDC4','#FF6B6B','#6BCB77','#74C0FC','#F06595','#A9E34B'];
+  const catColorMap={};
+  function catColor(cat){
+    if(!catColorMap[cat]){
+      const keys=Object.keys(catColorMap);
+      catColorMap[cat]=PALETTE[keys.length%PALETTE.length];
     }
+    return catColorMap[cat];
+  }
+
+  function buildSlider(imgs){
+    if(!imgs.length)return `<div class="popup-no-photo">&#128247;</div>`;
+    if(imgs.length===1)
+      return `<div class="popup-slider"><div class="slides"><div class="slide"><img src="${imgs[0]}" onclick="openModal('${imgs[0]}')"></div></div></div>`;
     const slides=imgs.map(s=>`<div class="slide"><img src="${s}" onclick="openModal('${s}')"></div>`).join('');
     const dots=imgs.map((_,i)=>`<span class="${i===0?'active':''}"></span>`).join('');
     const uid='sl_'+Math.random().toString(36).slice(2,7);
@@ -408,6 +354,7 @@
       <div class="slider-dots">${dots}</div>
     </div>`;
   }
+
   const sliderIndex={};
   function slideMove(uid,dir){
     const c=document.getElementById(uid);if(!c)return;
@@ -417,8 +364,25 @@
     let idx=(sliderIndex[uid]||0)+dir;
     if(idx<0)idx=n-1;if(idx>=n)idx=0;
     sliderIndex[uid]=idx;
-    c.querySelector('.slides').style.transform=`translateX(-${idx*260}px)`;
+    c.querySelector('.slides').style.transform=`translateX(-${idx*270}px)`;
     dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
+  }
+
+  function buildPopup(r,cat,finding,imgs){
+    const col=catColor(cat);
+    const desc=r['data-survey-description']||'';
+    return `<div>
+      ${buildSlider(imgs)}
+      <div class="popup-card">
+        <div class="popup-badge" style="background:${col}18;color:${col}">${cat}</div>
+        <div class="popup-title">${finding}</div>
+        <div class="popup-chips">
+          <div class="chip"><span class="chip-icon">&#128100;</span>${r['data-base_info-nama']||'-'}</div>
+          <div class="chip"><span class="chip-icon">&#128197;</span>${r['data-start_date']||'-'}</div>
+        </div>
+        ${desc?`<div class="popup-desc">${desc}</div>`:''}
+      </div>
+    </div>`;
   }
 
   /* ── UPDATE MAP ── */
@@ -441,37 +405,80 @@
       if(selF&&r['data-survey-finding']!==selF)return;
 
       const[lat,lon]=coord.split(',').map(Number);if(isNaN(lat))return;
-      const cat=r['data-survey-categ']||"Unknown";
-      const finding=r['data-survey-finding']||"-";
+      const cat=r['data-survey-categ']||'Unknown';
+      const finding=r['data-survey-finding']||'-';
       counts[cat]=(counts[cat]||0)+1;total++;
 
       const imgs=[convert(r['data-documentation-image_1']),convert(r['data-documentation-image_2'])].filter(Boolean);
-      const popup=`<div>
-        ${buildSlider(imgs)}
-        <div class="popup-body">
-          <div class="popup-category">${cat}</div>
-          <div class="popup-title">${finding}</div>
-          <div class="popup-meta">Officer: ${r['data-base_info-nama']||'-'}<br>Date: ${r['data-start_date']||'-'}</div>
-          <div class="popup-desc">${r['data-survey-description']||''}</div>
-        </div>
-      </div>`;
-
-      const m=L.marker([lat,lon]).bindPopup(popup,{maxWidth:260});
+      const m=L.marker([lat,lon]).bindPopup(buildPopup(r,cat,finding,imgs),{maxWidth:270});
       m.category=cat;
-      if(highlightCat) m.setOpacity(m.category===highlightCat?1:0.2);
+      if(highlightCat)m.setOpacity(m.category===highlightCat?1:0.2);
       pointLayer.addLayer(m);
     });
 
     document.getElementById('totalMain').innerText=total;
 
-    if(chart) chart.destroy();
-    const labels=Object.keys(counts);
-    const values=Object.values(counts);
+    /* ── HORIZONTAL BAR CHART ── */
+    if(chart)chart.destroy();
+
+    // sort by value descending
+    const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+    const labels=entries.map(e=>e[0]);
+    const values=entries.map(e=>e[1]);
+    const colors=labels.map(l=>catColor(l));
+    const max=values[0]||1;
+
+    // dynamic height: 28px per bar + padding
+    const barH=28;
+    const chartH=Math.max(80, labels.length*barH+40);
+    chartCanvas.height=chartH;
+
     chart=new Chart(chartCanvas,{
-      type:'pie',
-      data:{labels,datasets:[{data:values,backgroundColor:gen(labels.length),borderWidth:1.5,borderColor:'#fff'}]},
+      type:'bar',
+      data:{
+        labels,
+        datasets:[{
+          data:values,
+          backgroundColor:colors.map(c=>c+'cc'),
+          borderColor:colors,
+          borderWidth:0,
+          borderRadius:6,
+          borderSkipped:false,
+        }]
+      },
       options:{
-        plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:10,boxWidth:10}}},
+        indexAxis:'y',
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          legend:{display:false},
+          tooltip:{
+            callbacks:{
+              label:ctx=>' '+ctx.raw+' findings'
+            },
+            backgroundColor:'#1a1a2e',
+            titleFont:{family:'Montserrat',size:11},
+            bodyFont:{family:'Montserrat',size:11},
+            padding:8,
+            cornerRadius:8,
+          }
+        },
+        scales:{
+          x:{
+            display:false,
+            max:max*1.15,
+            grid:{display:false},
+          },
+          y:{
+            grid:{display:false},
+            border:{display:false},
+            ticks:{
+              font:{family:'Montserrat',size:10,weight:'600'},
+              color:'#555',
+              padding:4,
+            }
+          }
+        },
         onClick:(e,el)=>{
           if(!el.length)return;
           const cat=labels[el[0].index];
@@ -486,8 +493,26 @@
             sub.style.display='block';sub.innerText=val;
             pointLayer.eachLayer(m=>m.setOpacity(m.category===cat?1:0.2));
           }
+        },
+        animation:{duration:400,easing:'easeOutQuart'},
+      },
+      plugins:[{
+        // value labels at end of each bar
+        id:'barLabels',
+        afterDatasetsDraw(chart){
+          const{ctx,data}=chart;
+          chart.getDatasetMeta(0).data.forEach((bar,i)=>{
+            const val=data.datasets[0].data[i];
+            ctx.save();
+            ctx.font='600 10px Montserrat';
+            ctx.fillStyle='#aaa';
+            ctx.textAlign='left';
+            ctx.textBaseline='middle';
+            ctx.fillText(val, bar.x+5, bar.y);
+            ctx.restore();
+          });
         }
-      }
+      }]
     });
   }
 
@@ -508,25 +533,19 @@
   };
 
   /* ── PANEL COLLAPSE ── */
-  const collapseBtn=document.getElementById('collapseBtn');
-  const panelBody=document.getElementById('panelBody');
   let panelOpen=true;
-  collapseBtn.onclick=()=>{
+  document.getElementById('collapseBtn').onclick=()=>{
     panelOpen=!panelOpen;
-    panelBody.style.display=panelOpen?'block':'none';
-    collapseBtn.innerHTML=panelOpen?'&#8722;':'&#43;';
-    collapseBtn.title=panelOpen?'Minimize':'Expand';
+    document.getElementById('panelBody').style.display=panelOpen?'block':'none';
+    document.getElementById('collapseBtn').innerHTML=panelOpen?'&#8722;':'&#43;';
   };
 
   /* ── LAYER ACCORDION ── */
-  const layerHeader=document.getElementById('layerHeader');
-  const layerList=document.getElementById('layerList');
-  const layerChevron=document.getElementById('layerChevron');
   let layerOpen=false;
-  layerHeader.onclick=()=>{
+  document.getElementById('layerHeader').onclick=()=>{
     layerOpen=!layerOpen;
-    layerList.classList.toggle('open',layerOpen);
-    layerChevron.classList.toggle('open',layerOpen);
+    document.getElementById('layerList').classList.toggle('open',layerOpen);
+    document.getElementById('layerChevron').classList.toggle('open',layerOpen);
   };
 
   /* ── LAYER TOGGLES ── */
@@ -547,10 +566,6 @@
     if(!url)return null;
     const id=url.match(/[-\w]{25,}/);
     return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null;
-  }
-  function gen(n){
-    const palette=['#6C63FF','#FF6B6B','#4ECDC4','#FFD93D','#6BCB77','#FF922B','#74C0FC','#F06595','#A9E34B','#63E6BE'];
-    return Array.from({length:n},(_,i)=>palette[i%palette.length]);
   }
 </script>
 </body>
