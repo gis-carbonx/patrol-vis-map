@@ -23,11 +23,9 @@
       background:#fff;border-radius:20px;
       box-shadow:0 8px 32px rgba(0,0,0,0.13);
       display:flex;flex-direction:column;
-      /* max-height = viewport minus top offset and bottom margin */
       max-height:calc(100vh - 32px);
     }
 
-    /* header — fixed inside panel, never scrolls */
     .panel-header{
       flex-shrink:0;
       display:flex;align-items:center;justify-content:space-between;
@@ -50,7 +48,6 @@
       flex:1;overflow-y:auto;overflow-x:hidden;
       padding:15px 18px;
       border-radius:0 0 20px 20px;
-      /* thin custom scrollbar */
       scrollbar-width:thin;
       scrollbar-color:#e0e0e0 transparent;
     }
@@ -317,7 +314,6 @@
       </div>
     </div>
 
-    <!-- bottom padding so last item isn't flush against rounded corner -->
     <div style="height:8px"></div>
 
   </div><!-- /panel-body -->
