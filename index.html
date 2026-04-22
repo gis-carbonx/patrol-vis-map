@@ -41,42 +41,8 @@
       font-size:9px;font-weight:700;letter-spacing:.9px;
       color:#bbb;text-transform:uppercase;margin-bottom:7px;
     }
-    .filter-date{display:flex;gap:6px;margin-bottom:10px}
-    .filter-date input{
-      flex:1;padding:8px 10px;
-      border:1.5px solid #f0f0f0;border-radius:10px;
-      font-size:11px;font-family:'Montserrat',sans-serif;
-      color:#333;background:#fafafa;outline:none;transition:border .15s,background .15s;
-    }
-    .filter-date input:focus{border-color:#f5a623;background:#fff}
-    .filter-selects{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-    .filter-selects select{
-      width:100%;padding:8px 10px;
-      border:1.5px solid #f0f0f0;border-radius:10px;
-      font-size:11px;font-family:'Montserrat',sans-serif;
-      color:#333;background:#fafafa;outline:none;cursor:pointer;
-      appearance:none;transition:border .15s;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");
-      background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;
-    }
-    .filter-selects select:focus{border-color:#f5a623;background:#fff}
 
-    .stat-row{display:flex;align-items:baseline;gap:8px;margin:2px 0 12px}
-    .stat-main{font-size:32px;font-weight:700;color:#1a1a2e;line-height:1}
-    .stat-sub{font-size:15px;font-weight:700;color:#f5a623;display:none}
-    .stat-hint{font-size:10px;color:#bbb;font-weight:500;margin-left:2px;align-self:center}
-
-    .chart-wrap{margin-bottom:14px;position:relative}
-
-    .btn-reset{
-      width:100%;padding:9px;border:none;border-radius:10px;
-      background:#1a1a2e;color:#fff;
-      font-size:11px;font-weight:700;letter-spacing:.5px;font-family:'Montserrat',sans-serif;
-      cursor:pointer;transition:background .15s;
-    }
-    .btn-reset:hover{background:#f5a623}
-
-    /* ── COLLAPSIBLE SECTIONS ── */
+    /* ── COLLAPSIBLE ── */
     .collapse-section{border-top:1px solid #f2f2f2;margin-top:13px}
     .collapse-section.no-top{border-top:none;margin-top:0}
     .collapse-header{
@@ -87,9 +53,67 @@
     .collapse-chevron{font-size:10px;color:#ccc;transition:transform .22s}
     .collapse-chevron.open{transform:rotate(180deg)}
     .collapse-body{overflow:hidden;max-height:0;transition:max-height .3s ease}
-    .collapse-body.open{max-height:600px}
+    .collapse-body.open{max-height:700px}
 
-    /* layer rows */
+    /* ── FILTER INPUTS ── */
+    .filter-date{display:flex;gap:6px;margin-bottom:10px;margin-top:10px}
+    .filter-date input{
+      flex:1;padding:8px 10px;
+      border:1.5px solid #f0f0f0;border-radius:10px;
+      font-size:11px;font-family:'Montserrat',sans-serif;
+      color:#333;background:#fafafa;outline:none;transition:border .15s,background .15s;
+    }
+    .filter-date input:focus{border-color:#f5a623;background:#fff}
+
+    .filter-selects{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+    .filter-selects select{
+      width:100%;padding:8px 10px;
+      border:1.5px solid #f0f0f0;border-radius:10px;
+      font-size:11px;font-family:'Montserrat',sans-serif;
+      color:#333;background:#fafafa;outline:none;cursor:pointer;
+      appearance:none;transition:border .15s;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;
+    }
+    .filter-selects select:focus{border-color:#f5a623;background:#fff}
+    .filter-selects select:disabled{opacity:.45;cursor:not-allowed}
+
+    /* small reset link inside filter */
+    .filter-reset-row{
+      display:flex;justify-content:flex-end;margin-top:2px;margin-bottom:4px;
+    }
+    .filter-reset-link{
+      font-size:10px;font-weight:600;color:#f5a623;
+      background:none;border:none;cursor:pointer;padding:0;
+      font-family:'Montserrat',sans-serif;
+      text-decoration:underline;
+      transition:color .15s;
+    }
+    .filter-reset-link:hover{color:#d4891a}
+
+    /* active filter indicator dot */
+    .filter-active-dot{
+      width:6px;height:6px;border-radius:50%;
+      background:#f5a623;display:none;margin-left:6px;flex-shrink:0;
+    }
+    .filter-active-dot.visible{display:inline-block}
+
+    /* ── STAT ── */
+    .stat-row{display:flex;align-items:baseline;gap:8px;margin:2px 0 12px}
+    .stat-main{font-size:32px;font-weight:700;color:#1a1a2e;line-height:1}
+    .stat-sub{font-size:15px;font-weight:700;color:#f5a623;display:none}
+    .stat-hint{font-size:10px;color:#bbb;font-weight:500;margin-left:2px;align-self:center}
+
+    .chart-wrap{margin-bottom:14px;position:relative}
+    .btn-reset{
+      width:100%;padding:9px;border:none;border-radius:10px;
+      background:#1a1a2e;color:#fff;
+      font-size:11px;font-weight:700;letter-spacing:.5px;font-family:'Montserrat',sans-serif;
+      cursor:pointer;transition:background .15s;
+    }
+    .btn-reset:hover{background:#f5a623}
+
+    /* ── LAYER ROWS ── */
     .toggle-row{
       display:flex;align-items:center;justify-content:space-between;
       padding:7px 0;border-bottom:1px solid #f7f7f7;
@@ -147,8 +171,7 @@
     .popup-card{padding:14px 16px 16px}
     .popup-badge{
       display:inline-block;padding:3px 9px;border-radius:20px;
-      font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
-      margin-bottom:8px;
+      font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px;
     }
     .popup-title{font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:10px;line-height:1.4}
     .popup-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
@@ -184,21 +207,6 @@
 
   <div class="panel-body" id="panelBody">
 
-    <!-- DATE -->
-    <div class="section-label">Date range</div>
-    <div class="filter-date">
-      <input type="date" id="startDate">
-      <input type="date" id="endDate">
-    </div>
-
-    <!-- DROPDOWNS -->
-    <div class="section-label">Filter</div>
-    <div class="filter-selects">
-      <select id="filterOfficer"><option value="">All Officers</option></select>
-      <select id="filterCategory"><option value="">All Categories</option></select>
-      <select id="filterFinding"><option value="">All Findings</option></select>
-    </div>
-
     <!-- STAT — always visible -->
     <div class="stat-row">
       <span class="stat-main" id="totalMain">0</span>
@@ -206,8 +214,33 @@
       <span class="stat-hint">findings</span>
     </div>
 
-    <!-- CHART ACCORDION -->
+    <!-- FILTER ACCORDION — default OFF -->
     <div class="collapse-section no-top">
+      <div class="collapse-header" id="filterHeader">
+        <div style="display:flex;align-items:center">
+          <span class="section-label" style="margin:0">Filter</span>
+          <span class="filter-active-dot" id="filterDot"></span>
+        </div>
+        <span class="collapse-chevron" id="filterChevron">&#9660;</span>
+      </div>
+      <div class="collapse-body" id="filterBody">
+        <div class="filter-date">
+          <input type="date" id="startDate" placeholder="Start">
+          <input type="date" id="endDate" placeholder="End">
+        </div>
+        <div class="filter-selects">
+          <select id="filterOfficer"><option value="">All Officers</option></select>
+          <select id="filterCategory"><option value="">All Categories</option></select>
+          <select id="filterFinding"><option value="">All Findings</option></select>
+        </div>
+        <div class="filter-reset-row">
+          <button class="filter-reset-link" id="resetFilterInline">&#10005; Clear filters</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CATEGORY BREAKDOWN — default ON -->
+    <div class="collapse-section">
       <div class="collapse-header" id="chartHeader">
         <span class="section-label" style="margin:0">Category Breakdown</span>
         <span class="collapse-chevron open" id="chartChevron">&#9660;</span>
@@ -222,7 +255,7 @@
       </div>
     </div>
 
-    <!-- LAYERS -->
+    <!-- LAYERS — default OFF -->
     <div class="collapse-section">
       <div class="collapse-header" id="layerHeader">
         <span class="section-label" style="margin:0">Layers</span>
@@ -258,13 +291,13 @@
       </div>
     </div>
 
-    <!-- LULC LEGEND -->
+    <!-- LULC LEGEND — default ON -->
     <div class="collapse-section">
       <div class="collapse-header" id="legendHeader">
         <span class="section-label" style="margin:0">LULC Legend</span>
-        <span class="collapse-chevron" id="legendChevron">&#9660;</span>
+        <span class="collapse-chevron open" id="legendChevron">&#9660;</span>
       </div>
-      <div class="collapse-body" id="legendBody">
+      <div class="collapse-body open" id="legendBody">
         <div class="legend-grid">
           <div class="legend-item"><span class="legend-swatch" style="background:#ec4040"></span>Building</div>
           <div class="legend-item"><span class="legend-swatch" style="background:#a1a1a1"></span>Cleared / Bare Land</div>
@@ -325,23 +358,6 @@
     const d=new Date(s);return isNaN(d)?null:d;
   }
 
-  /* ── DROPDOWNS ── */
-  function initDropdowns(){
-    const o=new Set(),c=new Set(),f=new Set();
-    rawData.forEach(r=>{
-      if(r['data-base_info-nama'])o.add(r['data-base_info-nama']);
-      if(r['data-survey-categ'])c.add(r['data-survey-categ']);
-      if(r['data-survey-finding'])f.add(r['data-survey-finding']);
-    });
-    fillSelect('filterOfficer',[...o].sort());
-    fillSelect('filterCategory',[...c].sort());
-    fillSelect('filterFinding',[...f].sort());
-  }
-  function fillSelect(id,vals){
-    const el=document.getElementById(id);
-    vals.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;el.appendChild(o);});
-  }
-
   /* ── FORMAT LABEL ── */
   function fmtLabel(s){return(s||'').replace(/_/g,' ');}
 
@@ -351,6 +367,108 @@
   function catColor(cat){
     if(!catColorMap[cat]) catColorMap[cat]=PALETTE[Object.keys(catColorMap).length%PALETTE.length];
     return catColorMap[cat];
+  }
+
+  /* ── CASCADING DROPDOWNS ── */
+  // Populate ALL options once from full data
+  let allOfficers=[], allCategories=[], allFindings=[];
+
+  function initDropdowns(){
+    const o=new Set(),c=new Set(),f=new Set();
+    rawData.forEach(r=>{
+      if(r['data-base_info-nama']) o.add(r['data-base_info-nama']);
+      if(r['data-survey-categ'])   c.add(r['data-survey-categ']);
+      if(r['data-survey-finding']) f.add(r['data-survey-finding']);
+    });
+    allOfficers  = [...o].sort();
+    allCategories= [...c].sort();
+    allFindings  = [...f].sort();
+    populateSelect('filterOfficer',  allOfficers,  'All Officers');
+    populateSelect('filterCategory', allCategories,'All Categories');
+    populateSelect('filterFinding',  allFindings,  'All Findings');
+  }
+
+  function populateSelect(id, values, placeholder){
+    const el=document.getElementById(id);
+    const cur=el.value;
+    el.innerHTML=`<option value="">${placeholder}</option>`;
+    values.forEach(v=>{
+      const o=document.createElement('option');
+      o.value=v; o.textContent=fmtLabel(v);
+      if(v===cur) o.selected=true;
+      el.appendChild(o);
+    });
+  }
+
+  // After any dropdown changes, narrow the other two
+  function refreshCascade(){
+    const selO = document.getElementById('filterOfficer').value;
+    const selC = document.getElementById('filterCategory').value;
+    const selF = document.getElementById('filterFinding').value;
+
+    // Filter rawData by currently active selections
+    const filtered = rawData.filter(r=>{
+      if(selO && r['data-base_info-nama'] !== selO) return false;
+      if(selC && r['data-survey-categ']   !== selC) return false;
+      if(selF && r['data-survey-finding'] !== selF) return false;
+      return true;
+    });
+
+    // Available values given current selections
+    const availO=new Set(), availC=new Set(), availF=new Set();
+    filtered.forEach(r=>{
+      if(r['data-base_info-nama']) availO.add(r['data-base_info-nama']);
+      if(r['data-survey-categ'])   availC.add(r['data-survey-categ']);
+      if(r['data-survey-finding']) availF.add(r['data-survey-finding']);
+    });
+
+    // Rebuild each select with only available options
+    // (always keep full list for the one being used as primary key)
+    rebuildSelect('filterOfficer',
+      selO ? allOfficers : [...availO].sort(),
+      'All Officers', selO);
+    rebuildSelect('filterCategory',
+      selC ? allCategories : [...availC].sort(),
+      'All Categories', selC);
+    rebuildSelect('filterFinding',
+      selF ? allFindings : [...availF].sort(),
+      'All Findings', selF);
+
+    updateFilterDot();
+  }
+
+  function rebuildSelect(id, values, placeholder, currentVal){
+    const el=document.getElementById(id);
+    el.innerHTML=`<option value="">${placeholder}</option>`;
+    values.forEach(v=>{
+      const o=document.createElement('option');
+      o.value=v; o.textContent=fmtLabel(v);
+      if(v===currentVal) o.selected=true;
+      el.appendChild(o);
+    });
+  }
+
+  /* ── FILTER ACTIVE DOT ── */
+  function updateFilterDot(){
+    const active =
+      document.getElementById('startDate').value ||
+      document.getElementById('endDate').value   ||
+      document.getElementById('filterOfficer').value  ||
+      document.getElementById('filterCategory').value ||
+      document.getElementById('filterFinding').value;
+    document.getElementById('filterDot').classList.toggle('visible', !!active);
+  }
+
+  /* ── CLEAR FILTERS ── */
+  function clearFilters(){
+    ['startDate','endDate'].forEach(id=>document.getElementById(id).value='');
+    populateSelect('filterOfficer',  allOfficers,  'All Officers');
+    populateSelect('filterCategory', allCategories,'All Categories');
+    populateSelect('filterFinding',  allFindings,  'All Findings');
+    highlightCat=null;
+    document.getElementById('totalSub').style.display='none';
+    document.getElementById('filterDot').classList.remove('visible');
+    updateMap();
   }
 
   /* ── SLIDER ── */
@@ -402,23 +520,23 @@
   function updateMap(){
     pointLayer.clearLayers();
     const start=parseDate(document.getElementById('startDate').value);
-    const end=parseDate(document.getElementById('endDate').value);
-    const selO=document.getElementById('filterOfficer').value;
-    const selC=document.getElementById('filterCategory').value;
-    const selF=document.getElementById('filterFinding').value;
+    const end  =parseDate(document.getElementById('endDate').value);
+    const selO =document.getElementById('filterOfficer').value;
+    const selC =document.getElementById('filterCategory').value;
+    const selF =document.getElementById('filterFinding').value;
     let counts={},total=0;
 
     rawData.forEach(r=>{
       const coord=r['data-coordinate'];if(!coord)return;
       const d=parseDate(r['data-start_date']);
       if(start&&d&&d<start)return;
-      if(end&&d&&d>end)return;
+      if(end  &&d&&d>end)  return;
       if(selO&&r['data-base_info-nama']!==selO)return;
-      if(selC&&r['data-survey-categ']!==selC)return;
+      if(selC&&r['data-survey-categ']  !==selC)return;
       if(selF&&r['data-survey-finding']!==selF)return;
       const[lat,lon]=coord.split(',').map(Number);if(isNaN(lat))return;
-      const cat=r['data-survey-categ']||'Unknown';
-      const finding=r['data-survey-finding']||'-';
+      const cat    =r['data-survey-categ']   ||'Unknown';
+      const finding=r['data-survey-finding'] ||'-';
       counts[cat]=(counts[cat]||0)+1;total++;
       const imgs=[convert(r['data-documentation-image_1']),convert(r['data-documentation-image_2'])].filter(Boolean);
       const m=L.marker([lat,lon]).bindPopup(buildPopup(r,cat,finding,imgs),{maxWidth:270});
@@ -447,15 +565,11 @@
           data:values,
           backgroundColor:colors.map(c=>c+'cc'),
           borderColor:colors,
-          borderWidth:0,
-          borderRadius:6,
-          borderSkipped:false,
+          borderWidth:0,borderRadius:6,borderSkipped:false,
         }]
       },
       options:{
-        indexAxis:'y',
-        responsive:true,
-        maintainAspectRatio:false,
+        indexAxis:'y',responsive:true,maintainAspectRatio:false,
         plugins:{
           legend:{display:false},
           tooltip:{
@@ -498,8 +612,7 @@
             ctx.save();
             ctx.font='600 10px Montserrat';
             ctx.fillStyle='#999';
-            ctx.textAlign='left';
-            ctx.textBaseline='middle';
+            ctx.textAlign='left';ctx.textBaseline='middle';
             ctx.fillText(data.datasets[0].data[i],bar.x+5,bar.y);
             ctx.restore();
           });
@@ -508,20 +621,25 @@
     });
   }
 
-  /* ── EVENTS ── */
-  ['startDate','endDate','filterOfficer','filterCategory','filterFinding']
-    .forEach(id=>document.getElementById(id).addEventListener('change',()=>{
-      highlightCat=null;
-      document.getElementById('totalSub').style.display='none';
-      updateMap();
-    }));
+  /* ── FILTER EVENTS ── */
+  ['startDate','endDate'].forEach(id=>{
+    document.getElementById(id).addEventListener('change',()=>{
+      updateFilterDot();updateMap();
+    });
+  });
+  ['filterOfficer','filterCategory','filterFinding'].forEach(id=>{
+    document.getElementById(id).addEventListener('change',()=>{
+      refreshCascade();updateMap();
+    });
+  });
 
+  // inline clear button inside filter accordion
+  document.getElementById('resetFilterInline').onclick=clearFilters;
+  // Show All button under chart (clears highlight only)
   document.getElementById('resetFilter').onclick=()=>{
-    ['startDate','endDate'].forEach(id=>document.getElementById(id).value='');
-    ['filterOfficer','filterCategory','filterFinding'].forEach(id=>document.getElementById(id).value='');
     highlightCat=null;
     document.getElementById('totalSub').style.display='none';
-    updateMap();
+    pointLayer.eachLayer(m=>m.setOpacity(1));
   };
 
   /* ── PANEL COLLAPSE ── */
@@ -541,9 +659,10 @@
       document.getElementById(chevronId).classList.toggle('open',open);
     };
   }
-  makeAccordion('chartHeader','chartBody','chartChevron',true);
-  makeAccordion('layerHeader','layerList','layerChevron',false);
-  makeAccordion('legendHeader','legendBody','legendChevron',false);
+  makeAccordion('filterHeader','filterBody','filterChevron',false);
+  makeAccordion('chartHeader', 'chartBody', 'chartChevron', true);
+  makeAccordion('layerHeader', 'layerList', 'layerChevron', false);
+  makeAccordion('legendHeader','legendBody','legendChevron', true);
 
   /* ── LAYER TOGGLES ── */
   toggleLulc.onchange        = e=>e.target.checked?map.addLayer(lulc)       :map.removeLayer(lulc);
