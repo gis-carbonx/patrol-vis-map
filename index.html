@@ -18,206 +18,185 @@
 
     /* ── PANEL ── */
     .panel{
-      position:absolute;top:20px;left:20px;
-      z-index:1000;width:280px;
-      background:#fff;
-      border-radius:12px;
-      border:1px solid #e8e8e8;
-      box-shadow:0 4px 24px rgba(0,0,0,0.09);
+      position:absolute;top:16px;right:16px;
+      z-index:1000;width:300px;
+      background:#fff;border-radius:20px;
+      box-shadow:0 8px 32px rgba(0,0,0,0.13);
       display:flex;flex-direction:column;
-      max-height:calc(100vh - 40px);
+      /* max-height = viewport minus top offset and bottom margin */
+      max-height:calc(100vh - 32px);
     }
 
-    /* ── PANEL HEADER ── */
+    /* header — fixed inside panel, never scrolls */
     .panel-header{
       flex-shrink:0;
       display:flex;align-items:center;justify-content:space-between;
-      padding:14px 16px 12px;
-      border-bottom:1px solid #f0f0f0;
+      padding:15px 18px 12px;
+      border-bottom:1px solid #f2f2f2;
+      border-radius:20px 20px 0 0;
+      background:#fff;
     }
-    .panel-header-left{display:flex;align-items:center;gap:8px}
-    .panel-icon{
-      width:28px;height:28px;border-radius:7px;
-      background:#f5f5f5;
-      display:flex;align-items:center;justify-content:center;
-      font-size:14px;
-    }
-    .panel-title{font-size:13px;font-weight:700;color:#111;letter-spacing:-.1px}
-    .panel-close{
+    .panel-title{font-size:12px;font-weight:700;letter-spacing:.8px;color:#1a1a2e;text-transform:uppercase}
+    .panel-toggle{
       background:none;border:none;cursor:pointer;
-      width:24px;height:24px;border-radius:6px;
-      color:#aaa;font-size:16px;
-      display:flex;align-items:center;justify-content:center;
-      transition:background .15s,color .15s;
+      width:26px;height:26px;border-radius:8px;
+      color:#999;font-size:18px;line-height:26px;text-align:center;
+      transition:background .15s;display:flex;align-items:center;justify-content:center;
     }
-    .panel-close:hover{background:#f5f5f5;color:#555}
+    .panel-toggle:hover{background:#f5f5f5}
 
-    /* ── PANEL BODY ── */
+    /* scrollable body */
     .panel-body{
       flex:1;overflow-y:auto;overflow-x:hidden;
-      scrollbar-width:thin;scrollbar-color:#e8e8e8 transparent;
+      padding:15px 18px;
+      border-radius:0 0 20px 20px;
+      /* thin custom scrollbar */
+      scrollbar-width:thin;
+      scrollbar-color:#e0e0e0 transparent;
     }
-    .panel-body::-webkit-scrollbar{width:3px}
-    .panel-body::-webkit-scrollbar-thumb{background:#e8e8e8;border-radius:3px}
+    .panel-body::-webkit-scrollbar{width:4px}
+    .panel-body::-webkit-scrollbar-track{background:transparent}
+    .panel-body::-webkit-scrollbar-thumb{background:#e0e0e0;border-radius:4px}
 
-    /* ── SECTION ── */
-    .p-section{padding:14px 16px;border-bottom:1px solid #f5f5f5}
-    .p-section:last-child{border-bottom:none;padding-bottom:16px}
+    .section-label{
+      font-size:9px;font-weight:700;letter-spacing:.9px;
+      color:#bbb;text-transform:uppercase;margin-bottom:7px;
+    }
 
-    .p-section-title{
-      font-size:10px;font-weight:700;letter-spacing:.7px;
-      color:#aaa;text-transform:uppercase;margin-bottom:10px;
+    /* ── COLLAPSIBLE ── */
+    .collapse-section{border-top:1px solid #f2f2f2;margin-top:13px}
+    .collapse-section.no-top{border-top:none;margin-top:0}
+    .collapse-header{
       display:flex;align-items:center;justify-content:space-between;
-      cursor:pointer;user-select:none;
+      padding:11px 0 0;cursor:pointer;user-select:none;
     }
-    .p-section-title:hover{color:#888}
-    .p-chevron{font-size:9px;color:#ccc;transition:transform .2s}
-    .p-chevron.open{transform:rotate(180deg)}
-    .p-collapsible{overflow:hidden;max-height:0;transition:max-height .28s ease}
-    .p-collapsible.open{max-height:600px}
+    .collapse-header:hover .section-label{color:#f5a623}
+    .collapse-chevron{font-size:10px;color:#ccc;transition:transform .22s}
+    .collapse-chevron.open{transform:rotate(180deg)}
+    .collapse-body{overflow:hidden;max-height:0;transition:max-height .3s ease}
+    .collapse-body.open{max-height:700px}
 
-    /* ── STAT ── */
-    .stat-block{
-      display:flex;align-items:baseline;gap:6px;
-      padding:14px 16px 0;
-    }
-    .stat-num{font-size:28px;font-weight:700;color:#111;line-height:1}
-    .stat-hl{font-size:14px;font-weight:700;color:#f5a623;display:none}
-    .stat-lbl{font-size:11px;color:#bbb;font-weight:500;align-self:center}
-
-    /* ── FILTER INPUTS ── */
-    .date-row{display:flex;gap:6px;margin-bottom:8px}
-    .date-row input{
-      flex:1;padding:7px 9px;
-      border:1px solid #ebebeb;border-radius:8px;
+    /* ── FILTER ── */
+    .filter-date{display:flex;gap:6px;margin-bottom:10px;margin-top:10px}
+    .filter-date input{
+      flex:1;padding:8px 10px;
+      border:1.5px solid #f0f0f0;border-radius:10px;
       font-size:11px;font-family:'Montserrat',sans-serif;
-      color:#333;background:#fafafa;outline:none;
-      transition:border .15s;
+      color:#333;background:#fafafa;outline:none;transition:border .15s,background .15s;
     }
-    .date-row input:focus{border-color:#111;background:#fff}
-
-    .sel-stack{display:flex;flex-direction:column;gap:5px}
-    .sel-stack select{
-      width:100%;padding:7px 9px;
-      border:1px solid #ebebeb;border-radius:8px;
+    .filter-date input:focus{border-color:#f5a623;background:#fff}
+    .filter-selects{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+    .filter-selects select{
+      width:100%;padding:8px 10px;
+      border:1.5px solid #f0f0f0;border-radius:10px;
       font-size:11px;font-family:'Montserrat',sans-serif;
       color:#333;background:#fafafa;outline:none;cursor:pointer;
       appearance:none;transition:border .15s;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M0 0l4.5 5L9 0z' fill='%23bbb'/%3E%3C/svg%3E");
-      background-repeat:no-repeat;background-position:right 9px center;
-      padding-right:26px;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;
     }
-    .sel-stack select:focus{border-color:#111;background:#fff}
+    .filter-selects select:focus{border-color:#f5a623;background:#fff}
 
-    /* filter active pill */
-    .filter-pill{
-      display:none;
-      font-size:9px;font-weight:700;
-      background:#111;color:#fff;
-      padding:2px 6px;border-radius:10px;
-      margin-left:6px;letter-spacing:.3px;
+    /* active filter dot */
+    .filter-active-dot{
+      width:6px;height:6px;border-radius:50%;
+      background:#f5a623;display:none;margin-left:6px;flex-shrink:0;
     }
-    .filter-pill.on{display:inline-block}
+    .filter-active-dot.visible{display:inline-block}
 
-    /* ── CHART ── */
-    .chart-wrap{margin-bottom:12px}
-    .btn-showall{
-      width:100%;padding:8px;border:1px solid #e8e8e8;border-radius:8px;
-      background:#fff;color:#333;
-      font-size:11px;font-weight:600;font-family:'Montserrat',sans-serif;
-      cursor:pointer;transition:background .15s,border .15s;
-      display:flex;align-items:center;justify-content:center;gap:5px;
+    /* ── STAT ── */
+    .stat-row{display:flex;align-items:baseline;gap:8px;margin:2px 0 12px}
+    .stat-main{font-size:32px;font-weight:700;color:#1a1a2e;line-height:1}
+    .stat-sub{font-size:15px;font-weight:700;color:#f5a623;display:none}
+    .stat-hint{font-size:10px;color:#bbb;font-weight:500;margin-left:2px;align-self:center}
+
+    .chart-wrap{margin-bottom:14px;position:relative}
+    .btn-reset{
+      width:100%;padding:9px;border:none;border-radius:10px;
+      background:#1a1a2e;color:#fff;
+      font-size:11px;font-weight:700;letter-spacing:.5px;font-family:'Montserrat',sans-serif;
+      cursor:pointer;transition:background .15s;
     }
-    .btn-showall:hover{background:#f5f5f5;border-color:#ccc}
+    .btn-reset:hover{background:#f5a623}
 
-    /* ── LAYER TOGGLE ROWS ── */
-    .layer-row{
+    /* ── LAYER ROWS ── */
+    .toggle-row{
       display:flex;align-items:center;justify-content:space-between;
-      padding:6px 0;
+      padding:7px 0;border-bottom:1px solid #f7f7f7;
     }
-    .layer-row + .layer-row{border-top:1px solid #f8f8f8}
-    .layer-lbl{
-      font-size:12px;font-weight:500;color:#333;
-      display:flex;align-items:center;gap:8px;
-    }
-    .l-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-
-    /* toggle switch — slim style matching reference */
-    .sw{position:relative;width:34px;height:18px;flex-shrink:0}
-    .sw input{opacity:0;width:0;height:0}
-    .sw-track{
-      position:absolute;inset:0;background:#e0e0e0;border-radius:18px;
+    .toggle-row:last-child{border-bottom:none}
+    .toggle-label{font-size:11px;font-weight:500;color:#444;display:flex;align-items:center;gap:8px}
+    .layer-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .switch{position:relative;width:32px;height:18px;flex-shrink:0}
+    .switch input{opacity:0;width:0;height:0}
+    .slider-sw{
+      position:absolute;inset:0;background:#e8e8e8;border-radius:18px;
       cursor:pointer;transition:background .2s;
     }
-    .sw-track:before{
-      content:'';position:absolute;
-      width:13px;height:13px;border-radius:50%;
-      background:#fff;left:2.5px;top:2.5px;
-      box-shadow:0 1px 3px rgba(0,0,0,0.15);
-      transition:transform .2s;
+    .slider-sw:before{
+      content:'';position:absolute;width:12px;height:12px;border-radius:50%;
+      background:#fff;left:3px;top:3px;transition:transform .2s;
     }
-    .sw input:checked + .sw-track{background:#111}
-    .sw input:checked + .sw-track:before{transform:translateX(16px)}
+    .switch input:checked + .slider-sw{background:#f5a623}
+    .switch input:checked + .slider-sw:before{transform:translateX(14px)}
 
-    /* orange accent for active layers */
-    .sw input.accent:checked + .sw-track{background:#f5a623}
-
-    /* ── LEGEND GRID ── */
-    .leg-grid{
+    /* ── LEGEND ── */
+    .legend-grid{
       display:grid;grid-template-columns:1fr 1fr;
-      gap:6px 10px;
+      gap:5px 8px;padding-top:10px;padding-bottom:4px;
     }
-    .leg-item{display:flex;align-items:flex-start;gap:6px;font-size:10px;font-weight:500;color:#555;line-height:1.35}
-    .leg-sw{width:10px;height:10px;border-radius:3px;flex-shrink:0;margin-top:1px}
+    .legend-item{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:500;color:#555;line-height:1.3}
+    .legend-swatch{width:11px;height:11px;border-radius:3px;flex-shrink:0}
 
     /* ── POPUP ── */
     .leaflet-popup-content-wrapper{
-      border-radius:12px;padding:0;overflow:hidden;border:none;
-      box-shadow:0 8px 32px rgba(0,0,0,0.14);
+      border-radius:20px;padding:0;overflow:hidden;border:none;
+      box-shadow:0 12px 40px rgba(0,0,0,0.18);
     }
-    .leaflet-popup-content{margin:0;width:268px !important}
+    .leaflet-popup-content{margin:0;width:270px !important}
     .leaflet-popup-tip{background:#fff}
 
-    .pp-slider{position:relative;width:268px;height:175px;overflow:hidden;background:#f2f2f2}
-    .pp-slider .slides{display:flex;height:100%;transition:transform .3s ease}
-    .pp-slider .slide{min-width:268px;height:175px;overflow:hidden}
-    .pp-slider .slide img{width:100%;height:100%;object-fit:cover;cursor:pointer;display:block}
-    .sl-btn{
+    .popup-slider{position:relative;width:270px;height:180px;overflow:hidden;background:#f0f0f0}
+    .popup-slider .slides{display:flex;height:100%;transition:transform .3s ease}
+    .popup-slider .slide{min-width:270px;height:180px;overflow:hidden}
+    .popup-slider .slide img{width:100%;height:100%;object-fit:cover;cursor:pointer;display:block}
+    .slider-btn{
       position:absolute;top:50%;transform:translateY(-50%);
-      background:rgba(255,255,255,0.88);color:#333;
-      border:none;border-radius:50%;width:26px;height:26px;
-      font-size:15px;line-height:26px;text-align:center;
-      cursor:pointer;z-index:10;padding:0;
-      box-shadow:0 1px 6px rgba(0,0,0,0.12);transition:background .12s;
+      background:rgba(255,255,255,0.85);color:#333;
+      border:none;border-radius:50%;width:28px;height:28px;font-size:16px;
+      line-height:28px;text-align:center;cursor:pointer;z-index:10;padding:0;
+      box-shadow:0 2px 8px rgba(0,0,0,0.15);transition:background .15s;
     }
-    .sl-btn.prev{left:8px}.sl-btn.next{right:8px}
-    .sl-btn:hover{background:#fff}
-    .sl-dots{position:absolute;bottom:7px;width:100%;display:flex;justify-content:center;gap:4px}
-    .sl-dots span{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.45)}
-    .sl-dots span.on{background:#fff;width:13px;border-radius:3px}
+    .slider-btn.prev{left:8px}
+    .slider-btn.next{right:8px}
+    .slider-btn:hover{background:#fff}
+    .slider-dots{position:absolute;bottom:8px;width:100%;display:flex;justify-content:center;gap:5px}
+    .slider-dots span{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.5)}
+    .slider-dots span.active{background:#fff;width:14px;border-radius:4px}
 
-    .pp-body{padding:12px 14px 14px}
-    .pp-badge{
-      display:inline-block;padding:2px 8px;border-radius:10px;
-      font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:7px;
+    .popup-card{padding:14px 16px 16px}
+    .popup-badge{
+      display:inline-block;padding:3px 9px;border-radius:20px;
+      font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px;
     }
-    .pp-title{font-size:12px;font-weight:700;color:#111;margin-bottom:8px;line-height:1.4}
-    .pp-chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
-    .pp-chip{
-      display:flex;align-items:center;gap:3px;padding:3px 8px;
-      border-radius:8px;background:#f5f5f5;font-size:10px;font-weight:600;color:#555;
+    .popup-title{font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:10px;line-height:1.4}
+    .popup-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+    .chip{
+      display:flex;align-items:center;gap:4px;padding:4px 9px;
+      border-radius:20px;background:#f7f7f7;font-size:10px;font-weight:600;color:#555;
     }
-    .pp-desc{font-size:10px;color:#999;line-height:1.6;padding-top:8px;border-top:1px solid #f2f2f2}
-    .pp-nophoto{height:60px;background:#fafafa;display:flex;align-items:center;justify-content:center;font-size:24px}
+    .chip-icon{font-size:11px}
+    .popup-desc{font-size:11px;color:#888;line-height:1.6;padding-top:10px;border-top:1px solid #f2f2f2}
+    .popup-no-photo{height:70px;background:#fff8f0;display:flex;align-items:center;justify-content:center;font-size:28px}
 
-    /* ── MODAL ── */
     .img-modal{
-      display:none;position:fixed;z-index:9999;inset:0;
-      background:rgba(0,0,0,0.88);justify-content:center;align-items:center;
+      display:none;position:fixed;z-index:9999;
+      inset:0;background:rgba(10,10,20,0.92);
+      justify-content:center;align-items:center;
     }
-    .img-modal img{max-width:92%;max-height:88%;border-radius:12px}
+    .img-modal img{max-width:92%;max-height:88%;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.5)}
     .modal-close{
-      position:absolute;top:18px;right:28px;color:#fff;font-size:30px;
+      position:absolute;top:20px;right:32px;color:#fff;font-size:34px;
       cursor:pointer;opacity:.7;transition:opacity .15s;line-height:1;
     }
     .modal-close:hover{opacity:1}
@@ -227,40 +206,37 @@
 <div id="map"></div>
 
 <div class="panel" id="mainPanel">
-
-  <!-- HEADER -->
+  <!-- header never scrolls -->
   <div class="panel-header">
-    <div class="panel-header-left">
-      <div class="panel-icon">&#128205;</div>
-      <span class="panel-title">CMI Patrol Data</span>
-    </div>
-    <button class="panel-close" id="collapseBtn" title="Minimize">&#10005;</button>
+    <span class="panel-title">CMI Patrol Data</span>
+    <button class="panel-toggle" id="collapseBtn" title="Minimize">&#8722;</button>
   </div>
 
+  <!-- everything inside here scrolls within the panel -->
   <div class="panel-body" id="panelBody">
 
-    <!-- STAT -->
-    <div class="stat-block">
-      <span class="stat-num" id="totalMain">0</span>
-      <span class="stat-hl" id="totalSub"></span>
-      <span class="stat-lbl">findings</span>
+    <!-- STAT — always visible -->
+    <div class="stat-row">
+      <span class="stat-main" id="totalMain">0</span>
+      <span class="stat-sub" id="totalSub"></span>
+      <span class="stat-hint">findings</span>
     </div>
 
-    <!-- FILTER -->
-    <div class="p-section">
-      <div class="p-section-title" id="filterHeader">
-        <span>
-          Filter
-          <span class="filter-pill" id="filterPill">active</span>
-        </span>
-        <span class="p-chevron" id="filterChevron">&#9660;</span>
+    <!-- FILTER — default OFF -->
+    <div class="collapse-section no-top">
+      <div class="collapse-header" id="filterHeader">
+        <div style="display:flex;align-items:center">
+          <span class="section-label" style="margin:0">Filter</span>
+          <span class="filter-active-dot" id="filterDot"></span>
+        </div>
+        <span class="collapse-chevron" id="filterChevron">&#9660;</span>
       </div>
-      <div class="p-collapsible" id="filterBody">
-        <div class="date-row">
+      <div class="collapse-body" id="filterBody">
+        <div class="filter-date">
           <input type="date" id="startDate">
           <input type="date" id="endDate">
         </div>
-        <div class="sel-stack">
+        <div class="filter-selects">
           <select id="filterOfficer"><option value="">All Officers</option></select>
           <select id="filterCategory"><option value="">All Categories</option></select>
           <select id="filterFinding"><option value="">All Findings</option></select>
@@ -268,76 +244,81 @@
       </div>
     </div>
 
-    <!-- CATEGORY BREAKDOWN -->
-    <div class="p-section">
-      <div class="p-section-title" id="chartHeader">
-        <span>Category Breakdown</span>
-        <span class="p-chevron open" id="chartChevron">&#9660;</span>
+    <!-- CATEGORY BREAKDOWN — default ON -->
+    <div class="collapse-section">
+      <div class="collapse-header" id="chartHeader">
+        <span class="section-label" style="margin:0">Category Breakdown</span>
+        <span class="collapse-chevron open" id="chartChevron">&#9660;</span>
       </div>
-      <div class="p-collapsible open" id="chartBody">
-        <div class="chart-wrap" style="padding-top:8px">
-          <canvas id="chartCanvas"></canvas>
-        </div>
-        <button class="btn-showall" id="resetFilter">
-          <span>&#10227;</span> Show All
-        </button>
-      </div>
-    </div>
-
-    <!-- LAYERS -->
-    <div class="p-section">
-      <div class="p-section-title" id="layerHeader">
-        <span>Layers</span>
-        <span class="p-chevron" id="layerChevron">&#9660;</span>
-      </div>
-      <div class="p-collapsible" id="layerList">
-        <div class="layer-row">
-          <span class="layer-lbl"><span class="l-dot" style="background:#4CAF50"></span>LULC 2023</span>
-          <label class="sw"><input type="checkbox" id="toggleLulc" class="accent" checked><span class="sw-track"></span></label>
-        </div>
-        <div class="layer-row">
-          <span class="layer-lbl"><span class="l-dot" style="background:#00BCD4"></span>LULC 2025</span>
-          <label class="sw"><input type="checkbox" id="toggleLulc2025" class="accent"><span class="sw-track"></span></label>
-        </div>
-        <div class="layer-row">
-          <span class="layer-lbl"><span class="l-dot" style="background:#FF9800"></span>Landsat 2024</span>
-          <label class="sw"><input type="checkbox" id="toggleLandsat2024" class="accent"><span class="sw-track"></span></label>
-        </div>
-        <div class="layer-row">
-          <span class="layer-lbl"><span class="l-dot" style="background:#F44336"></span>Landsat 2025</span>
-          <label class="sw"><input type="checkbox" id="toggleLandsat2025" class="accent"><span class="sw-track"></span></label>
-        </div>
-        <div class="layer-row">
-          <span class="layer-lbl"><span class="l-dot" style="background:#7B1FA2"></span>Boundary</span>
-          <label class="sw"><input type="checkbox" id="toggleBoundary" class="accent" checked><span class="sw-track"></span></label>
-        </div>
-        <div class="layer-row">
-          <span class="layer-lbl"><span class="l-dot" style="background:#2196F3"></span>Points</span>
-          <label class="sw"><input type="checkbox" id="togglePoints" class="accent" checked><span class="sw-track"></span></label>
+      <div class="collapse-body open" id="chartBody">
+        <div style="padding-top:8px">
+          <div class="chart-wrap">
+            <canvas id="chartCanvas"></canvas>
+          </div>
+          <button class="btn-reset" id="resetFilter">Show All</button>
         </div>
       </div>
     </div>
 
-    <!-- LULC LEGEND -->
-    <div class="p-section">
-      <div class="p-section-title" id="legendHeader">
-        <span>LULC Legend</span>
-        <span class="p-chevron open" id="legendChevron">&#9660;</span>
+    <!-- LAYERS — default OFF -->
+    <div class="collapse-section">
+      <div class="collapse-header" id="layerHeader">
+        <span class="section-label" style="margin:0">Layers</span>
+        <span class="collapse-chevron" id="layerChevron">&#9660;</span>
       </div>
-      <div class="p-collapsible open" id="legendBody">
-        <div class="leg-grid">
-          <div class="leg-item"><span class="leg-sw" style="background:#ec4040"></span>Building</div>
-          <div class="leg-item"><span class="leg-sw" style="background:#a1a1a1"></span>Cleared / Bare Land</div>
-          <div class="leg-item"><span class="leg-sw" style="background:#ecb240"></span>Oil Palm / Newly Planted</div>
-          <div class="leg-item"><span class="leg-sw" style="background:#5c9640"></span>Forest</div>
-          <div class="leg-item"><span class="leg-sw" style="background:#ffffce;border:1px solid #d8d8a0"></span>Mixed Dry Agriculture</div>
-          <div class="leg-item"><span class="leg-sw" style="background:#b2ec40"></span>Old Shrubs</div>
-          <div class="leg-item"><span class="leg-sw" style="background:#222"></span>Road</div>
-          <div class="leg-item"><span class="leg-sw" style="background:#ddff96"></span>Shrubs</div>
-          <div class="leg-item"><span class="leg-sw" style="background:#b6cce1"></span>Water</div>
+      <div class="collapse-body" id="layerList">
+        <div style="padding-top:8px">
+          <div class="toggle-row">
+            <span class="toggle-label"><span class="layer-dot" style="background:#4CAF50"></span>LULC 2023</span>
+            <label class="switch"><input type="checkbox" id="toggleLulc" checked><span class="slider-sw"></span></label>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label"><span class="layer-dot" style="background:#00BCD4"></span>LULC 2025</span>
+            <label class="switch"><input type="checkbox" id="toggleLulc2025"><span class="slider-sw"></span></label>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label"><span class="layer-dot" style="background:#FF9800"></span>Landsat 2024</span>
+            <label class="switch"><input type="checkbox" id="toggleLandsat2024"><span class="slider-sw"></span></label>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label"><span class="layer-dot" style="background:#F44336"></span>Landsat 2025</span>
+            <label class="switch"><input type="checkbox" id="toggleLandsat2025"><span class="slider-sw"></span></label>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label"><span class="layer-dot" style="background:#7B1FA2"></span>Boundary</span>
+            <label class="switch"><input type="checkbox" id="toggleBoundary" checked><span class="slider-sw"></span></label>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label"><span class="layer-dot" style="background:#2196F3"></span>Points</span>
+            <label class="switch"><input type="checkbox" id="togglePoints" checked><span class="slider-sw"></span></label>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- LULC LEGEND — default ON -->
+    <div class="collapse-section">
+      <div class="collapse-header" id="legendHeader">
+        <span class="section-label" style="margin:0">LULC Legend</span>
+        <span class="collapse-chevron open" id="legendChevron">&#9660;</span>
+      </div>
+      <div class="collapse-body open" id="legendBody">
+        <div class="legend-grid">
+          <div class="legend-item"><span class="legend-swatch" style="background:#ec4040"></span>Building</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#a1a1a1"></span>Cleared / Bare Land</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#ecb240"></span>Oil Palm / Newly Planted</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#5c9640"></span>Forest</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#ffffce;border:1px solid #e0e0b0"></span>Mixed Dry Agriculture</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#b2ec40"></span>Old Shrubs</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#222"></span>Road</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#ddff96"></span>Shrubs</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#b6cce1"></span>Water</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- bottom padding so last item isn't flush against rounded corner -->
+    <div style="height:8px"></div>
 
   </div><!-- /panel-body -->
 </div><!-- /panel -->
@@ -349,9 +330,8 @@
 
 <script>
   /* ── MAP ── */
-  const map = L.map('map',{center:[0.8,110.325],zoom:13,zoomControl:false});
+  const map = L.map('map',{center:[0.8,110.325],zoom:13});
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
-  L.control.zoom({position:'bottomright'}).addTo(map);
 
   const lulc        = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png',        {opacity:1}).addTo(map);
   const lulc2025    = L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',   {opacity:1});
@@ -364,7 +344,7 @@
   fetch('data/CMI.json')
     .then(r=>r.json())
     .then(j=>{
-      boundaryLayer=L.geoJSON(j,{style:{color:"#7B1FA2",weight:2.5,fillOpacity:0}}).addTo(map);
+      boundaryLayer=L.geoJSON(j,{style:{color:"#7B1FA2",weight:3,fillOpacity:0}}).addTo(map);
       map.fitBounds(boundaryLayer.getBounds());
     });
 
@@ -386,9 +366,11 @@
     const d=new Date(s);return isNaN(d)?null:d;
   }
 
+  /* ── FORMAT LABEL ── */
   function fmtLabel(s){return(s||'').replace(/_/g,' ');}
 
-  const PALETTE=['#6C63FF','#4ECDC4','#FF6B6B','#f5a623','#6BCB77','#74C0FC','#F06595','#A9E34B','#63E6BE','#FF922B'];
+  /* ── COLOR MAP ── */
+  const PALETTE=['#f5a623','#6C63FF','#4ECDC4','#FF6B6B','#6BCB77','#74C0FC','#F06595','#A9E34B','#63E6BE','#FF922B'];
   const catColorMap={};
   function catColor(cat){
     if(!catColorMap[cat]) catColorMap[cat]=PALETTE[Object.keys(catColorMap).length%PALETTE.length];
@@ -405,16 +387,18 @@
       if(r['data-survey-categ'])  c.add(r['data-survey-categ']);
       if(r['data-survey-finding'])f.add(r['data-survey-finding']);
     });
-    allOfficers=[...o].sort();allCategories=[...c].sort();allFindings=[...f].sort();
+    allOfficers  =[...o].sort();
+    allCategories=[...c].sort();
+    allFindings  =[...f].sort();
     populateSelect('filterOfficer',  allOfficers,  'All Officers');
     populateSelect('filterCategory', allCategories,'All Categories');
     populateSelect('filterFinding',  allFindings,  'All Findings');
   }
 
-  function populateSelect(id,values,ph){
+  function populateSelect(id,values,placeholder){
     const el=document.getElementById(id);
     const cur=el.value;
-    el.innerHTML=`<option value="">${ph}</option>`;
+    el.innerHTML=`<option value="">${placeholder}</option>`;
     values.forEach(v=>{
       const o=document.createElement('option');
       o.value=v;o.textContent=fmtLabel(v);
@@ -427,27 +411,30 @@
     const selO=document.getElementById('filterOfficer').value;
     const selC=document.getElementById('filterCategory').value;
     const selF=document.getElementById('filterFinding').value;
+
     const filtered=rawData.filter(r=>{
       if(selO&&r['data-base_info-nama']!==selO)return false;
       if(selC&&r['data-survey-categ']  !==selC)return false;
       if(selF&&r['data-survey-finding']!==selF)return false;
       return true;
     });
-    const aO=new Set(),aC=new Set(),aF=new Set();
+
+    const availO=new Set(),availC=new Set(),availF=new Set();
     filtered.forEach(r=>{
-      if(r['data-base_info-nama'])aO.add(r['data-base_info-nama']);
-      if(r['data-survey-categ'])  aC.add(r['data-survey-categ']);
-      if(r['data-survey-finding'])aF.add(r['data-survey-finding']);
+      if(r['data-base_info-nama'])availO.add(r['data-base_info-nama']);
+      if(r['data-survey-categ'])  availC.add(r['data-survey-categ']);
+      if(r['data-survey-finding'])availF.add(r['data-survey-finding']);
     });
-    rebuildSelect('filterOfficer',  selO?allOfficers  :[...aO].sort(),'All Officers',  selO);
-    rebuildSelect('filterCategory', selC?allCategories:[...aC].sort(),'All Categories',selC);
-    rebuildSelect('filterFinding',  selF?allFindings  :[...aF].sort(),'All Findings',  selF);
-    updatePill();
+
+    rebuildSelect('filterOfficer',  selO?allOfficers  :[...availO].sort(),'All Officers',  selO);
+    rebuildSelect('filterCategory', selC?allCategories:[...availC].sort(),'All Categories',selC);
+    rebuildSelect('filterFinding',  selF?allFindings  :[...availF].sort(),'All Findings',  selF);
+    updateFilterDot();
   }
 
-  function rebuildSelect(id,values,ph,cur){
+  function rebuildSelect(id,values,placeholder,cur){
     const el=document.getElementById(id);
-    el.innerHTML=`<option value="">${ph}</option>`;
+    el.innerHTML=`<option value="">${placeholder}</option>`;
     values.forEach(v=>{
       const o=document.createElement('option');
       o.value=v;o.textContent=fmtLabel(v);
@@ -456,42 +443,42 @@
     });
   }
 
-  function updatePill(){
+  function updateFilterDot(){
     const active=
       document.getElementById('startDate').value||
       document.getElementById('endDate').value||
       document.getElementById('filterOfficer').value||
       document.getElementById('filterCategory').value||
       document.getElementById('filterFinding').value;
-    document.getElementById('filterPill').classList.toggle('on',!!active);
+    document.getElementById('filterDot').classList.toggle('visible',!!active);
   }
 
   /* ── SLIDER ── */
   function buildSlider(imgs){
-    if(!imgs.length)return`<div class="pp-nophoto">&#128247;</div>`;
+    if(!imgs.length)return`<div class="popup-no-photo">&#128247;</div>`;
     if(imgs.length===1)
-      return`<div class="pp-slider"><div class="slides"><div class="slide"><img src="${imgs[0]}" onclick="openModal('${imgs[0]}')"></div></div></div>`;
+      return`<div class="popup-slider"><div class="slides"><div class="slide"><img src="${imgs[0]}" onclick="openModal('${imgs[0]}')"></div></div></div>`;
     const slides=imgs.map(s=>`<div class="slide"><img src="${s}" onclick="openModal('${s}')"></div>`).join('');
-    const dots=imgs.map((_,i)=>`<span class="${i===0?'on':''}"></span>`).join('');
+    const dots=imgs.map((_,i)=>`<span class="${i===0?'active':''}"></span>`).join('');
     const uid='sl_'+Math.random().toString(36).slice(2,7);
-    return`<div class="pp-slider" id="${uid}">
+    return`<div class="popup-slider" id="${uid}">
       <div class="slides">${slides}</div>
-      <button class="sl-btn prev" onclick="slideMove('${uid}',-1)">&#8249;</button>
-      <button class="sl-btn next" onclick="slideMove('${uid}',1)">&#8250;</button>
-      <div class="sl-dots">${dots}</div>
+      <button class="slider-btn prev" onclick="slideMove('${uid}',-1)">&#8249;</button>
+      <button class="slider-btn next" onclick="slideMove('${uid}',1)">&#8250;</button>
+      <div class="slider-dots">${dots}</div>
     </div>`;
   }
   const sliderIndex={};
   function slideMove(uid,dir){
     const c=document.getElementById(uid);if(!c)return;
     const sl=c.querySelectorAll('.slide');
-    const dots=c.querySelectorAll('.sl-dots span');
+    const dots=c.querySelectorAll('.slider-dots span');
     const n=sl.length;
     let idx=(sliderIndex[uid]||0)+dir;
     if(idx<0)idx=n-1;if(idx>=n)idx=0;
     sliderIndex[uid]=idx;
-    c.querySelector('.slides').style.transform=`translateX(-${idx*268}px)`;
-    dots.forEach((d,i)=>d.classList.toggle('on',i===idx));
+    c.querySelector('.slides').style.transform=`translateX(-${idx*270}px)`;
+    dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
   }
 
   function buildPopup(r,cat,finding,imgs){
@@ -499,14 +486,14 @@
     const desc=r['data-survey-description']||'';
     return`<div>
       ${buildSlider(imgs)}
-      <div class="pp-body">
-        <div class="pp-badge" style="background:${col}18;color:${col}">${fmtLabel(cat)}</div>
-        <div class="pp-title">${fmtLabel(finding)}</div>
-        <div class="pp-chips">
-          <div class="pp-chip">&#128100; ${r['data-base_info-nama']||'-'}</div>
-          <div class="pp-chip">&#128197; ${r['data-start_date']||'-'}</div>
+      <div class="popup-card">
+        <div class="popup-badge" style="background:${col}22;color:${col}">${fmtLabel(cat)}</div>
+        <div class="popup-title">${fmtLabel(finding)}</div>
+        <div class="popup-chips">
+          <div class="chip">${r['data-base_info-nama']||'-'}</div>
+          <div class="chip">${r['data-start_date']||'-'}</div>
         </div>
-        ${desc?`<div class="pp-desc">${desc}</div>`:''}
+        ${desc?`<div class="popup-desc">${desc}</div>`:''}
       </div>
     </div>`;
   }
@@ -534,9 +521,9 @@
       const finding=r['data-survey-finding'] ||'-';
       counts[cat]=(counts[cat]||0)+1;total++;
       const imgs=[convert(r['data-documentation-image_1']),convert(r['data-documentation-image_2'])].filter(Boolean);
-      const m=L.marker([lat,lon]).bindPopup(buildPopup(r,cat,finding,imgs),{maxWidth:268});
+      const m=L.marker([lat,lon]).bindPopup(buildPopup(r,cat,finding,imgs),{maxWidth:270});
       m.category=cat;
-      if(highlightCat)m.setOpacity(m.category===highlightCat?1:0.15);
+      if(highlightCat)m.setOpacity(m.category===highlightCat?1:0.2);
       pointLayer.addLayer(m);
     });
 
@@ -550,7 +537,7 @@
     const colors=rawLabels.map(catColor);
     const max=values[0]||1;
 
-    chartCanvas.height=Math.max(50,labels.length*30+24);
+    chartCanvas.height=Math.max(60,labels.length*34+30);
 
     chart=new Chart(chartCanvas,{
       type:'bar',
@@ -558,9 +545,9 @@
         labels,
         datasets:[{
           data:values,
-          backgroundColor:colors.map(c=>c+'bb'),
+          backgroundColor:colors.map(c=>c+'cc'),
           borderColor:colors,
-          borderWidth:0,borderRadius:5,borderSkipped:false,
+          borderWidth:0,borderRadius:6,borderSkipped:false,
         }]
       },
       options:{
@@ -568,18 +555,18 @@
         plugins:{
           legend:{display:false},
           tooltip:{
-            callbacks:{label:ctx=>' '+ctx.raw},
-            backgroundColor:'#111',
+            callbacks:{label:ctx=>' '+ctx.raw+' findings'},
+            backgroundColor:'#1a1a2e',
             titleFont:{family:'Montserrat',size:11},
             bodyFont:{family:'Montserrat',size:11},
-            padding:7,cornerRadius:7,
+            padding:8,cornerRadius:8,
           }
         },
         scales:{
-          x:{display:false,max:max*1.22,grid:{display:false}},
+          x:{display:false,max:max*1.2,grid:{display:false}},
           y:{
             grid:{display:false},border:{display:false},
-            ticks:{font:{family:'Montserrat',size:10,weight:'600'},color:'#666',padding:3}
+            ticks:{font:{family:'Montserrat',size:10,weight:'600'},color:'#555',padding:4}
           }
         },
         onClick:(e,el)=>{
@@ -594,10 +581,10 @@
             highlightCat=cat;
             const sub=document.getElementById('totalSub');
             sub.style.display='block';sub.innerText=val;
-            pointLayer.eachLayer(m=>m.setOpacity(m.category===cat?1:0.15));
+            pointLayer.eachLayer(m=>m.setOpacity(m.category===cat?1:0.2));
           }
         },
-        animation:{duration:350,easing:'easeOutQuart'},
+        animation:{duration:400,easing:'easeOutQuart'},
       },
       plugins:[{
         id:'barLabels',
@@ -605,10 +592,10 @@
           const{ctx,data}=ch;
           ch.getDatasetMeta(0).data.forEach((bar,i)=>{
             ctx.save();
-            ctx.font='600 9px Montserrat';
-            ctx.fillStyle='#aaa';
+            ctx.font='600 10px Montserrat';
+            ctx.fillStyle='#999';
             ctx.textAlign='left';ctx.textBaseline='middle';
-            ctx.fillText(data.datasets[0].data[i],bar.x+4,bar.y);
+            ctx.fillText(data.datasets[0].data[i],bar.x+5,bar.y);
             ctx.restore();
           });
         }
@@ -618,7 +605,7 @@
 
   /* ── EVENTS ── */
   ['startDate','endDate'].forEach(id=>{
-    document.getElementById(id).addEventListener('change',()=>{updatePill();updateMap();});
+    document.getElementById(id).addEventListener('change',()=>{updateFilterDot();updateMap();});
   });
   ['filterOfficer','filterCategory','filterFinding'].forEach(id=>{
     document.getElementById(id).addEventListener('change',()=>{refreshCascade();updateMap();});
@@ -630,21 +617,21 @@
     pointLayer.eachLayer(m=>m.setOpacity(1));
   };
 
-  /* ── PANEL TOGGLE ── */
+  /* ── PANEL COLLAPSE ── */
   let panelOpen=true;
   document.getElementById('collapseBtn').onclick=()=>{
     panelOpen=!panelOpen;
     document.getElementById('panelBody').style.display=panelOpen?'':'none';
-    document.getElementById('collapseBtn').innerHTML=panelOpen?'&#10005;':'&#9776;';
+    document.getElementById('collapseBtn').innerHTML=panelOpen?'&#8722;':'&#43;';
   };
 
   /* ── ACCORDION ── */
-  function makeAccordion(hId,bId,cId,open=false){
-    let o=open;
-    document.getElementById(hId).onclick=()=>{
-      o=!o;
-      document.getElementById(bId).classList.toggle('open',o);
-      document.getElementById(cId).classList.toggle('open',o);
+  function makeAccordion(headerId,bodyId,chevronId,defaultOpen=false){
+    let open=defaultOpen;
+    document.getElementById(headerId).onclick=()=>{
+      open=!open;
+      document.getElementById(bodyId).classList.toggle('open',open);
+      document.getElementById(chevronId).classList.toggle('open',open);
     };
   }
   makeAccordion('filterHeader','filterBody','filterChevron',false);
