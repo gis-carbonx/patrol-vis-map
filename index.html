@@ -13,19 +13,28 @@
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%;font-family:'Montserrat',sans-serif}
-    #map{height:100%}
+    html,body{height:100%;overflow:hidden;font-family:'Montserrat',sans-serif}
+    #map{height:100%;width:100%}
 
+    /* ── PANEL ── */
     .panel{
       position:absolute;top:16px;right:16px;
       z-index:1000;width:300px;
       background:#fff;border-radius:20px;
       box-shadow:0 8px 32px rgba(0,0,0,0.13);
-      overflow:hidden;
+      display:flex;flex-direction:column;
+      /* max-height = viewport minus top offset and bottom margin */
+      max-height:calc(100vh - 32px);
     }
+
+    /* header — fixed inside panel, never scrolls */
     .panel-header{
+      flex-shrink:0;
       display:flex;align-items:center;justify-content:space-between;
-      padding:15px 18px 12px;border-bottom:1px solid #f2f2f2;
+      padding:15px 18px 12px;
+      border-bottom:1px solid #f2f2f2;
+      border-radius:20px 20px 0 0;
+      background:#fff;
     }
     .panel-title{font-size:12px;font-weight:700;letter-spacing:.8px;color:#1a1a2e;text-transform:uppercase}
     .panel-toggle{
@@ -35,7 +44,19 @@
       transition:background .15s;display:flex;align-items:center;justify-content:center;
     }
     .panel-toggle:hover{background:#f5f5f5}
-    .panel-body{padding:15px 18px}
+
+    /* scrollable body */
+    .panel-body{
+      flex:1;overflow-y:auto;overflow-x:hidden;
+      padding:15px 18px;
+      border-radius:0 0 20px 20px;
+      /* thin custom scrollbar */
+      scrollbar-width:thin;
+      scrollbar-color:#e0e0e0 transparent;
+    }
+    .panel-body::-webkit-scrollbar{width:4px}
+    .panel-body::-webkit-scrollbar-track{background:transparent}
+    .panel-body::-webkit-scrollbar-thumb{background:#e0e0e0;border-radius:4px}
 
     .section-label{
       font-size:9px;font-weight:700;letter-spacing:.9px;
@@ -55,7 +76,7 @@
     .collapse-body{overflow:hidden;max-height:0;transition:max-height .3s ease}
     .collapse-body.open{max-height:700px}
 
-    /* ── FILTER INPUTS ── */
+    /* ── FILTER ── */
     .filter-date{display:flex;gap:6px;margin-bottom:10px;margin-top:10px}
     .filter-date input{
       flex:1;padding:8px 10px;
@@ -64,7 +85,6 @@
       color:#333;background:#fafafa;outline:none;transition:border .15s,background .15s;
     }
     .filter-date input:focus{border-color:#f5a623;background:#fff}
-
     .filter-selects{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
     .filter-selects select{
       width:100%;padding:8px 10px;
@@ -76,22 +96,8 @@
       background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;
     }
     .filter-selects select:focus{border-color:#f5a623;background:#fff}
-    .filter-selects select:disabled{opacity:.45;cursor:not-allowed}
 
-    /* small reset link inside filter */
-    .filter-reset-row{
-      display:flex;justify-content:flex-end;margin-top:2px;margin-bottom:4px;
-    }
-    .filter-reset-link{
-      font-size:10px;font-weight:600;color:#f5a623;
-      background:none;border:none;cursor:pointer;padding:0;
-      font-family:'Montserrat',sans-serif;
-      text-decoration:underline;
-      transition:color .15s;
-    }
-    .filter-reset-link:hover{color:#d4891a}
-
-    /* active filter indicator dot */
+    /* active filter dot */
     .filter-active-dot{
       width:6px;height:6px;border-radius:50%;
       background:#f5a623;display:none;margin-left:6px;flex-shrink:0;
@@ -200,11 +206,13 @@
 <div id="map"></div>
 
 <div class="panel" id="mainPanel">
+  <!-- header never scrolls -->
   <div class="panel-header">
     <span class="panel-title">CMI Patrol Data</span>
     <button class="panel-toggle" id="collapseBtn" title="Minimize">&#8722;</button>
   </div>
 
+  <!-- everything inside here scrolls within the panel -->
   <div class="panel-body" id="panelBody">
 
     <!-- STAT — always visible -->
@@ -214,7 +222,7 @@
       <span class="stat-hint">findings</span>
     </div>
 
-    <!-- FILTER ACCORDION — default OFF -->
+    <!-- FILTER — default OFF -->
     <div class="collapse-section no-top">
       <div class="collapse-header" id="filterHeader">
         <div style="display:flex;align-items:center">
@@ -225,16 +233,13 @@
       </div>
       <div class="collapse-body" id="filterBody">
         <div class="filter-date">
-          <input type="date" id="startDate" placeholder="Start">
-          <input type="date" id="endDate" placeholder="End">
+          <input type="date" id="startDate">
+          <input type="date" id="endDate">
         </div>
         <div class="filter-selects">
           <select id="filterOfficer"><option value="">All Officers</option></select>
           <select id="filterCategory"><option value="">All Categories</option></select>
           <select id="filterFinding"><option value="">All Findings</option></select>
-        </div>
-        <div class="filter-reset-row">
-          <button class="filter-reset-link" id="resetFilterInline">&#10005; Clear filters</button>
         </div>
       </div>
     </div>
@@ -312,8 +317,11 @@
       </div>
     </div>
 
-  </div>
-</div>
+    <!-- bottom padding so last item isn't flush against rounded corner -->
+    <div style="height:8px"></div>
+
+  </div><!-- /panel-body -->
+</div><!-- /panel -->
 
 <div id="imageModal" class="img-modal">
   <span class="modal-close" id="closeModal">&times;</span>
@@ -369,106 +377,80 @@
     return catColorMap[cat];
   }
 
-  /* ── CASCADING DROPDOWNS ── */
-  // Populate ALL options once from full data
-  let allOfficers=[], allCategories=[], allFindings=[];
+  /* ── DROPDOWNS ── */
+  let allOfficers=[],allCategories=[],allFindings=[];
 
   function initDropdowns(){
     const o=new Set(),c=new Set(),f=new Set();
     rawData.forEach(r=>{
-      if(r['data-base_info-nama']) o.add(r['data-base_info-nama']);
-      if(r['data-survey-categ'])   c.add(r['data-survey-categ']);
-      if(r['data-survey-finding']) f.add(r['data-survey-finding']);
+      if(r['data-base_info-nama'])o.add(r['data-base_info-nama']);
+      if(r['data-survey-categ'])  c.add(r['data-survey-categ']);
+      if(r['data-survey-finding'])f.add(r['data-survey-finding']);
     });
-    allOfficers  = [...o].sort();
-    allCategories= [...c].sort();
-    allFindings  = [...f].sort();
+    allOfficers  =[...o].sort();
+    allCategories=[...c].sort();
+    allFindings  =[...f].sort();
     populateSelect('filterOfficer',  allOfficers,  'All Officers');
     populateSelect('filterCategory', allCategories,'All Categories');
     populateSelect('filterFinding',  allFindings,  'All Findings');
   }
 
-  function populateSelect(id, values, placeholder){
+  function populateSelect(id,values,placeholder){
     const el=document.getElementById(id);
     const cur=el.value;
     el.innerHTML=`<option value="">${placeholder}</option>`;
     values.forEach(v=>{
       const o=document.createElement('option');
-      o.value=v; o.textContent=fmtLabel(v);
-      if(v===cur) o.selected=true;
+      o.value=v;o.textContent=fmtLabel(v);
+      if(v===cur)o.selected=true;
       el.appendChild(o);
     });
   }
 
-  // After any dropdown changes, narrow the other two
   function refreshCascade(){
-    const selO = document.getElementById('filterOfficer').value;
-    const selC = document.getElementById('filterCategory').value;
-    const selF = document.getElementById('filterFinding').value;
+    const selO=document.getElementById('filterOfficer').value;
+    const selC=document.getElementById('filterCategory').value;
+    const selF=document.getElementById('filterFinding').value;
 
-    // Filter rawData by currently active selections
-    const filtered = rawData.filter(r=>{
-      if(selO && r['data-base_info-nama'] !== selO) return false;
-      if(selC && r['data-survey-categ']   !== selC) return false;
-      if(selF && r['data-survey-finding'] !== selF) return false;
+    const filtered=rawData.filter(r=>{
+      if(selO&&r['data-base_info-nama']!==selO)return false;
+      if(selC&&r['data-survey-categ']  !==selC)return false;
+      if(selF&&r['data-survey-finding']!==selF)return false;
       return true;
     });
 
-    // Available values given current selections
-    const availO=new Set(), availC=new Set(), availF=new Set();
+    const availO=new Set(),availC=new Set(),availF=new Set();
     filtered.forEach(r=>{
-      if(r['data-base_info-nama']) availO.add(r['data-base_info-nama']);
-      if(r['data-survey-categ'])   availC.add(r['data-survey-categ']);
-      if(r['data-survey-finding']) availF.add(r['data-survey-finding']);
+      if(r['data-base_info-nama'])availO.add(r['data-base_info-nama']);
+      if(r['data-survey-categ'])  availC.add(r['data-survey-categ']);
+      if(r['data-survey-finding'])availF.add(r['data-survey-finding']);
     });
 
-    // Rebuild each select with only available options
-    // (always keep full list for the one being used as primary key)
-    rebuildSelect('filterOfficer',
-      selO ? allOfficers : [...availO].sort(),
-      'All Officers', selO);
-    rebuildSelect('filterCategory',
-      selC ? allCategories : [...availC].sort(),
-      'All Categories', selC);
-    rebuildSelect('filterFinding',
-      selF ? allFindings : [...availF].sort(),
-      'All Findings', selF);
-
+    rebuildSelect('filterOfficer',  selO?allOfficers  :[...availO].sort(),'All Officers',  selO);
+    rebuildSelect('filterCategory', selC?allCategories:[...availC].sort(),'All Categories',selC);
+    rebuildSelect('filterFinding',  selF?allFindings  :[...availF].sort(),'All Findings',  selF);
     updateFilterDot();
   }
 
-  function rebuildSelect(id, values, placeholder, currentVal){
+  function rebuildSelect(id,values,placeholder,cur){
     const el=document.getElementById(id);
     el.innerHTML=`<option value="">${placeholder}</option>`;
     values.forEach(v=>{
       const o=document.createElement('option');
-      o.value=v; o.textContent=fmtLabel(v);
-      if(v===currentVal) o.selected=true;
+      o.value=v;o.textContent=fmtLabel(v);
+      if(v===cur)o.selected=true;
       el.appendChild(o);
     });
   }
 
-  /* ── FILTER ACTIVE DOT ── */
   function updateFilterDot(){
-    const active =
-      document.getElementById('startDate').value ||
-      document.getElementById('endDate').value   ||
-      document.getElementById('filterOfficer').value  ||
-      document.getElementById('filterCategory').value ||
+    const active=
+      document.getElementById('startDate').value||
+      document.getElementById('endDate').value||
+      document.getElementById('filterOfficer').value||
+      document.getElementById('filterCategory').value||
       document.getElementById('filterFinding').value;
-    document.getElementById('filterDot').classList.toggle('visible', !!active);
-  }
-
-  /* ── CLEAR FILTERS ── */
-  function clearFilters(){
-    ['startDate','endDate'].forEach(id=>document.getElementById(id).value='');
-    populateSelect('filterOfficer',  allOfficers,  'All Officers');
-    populateSelect('filterCategory', allCategories,'All Categories');
-    populateSelect('filterFinding',  allFindings,  'All Findings');
-    highlightCat=null;
-    document.getElementById('totalSub').style.display='none';
-    document.getElementById('filterDot').classList.remove('visible');
-    updateMap();
+    document.getElementById('filterDot').classList.toggle('visible',!!active);
   }
 
   /* ── SLIDER ── */
@@ -489,9 +471,9 @@
   const sliderIndex={};
   function slideMove(uid,dir){
     const c=document.getElementById(uid);if(!c)return;
-    const slides=c.querySelectorAll('.slide');
+    const sl=c.querySelectorAll('.slide');
     const dots=c.querySelectorAll('.slider-dots span');
-    const n=slides.length;
+    const n=sl.length;
     let idx=(sliderIndex[uid]||0)+dir;
     if(idx<0)idx=n-1;if(idx>=n)idx=0;
     sliderIndex[uid]=idx;
@@ -621,21 +603,14 @@
     });
   }
 
-  /* ── FILTER EVENTS ── */
+  /* ── EVENTS ── */
   ['startDate','endDate'].forEach(id=>{
-    document.getElementById(id).addEventListener('change',()=>{
-      updateFilterDot();updateMap();
-    });
+    document.getElementById(id).addEventListener('change',()=>{updateFilterDot();updateMap();});
   });
   ['filterOfficer','filterCategory','filterFinding'].forEach(id=>{
-    document.getElementById(id).addEventListener('change',()=>{
-      refreshCascade();updateMap();
-    });
+    document.getElementById(id).addEventListener('change',()=>{refreshCascade();updateMap();});
   });
 
-  // inline clear button inside filter accordion
-  document.getElementById('resetFilterInline').onclick=clearFilters;
-  // Show All button under chart (clears highlight only)
   document.getElementById('resetFilter').onclick=()=>{
     highlightCat=null;
     document.getElementById('totalSub').style.display='none';
@@ -646,11 +621,11 @@
   let panelOpen=true;
   document.getElementById('collapseBtn').onclick=()=>{
     panelOpen=!panelOpen;
-    document.getElementById('panelBody').style.display=panelOpen?'block':'none';
+    document.getElementById('panelBody').style.display=panelOpen?'':'none';
     document.getElementById('collapseBtn').innerHTML=panelOpen?'&#8722;':'&#43;';
   };
 
-  /* ── ACCORDION HELPER ── */
+  /* ── ACCORDION ── */
   function makeAccordion(headerId,bodyId,chevronId,defaultOpen=false){
     let open=defaultOpen;
     document.getElementById(headerId).onclick=()=>{
