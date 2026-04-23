@@ -9,70 +9,40 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%;overflow:hidden;font-family:'Montserrat',sans-serif}
     #map{height:100%;width:100%}
-    
+
+    /* ══ TOP HEADER ══ */
     .top-bar{
-      position:absolute;top:0;left:0;right:0;
-      z-index:1100;
-      height:52px;
-      background:#fff;
-      border-bottom:1px solid #ebebeb;
-      display:flex;align-items:center;
-      padding:0 20px;gap:14px;
+      position:absolute;top:0;left:0;right:0;z-index:1100;
+      height:52px;background:#fff;border-bottom:1px solid #ebebeb;
+      display:flex;align-items:center;padding:0 20px;gap:14px;
     }
-    .top-bar-brand{
-      display:flex;align-items:center;gap:8px;
-      font-size:13px;font-weight:700;color:#1a1a2e;
-      letter-spacing:.3px;
-    }
-    .top-bar-brand svg{flex-shrink:0}
+    .top-bar-brand{display:flex;align-items:center;gap:10px}
+    .top-bar-logo{height:28px;width:auto;display:block}
     .top-bar-sep{color:#ddd;font-size:16px}
-    .top-bar-sub{font-size:12px;font-weight:500;color:#888}
+    .top-bar-sub{font-size:11px;font-weight:500;color:#888;letter-spacing:.2px}
 
-    .top-bar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
-    .tb-btn{
-      display:flex;align-items:center;gap:5px;
-      padding:6px 12px;border-radius:8px;
-      font-size:11px;font-weight:600;font-family:'Montserrat',sans-serif;
-      cursor:pointer;transition:background .15s;border:1px solid #ebebeb;
-      background:#fff;color:#444;
-    }
-    .tb-btn:hover{background:#f5f5f5}
-    .tb-btn.primary{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
-    .tb-btn.primary:hover{background:#f5a623;border-color:#f5a623}
-
-    /* stat chip in header */
-    .tb-stat{
-      padding:5px 12px;border-radius:8px;
-      background:#f5f5f5;
-      font-size:11px;font-weight:600;color:#555;
-    }
-    .tb-stat span{color:#f5a623;font-weight:700}
-
+    /* ══ PANEL ══ */
     .panel{
-      position:absolute;
-      top:68px;left:16px;
-      z-index:1000;width:300px;
+      position:absolute;top:68px;left:16px;z-index:1000;width:300px;
       background:#fff;border-radius:16px;
       box-shadow:0 4px 24px rgba(0,0,0,0.11);
       display:flex;flex-direction:column;
       max-height:calc(100vh - 84px);
     }
-
-    /* tab bar */
     .panel-tabs{
-      flex-shrink:0;
-      display:flex;
+      flex-shrink:0;display:flex;
       border-bottom:1px solid #f0f0f0;
-      padding:0 4px;
-      border-radius:16px 16px 0 0;
-      background:#fff;
-      overflow:hidden;
+      padding:0 4px;border-radius:16px 16px 0 0;
+      background:#fff;overflow:hidden;
     }
     .tab-btn{
       flex:1;padding:12px 4px 10px;
@@ -84,8 +54,6 @@
     }
     .tab-btn:hover{color:#888}
     .tab-btn.active{color:#1a1a2e;border-bottom-color:#f5a623}
-
-    /* panel close */
     .panel-close{
       position:absolute;top:10px;right:12px;
       background:none;border:none;cursor:pointer;
@@ -94,7 +62,6 @@
     }
     .panel-close:hover{background:#f5f5f5;color:#888}
 
-    /* tab pages */
     .tab-page{
       display:none;flex:1;overflow-y:auto;overflow-x:hidden;
       padding:14px 16px;
@@ -103,41 +70,32 @@
     .tab-page::-webkit-scrollbar{width:3px}
     .tab-page::-webkit-scrollbar-thumb{background:#e8e8e8;border-radius:4px}
     .tab-page.active{display:block}
-
-    /* bottom padding inside pages */
     .page-pad{height:10px}
 
-    /* ── section labels ── */
     .sec-label{
       font-size:9px;font-weight:700;letter-spacing:.8px;
       color:#bbb;text-transform:uppercase;margin-bottom:8px;margin-top:14px;
     }
     .sec-label:first-child{margin-top:0}
 
-    /* ── filter inputs ── */
+    /* filter */
     .filter-date{display:flex;gap:6px;margin-bottom:10px}
     .filter-date input{
-      flex:1;padding:8px 10px;
-      border:1.5px solid #f0f0f0;border-radius:10px;
+      flex:1;padding:8px 10px;border:1.5px solid #f0f0f0;border-radius:10px;
       font-size:11px;font-family:'Montserrat',sans-serif;
-      color:#333;background:#fafafa;outline:none;
-      transition:border .15s;
+      color:#333;background:#fafafa;outline:none;transition:border .15s;
     }
     .filter-date input:focus{border-color:#f5a623;background:#fff}
-
     .filter-selects{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
     .filter-selects select{
-      width:100%;padding:8px 10px;
-      border:1.5px solid #f0f0f0;border-radius:10px;
+      width:100%;padding:8px 10px;border:1.5px solid #f0f0f0;border-radius:10px;
       font-size:11px;font-family:'Montserrat',sans-serif;
-      color:#333;background:#fafafa;outline:none;cursor:pointer;
-      appearance:none;
+      color:#333;background:#fafafa;outline:none;cursor:pointer;appearance:none;
       background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");
       background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;
       transition:border .15s;
     }
     .filter-selects select:focus{border-color:#f5a623;background:#fff}
-
     .btn-clear{
       width:100%;padding:8px;border:1.5px solid #f0f0f0;border-radius:10px;
       background:#fafafa;color:#888;
@@ -146,12 +104,12 @@
     }
     .btn-clear:hover{border-color:#f5a623;color:#f5a623;background:#fff}
 
-    /* ── chart ── */
-    .chart-wrap{margin-bottom:14px;position:relative}
+    /* overview */
     .stat-row{display:flex;align-items:baseline;gap:8px;margin:0 0 12px}
     .stat-main{font-size:30px;font-weight:700;color:#1a1a2e;line-height:1}
     .stat-sub{font-size:14px;font-weight:700;color:#f5a623;display:none}
     .stat-hint{font-size:10px;color:#bbb;font-weight:500;align-self:center}
+    .chart-wrap{margin-bottom:14px;position:relative}
     .btn-reset{
       width:100%;padding:9px;border:none;border-radius:10px;
       background:#1a1a2e;color:#fff;
@@ -160,7 +118,7 @@
     }
     .btn-reset:hover{background:#f5a623}
 
-    /* ── layer rows ── */
+    /* layer rows */
     .toggle-row{
       display:flex;align-items:center;justify-content:space-between;
       padding:8px 0;border-bottom:1px solid #f7f7f7;
@@ -181,40 +139,37 @@
     .switch input:checked + .sw-track{background:#f5a623}
     .switch input:checked + .sw-track:before{transform:translateX(14px)}
 
-    /* ── legend ── */
+    /* legend */
     .legend-grid{
-      display:grid;grid-template-columns:1fr 1fr;gap:7px 10px;
-      padding:4px 0;
+      display:grid;grid-template-columns:1fr 1fr;gap:7px 10px;padding:4px 0;
     }
     .legend-item{display:flex;align-items:flex-start;gap:7px;font-size:10px;font-weight:500;color:#555;line-height:1.35}
     .lswatch{width:11px;height:11px;border-radius:3px;flex-shrink:0;margin-top:1px}
 
-    /* ── PANEL TOGGLE BUTTON (when panel is closed) ── */
+    /* panel open btn */
     .panel-open-btn{
       position:absolute;top:68px;left:16px;z-index:1000;
       background:#fff;border:1px solid #ebebeb;border-radius:10px;
       padding:8px 14px;font-size:11px;font-weight:600;
       font-family:'Montserrat',sans-serif;color:#444;
       cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.09);
-      display:none;align-items:center;gap:6px;
-      transition:background .15s;
+      display:none;align-items:center;gap:6px;transition:background .15s;
     }
     .panel-open-btn:hover{background:#f5f5f5}
 
-    .map-controls{
-      position:absolute;bottom:24px;right:16px;z-index:1000;
-      display:flex;flex-direction:column;gap:4px;
+    /* ══ CLUSTER CUSTOM STYLES ══ */
+    .marker-cluster-small,.marker-cluster-medium,.marker-cluster-large{
+      background:rgba(245,166,35,0.18) !important;
     }
-    .mc-btn{
-      width:32px;height:32px;border-radius:8px;
-      background:#fff;border:1px solid #ebebeb;
-      box-shadow:0 2px 8px rgba(0,0,0,0.09);
-      display:flex;align-items:center;justify-content:center;
-      cursor:pointer;font-size:16px;color:#444;
-      transition:background .15s;
+    .marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{
+      background:rgba(245,166,35,0.85) !important;
+      color:#1a1a2e !important;
+      font-family:'Montserrat',sans-serif !important;
+      font-weight:700 !important;
+      font-size:12px !important;
     }
-    .mc-btn:hover{background:#f5f5f5}
 
+    /* ══ POPUP ══ */
     .leaflet-popup-content-wrapper{
       border-radius:20px;padding:0;overflow:hidden;border:none;
       box-shadow:0 12px 40px rgba(0,0,0,0.18);
@@ -252,6 +207,7 @@
     .popup-desc{font-size:11px;color:#888;line-height:1.6;padding-top:10px;border-top:1px solid #f2f2f2}
     .popup-no-photo{height:70px;background:#fff8f0;display:flex;align-items:center;justify-content:center;font-size:28px}
 
+    /* ══ MODAL ══ */
     .img-modal{
       display:none;position:fixed;z-index:9999;
       inset:0;background:rgba(10,10,20,0.92);
@@ -271,40 +227,22 @@
 <!-- ══ TOP HEADER ══ -->
 <div class="top-bar">
   <div class="top-bar-brand">
-    <!-- leaf icon -->
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f5a623" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M11 20A7 7 0 0 1 4 13c0-4 3-7 7-8 0 0 3 4 3 8M11 20c0-4 2-8 5-10"/>
-      <line x1="11" y1="20" x2="11" y2="4"/>
-    </svg>
-    CMI Patrol
+    <img src="./data/CMI-Brandmark-FullColor-BlackBG.png" alt="CMI" class="top-bar-logo">
   </div>
   <span class="top-bar-sep">/</span>
-  <span class="top-bar-sub">Conservation Monitoring</span>
-  <div class="top-bar-right">
-    <div class="tb-stat" id="headerStat"><span id="headerCount">0</span> findings</div>
-    <button class="tb-btn" onclick="togglePanel()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-      Panel
-    </button>
-    <button class="tb-btn primary">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      Search
-    </button>
-  </div>
+  <span class="top-bar-sub">Field Patrol Data Visualization</span>
 </div>
 
-<!-- ══ SIDE PANEL ══ -->
+<!-- ══ PANEL ══ -->
 <div class="panel" id="mainPanel">
-  <!-- TABS -->
   <div class="panel-tabs">
     <button class="tab-btn active" data-tab="overview">Overview</button>
     <button class="tab-btn" data-tab="filter">Filter</button>
     <button class="tab-btn" data-tab="layers">Layers</button>
-    <button class="tab-btn" data-tab="legend">Legend</button>
     <button class="panel-close" id="panelClose" title="Close">&#x2715;</button>
   </div>
 
-  <!-- PAGE: OVERVIEW -->
+  <!-- OVERVIEW -->
   <div class="tab-page active" id="tab-overview">
     <div class="stat-row">
       <span class="stat-main" id="totalMain">0</span>
@@ -312,14 +250,12 @@
       <span class="stat-hint">findings</span>
     </div>
     <div class="sec-label">Category Breakdown</div>
-    <div class="chart-wrap">
-      <canvas id="chartCanvas"></canvas>
-    </div>
+    <div class="chart-wrap"><canvas id="chartCanvas"></canvas></div>
     <button class="btn-reset" id="resetFilter">Show All</button>
     <div class="page-pad"></div>
   </div>
 
-  <!-- PAGE: FILTER -->
+  <!-- FILTER -->
   <div class="tab-page" id="tab-filter">
     <div class="sec-label">Date Range</div>
     <div class="filter-date">
@@ -342,8 +278,9 @@
     <div class="page-pad"></div>
   </div>
 
-  <!-- PAGE: LAYERS -->
+  <!-- LAYERS + LEGEND -->
   <div class="tab-page" id="tab-layers">
+
     <div class="sec-label">LULC</div>
     <div class="toggle-row">
       <span class="toggle-label"><span class="ldot" style="background:#4CAF50"></span>LULC 2023</span>
@@ -353,6 +290,7 @@
       <span class="toggle-label"><span class="ldot" style="background:#00BCD4"></span>LULC 2025</span>
       <label class="switch"><input type="checkbox" id="toggleLulc2025"><span class="sw-track"></span></label>
     </div>
+
     <div class="sec-label">Satellite</div>
     <div class="toggle-row">
       <span class="toggle-label"><span class="ldot" style="background:#FF9800"></span>Landsat 2024</span>
@@ -362,6 +300,7 @@
       <span class="toggle-label"><span class="ldot" style="background:#F44336"></span>Landsat 2025</span>
       <label class="switch"><input type="checkbox" id="toggleLandsat2025"><span class="sw-track"></span></label>
     </div>
+
     <div class="sec-label">Other</div>
     <div class="toggle-row">
       <span class="toggle-label"><span class="ldot" style="background:#7B1FA2"></span>Boundary</span>
@@ -371,12 +310,9 @@
       <span class="toggle-label"><span class="ldot" style="background:#2196F3"></span>Points</span>
       <label class="switch"><input type="checkbox" id="togglePoints" checked><span class="sw-track"></span></label>
     </div>
-    <div class="page-pad"></div>
-  </div>
 
-  <!-- PAGE: LEGEND -->
-  <div class="tab-page" id="tab-legend">
-    <div class="sec-label">LULC Classification</div>
+    <!-- LEGEND inside Layers tab, always visible -->
+    <div class="sec-label" style="margin-top:20px">LULC Classification</div>
     <div class="legend-grid">
       <div class="legend-item"><span class="lswatch" style="background:#ec4040"></span>Building</div>
       <div class="legend-item"><span class="lswatch" style="background:#a1a1a1"></span>Cleared / Bare Land</div>
@@ -393,13 +329,10 @@
 
 </div><!-- /panel -->
 
-<!-- re-open button -->
 <button class="panel-open-btn" id="panelOpenBtn" onclick="openPanel()">
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-  Open Panel
+  &#9776; Panel
 </button>
 
-<!-- modal -->
 <div id="imageModal" class="img-modal">
   <span class="modal-close" id="closeModal">&times;</span>
   <img id="modalImage">
@@ -416,18 +349,46 @@
   const landsat2024 = L.tileLayer('./data/landsat-2024/{z}/{x}/{y}.png', {opacity:1});
   const landsat2025 = L.tileLayer('./data/landsat-2025/{z}/{x}/{y}.png', {opacity:1});
 
-  let boundaryLayer, pointLayer=L.layerGroup().addTo(map);
+  let boundaryLayer;
 
   fetch('data/CMI.json').then(r=>r.json()).then(j=>{
     boundaryLayer=L.geoJSON(j,{style:{color:"#7B1FA2",weight:3,fillOpacity:0}}).addTo(map);
     map.fitBounds(boundaryLayer.getBounds());
   });
 
+  /* ── CLUSTER GROUP ── */
+  const clusterGroup = L.markerClusterGroup({
+    disableClusteringAtZoom: 16,   // individual markers at zoom 16+
+    maxClusterRadius: 60,
+    spiderfyOnMaxZoom: true,
+    showCoverageOnHover: false,
+    zoomToBoundsOnClick: true,
+    iconCreateFunction: function(cluster){
+      const count = cluster.getChildCount();
+      let size = count < 10 ? 36 : count < 50 ? 44 : 52;
+      return L.divIcon({
+        html: `<div style="
+          width:${size}px;height:${size}px;border-radius:50%;
+          background:rgba(245,166,35,0.90);
+          border:3px solid rgba(255,255,255,0.85);
+          display:flex;align-items:center;justify-content:center;
+          font-family:'Montserrat',sans-serif;font-weight:700;
+          font-size:${count<100?12:10}px;color:#1a1a2e;
+          box-shadow:0 2px 10px rgba(0,0,0,0.25);
+        ">${count}</div>`,
+        className:'',
+        iconSize:[size,size],
+        iconAnchor:[size/2,size/2],
+      });
+    }
+  }).addTo(map);
+
+  /* ── DATA ── */
   const url="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
   let rawData=[],chart,highlightCat=null;
   Papa.parse(url,{download:true,header:true,complete:(res)=>{rawData=res.data;initDropdowns();updateMap();}});
 
-  /* ── DATE PARSE ── */
+  /* ── UTILS ── */
   function parseDate(s){
     if(!s)return null;
     const p=s.split('-');
@@ -438,6 +399,11 @@
     const d=new Date(s);return isNaN(d)?null:d;
   }
   function fmtLabel(s){return(s||'').replace(/_/g,' ');}
+  function convert(url){
+    if(!url)return null;
+    const id=url.match(/[-\w]{25,}/);
+    return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null;
+  }
 
   /* ── COLORS ── */
   const PALETTE=['#6C63FF','#4ECDC4','#FF6B6B','#f5a623','#6BCB77','#74C0FC','#F06595','#A9E34B','#63E6BE','#FF922B'];
@@ -534,12 +500,12 @@
 
   /* ── UPDATE MAP ── */
   function updateMap(){
-    pointLayer.clearLayers();
+    clusterGroup.clearLayers();
     const start=parseDate(document.getElementById('startDate').value);
-    const end=parseDate(document.getElementById('endDate').value);
-    const selO=document.getElementById('filterOfficer').value;
-    const selC=document.getElementById('filterCategory').value;
-    const selF=document.getElementById('filterFinding').value;
+    const end  =parseDate(document.getElementById('endDate').value);
+    const selO =document.getElementById('filterOfficer').value;
+    const selC =document.getElementById('filterCategory').value;
+    const selF =document.getElementById('filterFinding').value;
     let counts={},total=0;
 
     rawData.forEach(r=>{
@@ -551,19 +517,31 @@
       if(selC&&r['data-survey-categ']!==selC)return;
       if(selF&&r['data-survey-finding']!==selF)return;
       const[lat,lon]=coord.split(',').map(Number);if(isNaN(lat))return;
-      const cat=r['data-survey-categ']||'Unknown';
-      const finding=r['data-survey-finding']||'-';
+      const cat    =r['data-survey-categ']   ||'Unknown';
+      const finding=r['data-survey-finding'] ||'-';
       counts[cat]=(counts[cat]||0)+1;total++;
+
+      const col=catColor(cat);
+      // colored custom marker per category
+      const icon=L.divIcon({
+        html:`<div style="
+          width:12px;height:12px;border-radius:50%;
+          background:${col};border:2px solid #fff;
+          box-shadow:0 1px 4px rgba(0,0,0,0.3);
+        "></div>`,
+        className:'',iconSize:[12,12],iconAnchor:[6,6],
+      });
+
       const imgs=[convert(r['data-documentation-image_1']),convert(r['data-documentation-image_2'])].filter(Boolean);
-      const m=L.marker([lat,lon]).bindPopup(buildPopup(r,cat,finding,imgs),{maxWidth:270});
+      const m=L.marker([lat,lon],{icon}).bindPopup(buildPopup(r,cat,finding,imgs),{maxWidth:270});
       m.category=cat;
-      if(highlightCat)m.setOpacity(m.category===highlightCat?1:0.2);
-      pointLayer.addLayer(m);
+      if(highlightCat)m.setOpacity(m.category===highlightCat?1:0.15);
+      clusterGroup.addLayer(m);
     });
 
     document.getElementById('totalMain').innerText=total;
-    document.getElementById('headerCount').innerText=total;
 
+    /* chart */
     if(chart)chart.destroy();
     const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
     const rawLabels=entries.map(e=>e[0]);
@@ -591,11 +569,11 @@
           const cat=rawLabels[el[0].index],val=values[el[0].index];
           if(highlightCat===cat){
             highlightCat=null;document.getElementById('totalSub').style.display='none';
-            pointLayer.eachLayer(m=>m.setOpacity(1));
+            clusterGroup.eachLayer(m=>{if(m.setOpacity)m.setOpacity(1);});
           } else {
             highlightCat=cat;
             const sub=document.getElementById('totalSub');sub.style.display='block';sub.innerText=val;
-            pointLayer.eachLayer(m=>m.setOpacity(m.category===cat?1:0.2));
+            clusterGroup.eachLayer(m=>{if(m.setOpacity)m.setOpacity(m.category===cat?1:0.15);});
           }
         },
         animation:{duration:400,easing:'easeOutQuart'},
@@ -622,12 +600,6 @@
   });
 
   /* ── PANEL OPEN/CLOSE ── */
-  function togglePanel(){
-    const p=document.getElementById('mainPanel');
-    const ob=document.getElementById('panelOpenBtn');
-    if(p.style.display==='none'){openPanel();}
-    else{p.style.display='none';ob.style.display='flex';}
-  }
   function openPanel(){
     document.getElementById('mainPanel').style.display='flex';
     document.getElementById('panelOpenBtn').style.display='none';
@@ -647,14 +619,12 @@
     populateSelect('filterOfficer',allOfficers,'All Officers');
     populateSelect('filterCategory',allCategories,'All Categories');
     populateSelect('filterFinding',allFindings,'All Findings');
-    highlightCat=null;
-    document.getElementById('totalSub').style.display='none';
+    highlightCat=null;document.getElementById('totalSub').style.display='none';
     updateMap();
   };
   document.getElementById('resetFilter').onclick=()=>{
-    highlightCat=null;
-    document.getElementById('totalSub').style.display='none';
-    pointLayer.eachLayer(m=>m.setOpacity(1));
+    highlightCat=null;document.getElementById('totalSub').style.display='none';
+    clusterGroup.eachLayer(m=>{if(m.setOpacity)m.setOpacity(1);});
   };
 
   /* ── LAYER TOGGLES ── */
@@ -663,19 +633,12 @@
   toggleLandsat2024.onchange = e=>e.target.checked?map.addLayer(landsat2024):map.removeLayer(landsat2024);
   toggleLandsat2025.onchange = e=>e.target.checked?map.addLayer(landsat2025):map.removeLayer(landsat2025);
   toggleBoundary.onchange    = e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
-  togglePoints.onchange      = e=>e.target.checked?map.addLayer(pointLayer) :map.removeLayer(pointLayer);
+  togglePoints.onchange      = e=>e.target.checked?map.addLayer(clusterGroup):map.removeLayer(clusterGroup);
 
   /* ── MODAL ── */
   function openModal(src){imageModal.style.display='flex';modalImage.src=src;}
   document.getElementById('closeModal').onclick=()=>imageModal.style.display='none';
   imageModal.onclick=e=>{if(e.target===imageModal)imageModal.style.display='none';};
-
-  /* ── UTILS ── */
-  function convert(url){
-    if(!url)return null;
-    const id=url.match(/[-\w]{25,}/);
-    return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null;
-  }
 </script>
 </body>
 </html>
