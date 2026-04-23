@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CMI x Patrol Data</title>
+  <title>CMI Patrol Data</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -490,22 +490,14 @@
         <div class="popup-badge" style="background:${col}22;color:${col}">${fmtLabel(cat)}</div>
         <div class="popup-title">${fmtLabel(finding)}</div>
         <div class="popup-chips">
-          <div class="chip">${r['data-base_info-nama']||'-'}</div>
-          <div class="chip">${r['data-start_date']||'-'}</div>
+          <div class="chip"><span class="chip-icon">&#128100;</span>${r['data-base_info-nama']||'-'}</div>
+          <div class="chip"><span class="chip-icon">&#128197;</span>${r['data-start_date']||'-'}</div>
         </div>
         ${desc?`<div class="popup-desc">${desc}</div>`:''}
       </div>
     </div>`;
   }
 
-  const singleIcon = L.icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  });
-  
   /* ── UPDATE MAP ── */
   function updateMap(){
     clusterGroup.clearLayers();
@@ -529,8 +521,19 @@
       const finding=r['data-survey-finding'] ||'-';
       counts[cat]=(counts[cat]||0)+1;total++;
 
+      const col=catColor(cat);
+      // colored custom marker per category
+      const icon=L.divIcon({
+        html:`<div style="
+          width:12px;height:12px;border-radius:50%;
+          background:${col};border:2px solid #fff;
+          box-shadow:0 1px 4px rgba(0,0,0,0.3);
+        "></div>`,
+        className:'',iconSize:[12,12],iconAnchor:[6,6],
+      });
+
       const imgs=[convert(r['data-documentation-image_1']),convert(r['data-documentation-image_2'])].filter(Boolean);
-      const m=L.marker([lat,lon],{icon: singleIcon})
+      const m=L.marker([lat,lon],{icon}).bindPopup(buildPopup(r,cat,finding,imgs),{maxWidth:270});
       m.category=cat;
       if(highlightCat)m.setOpacity(m.category===highlightCat?1:0.15);
       clusterGroup.addLayer(m);
