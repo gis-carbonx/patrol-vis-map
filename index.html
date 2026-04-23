@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patrol Data</title>
+  <title>CMI Patrol Data</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,137 +15,206 @@
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%;overflow:hidden;font-family:'Montserrat',sans-serif}
     #map{height:100%;width:100%}
-
-    /* ── PANEL ── */
-    .panel{
-      position:absolute;top:16px;right:16px;
-      z-index:1000;width:300px;
-      background:#fff;border-radius:20px;
-      box-shadow:0 8px 32px rgba(0,0,0,0.13);
-      display:flex;flex-direction:column;
-      max-height:calc(100vh - 32px);
-    }
-
-    .panel-header{
-      flex-shrink:0;
-      display:flex;align-items:center;justify-content:space-between;
-      padding:15px 18px 12px;
-      border-bottom:1px solid #f2f2f2;
-      border-radius:20px 20px 0 0;
+    
+    .top-bar{
+      position:absolute;top:0;left:0;right:0;
+      z-index:1100;
+      height:52px;
       background:#fff;
+      border-bottom:1px solid #ebebeb;
+      display:flex;align-items:center;
+      padding:0 20px;gap:14px;
     }
-    .panel-title{font-size:12px;font-weight:700;letter-spacing:.8px;color:#1a1a2e;text-transform:uppercase}
-    .panel-toggle{
+    .top-bar-brand{
+      display:flex;align-items:center;gap:8px;
+      font-size:13px;font-weight:700;color:#1a1a2e;
+      letter-spacing:.3px;
+    }
+    .top-bar-brand svg{flex-shrink:0}
+    .top-bar-sep{color:#ddd;font-size:16px}
+    .top-bar-sub{font-size:12px;font-weight:500;color:#888}
+
+    .top-bar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+    .tb-btn{
+      display:flex;align-items:center;gap:5px;
+      padding:6px 12px;border-radius:8px;
+      font-size:11px;font-weight:600;font-family:'Montserrat',sans-serif;
+      cursor:pointer;transition:background .15s;border:1px solid #ebebeb;
+      background:#fff;color:#444;
+    }
+    .tb-btn:hover{background:#f5f5f5}
+    .tb-btn.primary{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+    .tb-btn.primary:hover{background:#f5a623;border-color:#f5a623}
+
+    /* stat chip in header */
+    .tb-stat{
+      padding:5px 12px;border-radius:8px;
+      background:#f5f5f5;
+      font-size:11px;font-weight:600;color:#555;
+    }
+    .tb-stat span{color:#f5a623;font-weight:700}
+
+    .panel{
+      position:absolute;
+      top:68px;left:16px;
+      z-index:1000;width:300px;
+      background:#fff;border-radius:16px;
+      box-shadow:0 4px 24px rgba(0,0,0,0.11);
+      display:flex;flex-direction:column;
+      max-height:calc(100vh - 84px);
+    }
+
+    /* tab bar */
+    .panel-tabs{
+      flex-shrink:0;
+      display:flex;
+      border-bottom:1px solid #f0f0f0;
+      padding:0 4px;
+      border-radius:16px 16px 0 0;
+      background:#fff;
+      overflow:hidden;
+    }
+    .tab-btn{
+      flex:1;padding:12px 4px 10px;
+      border:none;background:none;cursor:pointer;
+      font-size:10px;font-weight:600;font-family:'Montserrat',sans-serif;
+      color:#bbb;letter-spacing:.4px;text-transform:uppercase;
+      border-bottom:2px solid transparent;
+      transition:color .15s,border-color .15s;
+    }
+    .tab-btn:hover{color:#888}
+    .tab-btn.active{color:#1a1a2e;border-bottom-color:#f5a623}
+
+    /* panel close */
+    .panel-close{
+      position:absolute;top:10px;right:12px;
       background:none;border:none;cursor:pointer;
-      width:26px;height:26px;border-radius:8px;
-      color:#999;font-size:18px;line-height:26px;text-align:center;
-      transition:background .15s;display:flex;align-items:center;justify-content:center;
+      color:#ccc;font-size:16px;line-height:1;padding:4px;
+      border-radius:6px;transition:background .15s,color .15s;
     }
-    .panel-toggle:hover{background:#f5f5f5}
+    .panel-close:hover{background:#f5f5f5;color:#888}
 
-    /* scrollable body */
-    .panel-body{
-      flex:1;overflow-y:auto;overflow-x:hidden;
-      padding:15px 18px;
-      border-radius:0 0 20px 20px;
-      scrollbar-width:thin;
-      scrollbar-color:#e0e0e0 transparent;
+    /* tab pages */
+    .tab-page{
+      display:none;flex:1;overflow-y:auto;overflow-x:hidden;
+      padding:14px 16px;
+      scrollbar-width:thin;scrollbar-color:#e8e8e8 transparent;
     }
-    .panel-body::-webkit-scrollbar{width:4px}
-    .panel-body::-webkit-scrollbar-track{background:transparent}
-    .panel-body::-webkit-scrollbar-thumb{background:#e0e0e0;border-radius:4px}
+    .tab-page::-webkit-scrollbar{width:3px}
+    .tab-page::-webkit-scrollbar-thumb{background:#e8e8e8;border-radius:4px}
+    .tab-page.active{display:block}
 
-    .section-label{
-      font-size:9px;font-weight:700;letter-spacing:.9px;
-      color:#bbb;text-transform:uppercase;margin-bottom:7px;
+    /* bottom padding inside pages */
+    .page-pad{height:10px}
+
+    /* ── section labels ── */
+    .sec-label{
+      font-size:9px;font-weight:700;letter-spacing:.8px;
+      color:#bbb;text-transform:uppercase;margin-bottom:8px;margin-top:14px;
     }
+    .sec-label:first-child{margin-top:0}
 
-    /* ── COLLAPSIBLE ── */
-    .collapse-section{border-top:1px solid #f2f2f2;margin-top:13px}
-    .collapse-section.no-top{border-top:none;margin-top:0}
-    .collapse-header{
-      display:flex;align-items:center;justify-content:space-between;
-      padding:11px 0 0;cursor:pointer;user-select:none;
-    }
-    .collapse-header:hover .section-label{color:#f5a623}
-    .collapse-chevron{font-size:10px;color:#ccc;transition:transform .22s}
-    .collapse-chevron.open{transform:rotate(180deg)}
-    .collapse-body{overflow:hidden;max-height:0;transition:max-height .3s ease}
-    .collapse-body.open{max-height:700px}
-
-    /* ── FILTER ── */
-    .filter-date{display:flex;gap:6px;margin-bottom:10px;margin-top:10px}
+    /* ── filter inputs ── */
+    .filter-date{display:flex;gap:6px;margin-bottom:10px}
     .filter-date input{
       flex:1;padding:8px 10px;
       border:1.5px solid #f0f0f0;border-radius:10px;
       font-size:11px;font-family:'Montserrat',sans-serif;
-      color:#333;background:#fafafa;outline:none;transition:border .15s,background .15s;
+      color:#333;background:#fafafa;outline:none;
+      transition:border .15s;
     }
     .filter-date input:focus{border-color:#f5a623;background:#fff}
-    .filter-selects{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+
+    .filter-selects{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
     .filter-selects select{
       width:100%;padding:8px 10px;
       border:1.5px solid #f0f0f0;border-radius:10px;
       font-size:11px;font-family:'Montserrat',sans-serif;
       color:#333;background:#fafafa;outline:none;cursor:pointer;
-      appearance:none;transition:border .15s;
+      appearance:none;
       background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");
       background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;
+      transition:border .15s;
     }
     .filter-selects select:focus{border-color:#f5a623;background:#fff}
 
-    /* active filter dot */
-    .filter-active-dot{
-      width:6px;height:6px;border-radius:50%;
-      background:#f5a623;display:none;margin-left:6px;flex-shrink:0;
+    .btn-clear{
+      width:100%;padding:8px;border:1.5px solid #f0f0f0;border-radius:10px;
+      background:#fafafa;color:#888;
+      font-size:11px;font-weight:600;font-family:'Montserrat',sans-serif;
+      cursor:pointer;transition:all .15s;margin-top:8px;
     }
-    .filter-active-dot.visible{display:inline-block}
+    .btn-clear:hover{border-color:#f5a623;color:#f5a623;background:#fff}
 
-    /* ── STAT ── */
-    .stat-row{display:flex;align-items:baseline;gap:8px;margin:2px 0 12px}
-    .stat-main{font-size:32px;font-weight:700;color:#1a1a2e;line-height:1}
-    .stat-sub{font-size:15px;font-weight:700;color:#f5a623;display:none}
-    .stat-hint{font-size:10px;color:#bbb;font-weight:500;margin-left:2px;align-self:center}
-
+    /* ── chart ── */
     .chart-wrap{margin-bottom:14px;position:relative}
+    .stat-row{display:flex;align-items:baseline;gap:8px;margin:0 0 12px}
+    .stat-main{font-size:30px;font-weight:700;color:#1a1a2e;line-height:1}
+    .stat-sub{font-size:14px;font-weight:700;color:#f5a623;display:none}
+    .stat-hint{font-size:10px;color:#bbb;font-weight:500;align-self:center}
     .btn-reset{
       width:100%;padding:9px;border:none;border-radius:10px;
       background:#1a1a2e;color:#fff;
-      font-size:11px;font-weight:700;letter-spacing:.5px;font-family:'Montserrat',sans-serif;
+      font-size:11px;font-weight:700;letter-spacing:.4px;font-family:'Montserrat',sans-serif;
       cursor:pointer;transition:background .15s;
     }
     .btn-reset:hover{background:#f5a623}
 
-    /* ── LAYER ROWS ── */
+    /* ── layer rows ── */
     .toggle-row{
       display:flex;align-items:center;justify-content:space-between;
-      padding:7px 0;border-bottom:1px solid #f7f7f7;
+      padding:8px 0;border-bottom:1px solid #f7f7f7;
     }
     .toggle-row:last-child{border-bottom:none}
     .toggle-label{font-size:11px;font-weight:500;color:#444;display:flex;align-items:center;gap:8px}
-    .layer-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
     .switch{position:relative;width:32px;height:18px;flex-shrink:0}
     .switch input{opacity:0;width:0;height:0}
-    .slider-sw{
+    .sw-track{
       position:absolute;inset:0;background:#e8e8e8;border-radius:18px;
       cursor:pointer;transition:background .2s;
     }
-    .slider-sw:before{
+    .sw-track:before{
       content:'';position:absolute;width:12px;height:12px;border-radius:50%;
       background:#fff;left:3px;top:3px;transition:transform .2s;
     }
-    .switch input:checked + .slider-sw{background:#f5a623}
-    .switch input:checked + .slider-sw:before{transform:translateX(14px)}
+    .switch input:checked + .sw-track{background:#f5a623}
+    .switch input:checked + .sw-track:before{transform:translateX(14px)}
 
-    /* ── LEGEND ── */
+    /* ── legend ── */
     .legend-grid{
-      display:grid;grid-template-columns:1fr 1fr;
-      gap:5px 8px;padding-top:10px;padding-bottom:4px;
+      display:grid;grid-template-columns:1fr 1fr;gap:7px 10px;
+      padding:4px 0;
     }
-    .legend-item{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:500;color:#555;line-height:1.3}
-    .legend-swatch{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+    .legend-item{display:flex;align-items:flex-start;gap:7px;font-size:10px;font-weight:500;color:#555;line-height:1.35}
+    .lswatch{width:11px;height:11px;border-radius:3px;flex-shrink:0;margin-top:1px}
 
-    /* ── POPUP ── */
+    /* ── PANEL TOGGLE BUTTON (when panel is closed) ── */
+    .panel-open-btn{
+      position:absolute;top:68px;left:16px;z-index:1000;
+      background:#fff;border:1px solid #ebebeb;border-radius:10px;
+      padding:8px 14px;font-size:11px;font-weight:600;
+      font-family:'Montserrat',sans-serif;color:#444;
+      cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.09);
+      display:none;align-items:center;gap:6px;
+      transition:background .15s;
+    }
+    .panel-open-btn:hover{background:#f5f5f5}
+
+    .map-controls{
+      position:absolute;bottom:24px;right:16px;z-index:1000;
+      display:flex;flex-direction:column;gap:4px;
+    }
+    .mc-btn{
+      width:32px;height:32px;border-radius:8px;
+      background:#fff;border:1px solid #ebebeb;
+      box-shadow:0 2px 8px rgba(0,0,0,0.09);
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;font-size:16px;color:#444;
+      transition:background .15s;
+    }
+    .mc-btn:hover{background:#f5f5f5}
+
     .leaflet-popup-content-wrapper{
       border-radius:20px;padding:0;overflow:hidden;border:none;
       box-shadow:0 12px 40px rgba(0,0,0,0.18);
@@ -178,10 +247,7 @@
     }
     .popup-title{font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:10px;line-height:1.4}
     .popup-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-    .chip{
-      display:flex;align-items:center;gap:4px;padding:4px 9px;
-      border-radius:20px;background:#f7f7f7;font-size:10px;font-weight:600;color:#555;
-    }
+    .chip{display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;background:#f7f7f7;font-size:10px;font-weight:600;color:#555}
     .chip-icon{font-size:11px}
     .popup-desc{font-size:11px;color:#888;line-height:1.6;padding-top:10px;border-top:1px solid #f2f2f2}
     .popup-no-photo{height:70px;background:#fff8f0;display:flex;align-items:center;justify-content:center;font-size:28px}
@@ -202,123 +268,138 @@
 <body>
 <div id="map"></div>
 
+<!-- ══ TOP HEADER ══ -->
+<div class="top-bar">
+  <div class="top-bar-brand">
+    <!-- leaf icon -->
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f5a623" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M11 20A7 7 0 0 1 4 13c0-4 3-7 7-8 0 0 3 4 3 8M11 20c0-4 2-8 5-10"/>
+      <line x1="11" y1="20" x2="11" y2="4"/>
+    </svg>
+    CMI Patrol
+  </div>
+  <span class="top-bar-sep">/</span>
+  <span class="top-bar-sub">Conservation Monitoring</span>
+  <div class="top-bar-right">
+    <div class="tb-stat" id="headerStat"><span id="headerCount">0</span> findings</div>
+    <button class="tb-btn" onclick="togglePanel()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Panel
+    </button>
+    <button class="tb-btn primary">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Search
+    </button>
+  </div>
+</div>
+
+<!-- ══ SIDE PANEL ══ -->
 <div class="panel" id="mainPanel">
-  <!-- header never scrolls -->
-  <div class="panel-header">
-    <span class="panel-title">CMI Patrol Data</span>
-    <button class="panel-toggle" id="collapseBtn" title="Minimize">&#8722;</button>
+  <!-- TABS -->
+  <div class="panel-tabs">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="filter">Filter</button>
+    <button class="tab-btn" data-tab="layers">Layers</button>
+    <button class="tab-btn" data-tab="legend">Legend</button>
+    <button class="panel-close" id="panelClose" title="Close">&#x2715;</button>
   </div>
 
-  <!-- everything inside here scrolls within the panel -->
-  <div class="panel-body" id="panelBody">
-
-    <!-- STAT — always visible -->
+  <!-- PAGE: OVERVIEW -->
+  <div class="tab-page active" id="tab-overview">
     <div class="stat-row">
       <span class="stat-main" id="totalMain">0</span>
       <span class="stat-sub" id="totalSub"></span>
       <span class="stat-hint">findings</span>
     </div>
-
-    <!-- FILTER — default OFF -->
-    <div class="collapse-section no-top">
-      <div class="collapse-header" id="filterHeader">
-        <div style="display:flex;align-items:center">
-          <span class="section-label" style="margin:0">Filter</span>
-          <span class="filter-active-dot" id="filterDot"></span>
-        </div>
-        <span class="collapse-chevron" id="filterChevron">&#9660;</span>
-      </div>
-      <div class="collapse-body" id="filterBody">
-        <div class="filter-date">
-          <input type="date" id="startDate">
-          <input type="date" id="endDate">
-        </div>
-        <div class="filter-selects">
-          <select id="filterOfficer"><option value="">All Officers</option></select>
-          <select id="filterCategory"><option value="">All Categories</option></select>
-          <select id="filterFinding"><option value="">All Findings</option></select>
-        </div>
-      </div>
+    <div class="sec-label">Category Breakdown</div>
+    <div class="chart-wrap">
+      <canvas id="chartCanvas"></canvas>
     </div>
+    <button class="btn-reset" id="resetFilter">Show All</button>
+    <div class="page-pad"></div>
+  </div>
 
-    <!-- CATEGORY BREAKDOWN — default ON -->
-    <div class="collapse-section">
-      <div class="collapse-header" id="chartHeader">
-        <span class="section-label" style="margin:0">Category Breakdown</span>
-        <span class="collapse-chevron open" id="chartChevron">&#9660;</span>
-      </div>
-      <div class="collapse-body open" id="chartBody">
-        <div style="padding-top:8px">
-          <div class="chart-wrap">
-            <canvas id="chartCanvas"></canvas>
-          </div>
-          <button class="btn-reset" id="resetFilter">Show All</button>
-        </div>
-      </div>
+  <!-- PAGE: FILTER -->
+  <div class="tab-page" id="tab-filter">
+    <div class="sec-label">Date Range</div>
+    <div class="filter-date">
+      <input type="date" id="startDate">
+      <input type="date" id="endDate">
     </div>
-
-    <!-- LAYERS — default OFF -->
-    <div class="collapse-section">
-      <div class="collapse-header" id="layerHeader">
-        <span class="section-label" style="margin:0">Layers</span>
-        <span class="collapse-chevron" id="layerChevron">&#9660;</span>
-      </div>
-      <div class="collapse-body" id="layerList">
-        <div style="padding-top:8px">
-          <div class="toggle-row">
-            <span class="toggle-label"><span class="layer-dot" style="background:#4CAF50"></span>LULC 2023</span>
-            <label class="switch"><input type="checkbox" id="toggleLulc" checked><span class="slider-sw"></span></label>
-          </div>
-          <div class="toggle-row">
-            <span class="toggle-label"><span class="layer-dot" style="background:#00BCD4"></span>LULC 2025</span>
-            <label class="switch"><input type="checkbox" id="toggleLulc2025"><span class="slider-sw"></span></label>
-          </div>
-          <div class="toggle-row">
-            <span class="toggle-label"><span class="layer-dot" style="background:#FF9800"></span>Landsat 2024</span>
-            <label class="switch"><input type="checkbox" id="toggleLandsat2024"><span class="slider-sw"></span></label>
-          </div>
-          <div class="toggle-row">
-            <span class="toggle-label"><span class="layer-dot" style="background:#F44336"></span>Landsat 2025</span>
-            <label class="switch"><input type="checkbox" id="toggleLandsat2025"><span class="slider-sw"></span></label>
-          </div>
-          <div class="toggle-row">
-            <span class="toggle-label"><span class="layer-dot" style="background:#7B1FA2"></span>Boundary</span>
-            <label class="switch"><input type="checkbox" id="toggleBoundary" checked><span class="slider-sw"></span></label>
-          </div>
-          <div class="toggle-row">
-            <span class="toggle-label"><span class="layer-dot" style="background:#2196F3"></span>Points</span>
-            <label class="switch"><input type="checkbox" id="togglePoints" checked><span class="slider-sw"></span></label>
-          </div>
-        </div>
-      </div>
+    <div class="sec-label">Officer</div>
+    <div class="filter-selects">
+      <select id="filterOfficer"><option value="">All Officers</option></select>
     </div>
-
-    <!-- LULC LEGEND — default ON -->
-    <div class="collapse-section">
-      <div class="collapse-header" id="legendHeader">
-        <span class="section-label" style="margin:0">LULC Legend</span>
-        <span class="collapse-chevron open" id="legendChevron">&#9660;</span>
-      </div>
-      <div class="collapse-body open" id="legendBody">
-        <div class="legend-grid">
-          <div class="legend-item"><span class="legend-swatch" style="background:#ec4040"></span>Building</div>
-          <div class="legend-item"><span class="legend-swatch" style="background:#a1a1a1"></span>Cleared / Bare Land</div>
-          <div class="legend-item"><span class="legend-swatch" style="background:#ecb240"></span>Oil Palm / Newly Planted</div>
-          <div class="legend-item"><span class="legend-swatch" style="background:#5c9640"></span>Forest</div>
-          <div class="legend-item"><span class="legend-swatch" style="background:#ffffce;border:1px solid #e0e0b0"></span>Mixed Dry Agriculture</div>
-          <div class="legend-item"><span class="legend-swatch" style="background:#b2ec40"></span>Old Shrubs</div>
-          <div class="legend-item"><span class="legend-swatch" style="background:#222"></span>Road</div>
-          <div class="legend-item"><span class="legend-swatch" style="background:#ddff96"></span>Shrubs</div>
-          <div class="legend-item"><span class="legend-swatch" style="background:#b6cce1"></span>Water</div>
-        </div>
-      </div>
+    <div class="sec-label">Category</div>
+    <div class="filter-selects">
+      <select id="filterCategory"><option value="">All Categories</option></select>
     </div>
+    <div class="sec-label">Finding</div>
+    <div class="filter-selects">
+      <select id="filterFinding"><option value="">All Findings</option></select>
+    </div>
+    <button class="btn-clear" id="clearFilters">Clear All Filters</button>
+    <div class="page-pad"></div>
+  </div>
 
-    <div style="height:8px"></div>
+  <!-- PAGE: LAYERS -->
+  <div class="tab-page" id="tab-layers">
+    <div class="sec-label">LULC</div>
+    <div class="toggle-row">
+      <span class="toggle-label"><span class="ldot" style="background:#4CAF50"></span>LULC 2023</span>
+      <label class="switch"><input type="checkbox" id="toggleLulc" checked><span class="sw-track"></span></label>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-label"><span class="ldot" style="background:#00BCD4"></span>LULC 2025</span>
+      <label class="switch"><input type="checkbox" id="toggleLulc2025"><span class="sw-track"></span></label>
+    </div>
+    <div class="sec-label">Satellite</div>
+    <div class="toggle-row">
+      <span class="toggle-label"><span class="ldot" style="background:#FF9800"></span>Landsat 2024</span>
+      <label class="switch"><input type="checkbox" id="toggleLandsat2024"><span class="sw-track"></span></label>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-label"><span class="ldot" style="background:#F44336"></span>Landsat 2025</span>
+      <label class="switch"><input type="checkbox" id="toggleLandsat2025"><span class="sw-track"></span></label>
+    </div>
+    <div class="sec-label">Other</div>
+    <div class="toggle-row">
+      <span class="toggle-label"><span class="ldot" style="background:#7B1FA2"></span>Boundary</span>
+      <label class="switch"><input type="checkbox" id="toggleBoundary" checked><span class="sw-track"></span></label>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-label"><span class="ldot" style="background:#2196F3"></span>Points</span>
+      <label class="switch"><input type="checkbox" id="togglePoints" checked><span class="sw-track"></span></label>
+    </div>
+    <div class="page-pad"></div>
+  </div>
 
-  </div><!-- /panel-body -->
+  <!-- PAGE: LEGEND -->
+  <div class="tab-page" id="tab-legend">
+    <div class="sec-label">LULC Classification</div>
+    <div class="legend-grid">
+      <div class="legend-item"><span class="lswatch" style="background:#ec4040"></span>Building</div>
+      <div class="legend-item"><span class="lswatch" style="background:#a1a1a1"></span>Cleared / Bare Land</div>
+      <div class="legend-item"><span class="lswatch" style="background:#ecb240"></span>Oil Palm / Newly Planted</div>
+      <div class="legend-item"><span class="lswatch" style="background:#5c9640"></span>Forest</div>
+      <div class="legend-item"><span class="lswatch" style="background:#ffffce;border:1px solid #e0e0b0"></span>Mixed Dry Agriculture</div>
+      <div class="legend-item"><span class="lswatch" style="background:#b2ec40"></span>Old Shrubs</div>
+      <div class="legend-item"><span class="lswatch" style="background:#222"></span>Road</div>
+      <div class="legend-item"><span class="lswatch" style="background:#ddff96"></span>Shrubs</div>
+      <div class="legend-item"><span class="lswatch" style="background:#b6cce1"></span>Water</div>
+    </div>
+    <div class="page-pad"></div>
+  </div>
+
 </div><!-- /panel -->
 
+<!-- re-open button -->
+<button class="panel-open-btn" id="panelOpenBtn" onclick="openPanel()">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+  Open Panel
+</button>
+
+<!-- modal -->
 <div id="imageModal" class="img-modal">
   <span class="modal-close" id="closeModal">&times;</span>
   <img id="modalImage">
@@ -326,30 +407,25 @@
 
 <script>
   /* ── MAP ── */
-  const map = L.map('map',{center:[0.8,110.325],zoom:13});
+  const map = L.map('map',{center:[0.8,110.325],zoom:13,zoomControl:false});
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
+  L.control.zoom({position:'bottomright'}).addTo(map);
 
   const lulc        = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png',        {opacity:1}).addTo(map);
   const lulc2025    = L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',   {opacity:1});
   const landsat2024 = L.tileLayer('./data/landsat-2024/{z}/{x}/{y}.png', {opacity:1});
   const landsat2025 = L.tileLayer('./data/landsat-2025/{z}/{x}/{y}.png', {opacity:1});
 
-  let boundaryLayer;
-  let pointLayer = L.layerGroup().addTo(map);
+  let boundaryLayer, pointLayer=L.layerGroup().addTo(map);
 
-  fetch('data/CMI.json')
-    .then(r=>r.json())
-    .then(j=>{
-      boundaryLayer=L.geoJSON(j,{style:{color:"#7B1FA2",weight:3,fillOpacity:0}}).addTo(map);
-      map.fitBounds(boundaryLayer.getBounds());
-    });
+  fetch('data/CMI.json').then(r=>r.json()).then(j=>{
+    boundaryLayer=L.geoJSON(j,{style:{color:"#7B1FA2",weight:3,fillOpacity:0}}).addTo(map);
+    map.fitBounds(boundaryLayer.getBounds());
+  });
 
   const url="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
   let rawData=[],chart,highlightCat=null;
-  Papa.parse(url,{
-    download:true,header:true,
-    complete:(res)=>{rawData=res.data;initDropdowns();updateMap();}
-  });
+  Papa.parse(url,{download:true,header:true,complete:(res)=>{rawData=res.data;initDropdowns();updateMap();}});
 
   /* ── DATE PARSE ── */
   function parseDate(s){
@@ -361,21 +437,18 @@
     }
     const d=new Date(s);return isNaN(d)?null:d;
   }
-
-  /* ── FORMAT LABEL ── */
   function fmtLabel(s){return(s||'').replace(/_/g,' ');}
 
-  /* ── COLOR MAP ── */
-  const PALETTE=['#f5a623','#6C63FF','#4ECDC4','#FF6B6B','#6BCB77','#74C0FC','#F06595','#A9E34B','#63E6BE','#FF922B'];
+  /* ── COLORS ── */
+  const PALETTE=['#6C63FF','#4ECDC4','#FF6B6B','#f5a623','#6BCB77','#74C0FC','#F06595','#A9E34B','#63E6BE','#FF922B'];
   const catColorMap={};
   function catColor(cat){
-    if(!catColorMap[cat]) catColorMap[cat]=PALETTE[Object.keys(catColorMap).length%PALETTE.length];
+    if(!catColorMap[cat])catColorMap[cat]=PALETTE[Object.keys(catColorMap).length%PALETTE.length];
     return catColorMap[cat];
   }
 
   /* ── DROPDOWNS ── */
   let allOfficers=[],allCategories=[],allFindings=[];
-
   function initDropdowns(){
     const o=new Set(),c=new Set(),f=new Set();
     rawData.forEach(r=>{
@@ -383,77 +456,46 @@
       if(r['data-survey-categ'])  c.add(r['data-survey-categ']);
       if(r['data-survey-finding'])f.add(r['data-survey-finding']);
     });
-    allOfficers  =[...o].sort();
-    allCategories=[...c].sort();
-    allFindings  =[...f].sort();
-    populateSelect('filterOfficer',  allOfficers,  'All Officers');
-    populateSelect('filterCategory', allCategories,'All Categories');
-    populateSelect('filterFinding',  allFindings,  'All Findings');
+    allOfficers=[...o].sort();allCategories=[...c].sort();allFindings=[...f].sort();
+    populateSelect('filterOfficer',allOfficers,'All Officers');
+    populateSelect('filterCategory',allCategories,'All Categories');
+    populateSelect('filterFinding',allFindings,'All Findings');
   }
-
-  function populateSelect(id,values,placeholder){
-    const el=document.getElementById(id);
-    const cur=el.value;
-    el.innerHTML=`<option value="">${placeholder}</option>`;
-    values.forEach(v=>{
-      const o=document.createElement('option');
-      o.value=v;o.textContent=fmtLabel(v);
-      if(v===cur)o.selected=true;
-      el.appendChild(o);
-    });
+  function populateSelect(id,values,ph){
+    const el=document.getElementById(id);const cur=el.value;
+    el.innerHTML=`<option value="">${ph}</option>`;
+    values.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=fmtLabel(v);if(v===cur)o.selected=true;el.appendChild(o);});
   }
-
   function refreshCascade(){
     const selO=document.getElementById('filterOfficer').value;
     const selC=document.getElementById('filterCategory').value;
     const selF=document.getElementById('filterFinding').value;
-
-    const filtered=rawData.filter(r=>{
+    const fil=rawData.filter(r=>{
       if(selO&&r['data-base_info-nama']!==selO)return false;
-      if(selC&&r['data-survey-categ']  !==selC)return false;
+      if(selC&&r['data-survey-categ']!==selC)return false;
       if(selF&&r['data-survey-finding']!==selF)return false;
       return true;
     });
-
-    const availO=new Set(),availC=new Set(),availF=new Set();
-    filtered.forEach(r=>{
-      if(r['data-base_info-nama'])availO.add(r['data-base_info-nama']);
-      if(r['data-survey-categ'])  availC.add(r['data-survey-categ']);
-      if(r['data-survey-finding'])availF.add(r['data-survey-finding']);
+    const aO=new Set(),aC=new Set(),aF=new Set();
+    fil.forEach(r=>{
+      if(r['data-base_info-nama'])aO.add(r['data-base_info-nama']);
+      if(r['data-survey-categ'])  aC.add(r['data-survey-categ']);
+      if(r['data-survey-finding'])aF.add(r['data-survey-finding']);
     });
-
-    rebuildSelect('filterOfficer',  selO?allOfficers  :[...availO].sort(),'All Officers',  selO);
-    rebuildSelect('filterCategory', selC?allCategories:[...availC].sort(),'All Categories',selC);
-    rebuildSelect('filterFinding',  selF?allFindings  :[...availF].sort(),'All Findings',  selF);
-    updateFilterDot();
+    rebuildSelect('filterOfficer', selO?allOfficers:[...aO].sort(),'All Officers',selO);
+    rebuildSelect('filterCategory',selC?allCategories:[...aC].sort(),'All Categories',selC);
+    rebuildSelect('filterFinding', selF?allFindings:[...aF].sort(),'All Findings',selF);
   }
-
-  function rebuildSelect(id,values,placeholder,cur){
+  function rebuildSelect(id,values,ph,cur){
     const el=document.getElementById(id);
-    el.innerHTML=`<option value="">${placeholder}</option>`;
-    values.forEach(v=>{
-      const o=document.createElement('option');
-      o.value=v;o.textContent=fmtLabel(v);
-      if(v===cur)o.selected=true;
-      el.appendChild(o);
-    });
-  }
-
-  function updateFilterDot(){
-    const active=
-      document.getElementById('startDate').value||
-      document.getElementById('endDate').value||
-      document.getElementById('filterOfficer').value||
-      document.getElementById('filterCategory').value||
-      document.getElementById('filterFinding').value;
-    document.getElementById('filterDot').classList.toggle('visible',!!active);
+    el.innerHTML=`<option value="">${ph}</option>`;
+    values.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=fmtLabel(v);if(v===cur)o.selected=true;el.appendChild(o);});
   }
 
   /* ── SLIDER ── */
   function buildSlider(imgs){
     if(!imgs.length)return`<div class="popup-no-photo">&#128247;</div>`;
-    if(imgs.length===1)
-      return`<div class="popup-slider"><div class="slides"><div class="slide"><img src="${imgs[0]}" onclick="openModal('${imgs[0]}')"></div></div></div>`;
+    if(imgs.length===1)return`<div class="popup-slider"><div class="slides"><div class="slide"><img src="${imgs[0]}" onclick="openModal('${imgs[0]}')"></div></div></div>`;
     const slides=imgs.map(s=>`<div class="slide"><img src="${s}" onclick="openModal('${s}')"></div>`).join('');
     const dots=imgs.map((_,i)=>`<span class="${i===0?'active':''}"></span>`).join('');
     const uid='sl_'+Math.random().toString(36).slice(2,7);
@@ -467,27 +509,23 @@
   const sliderIndex={};
   function slideMove(uid,dir){
     const c=document.getElementById(uid);if(!c)return;
-    const sl=c.querySelectorAll('.slide');
-    const dots=c.querySelectorAll('.slider-dots span');
-    const n=sl.length;
+    const sl=c.querySelectorAll('.slide'),dots=c.querySelectorAll('.slider-dots span'),n=sl.length;
     let idx=(sliderIndex[uid]||0)+dir;
     if(idx<0)idx=n-1;if(idx>=n)idx=0;
     sliderIndex[uid]=idx;
     c.querySelector('.slides').style.transform=`translateX(-${idx*270}px)`;
     dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
   }
-
   function buildPopup(r,cat,finding,imgs){
-    const col=catColor(cat);
-    const desc=r['data-survey-description']||'';
+    const col=catColor(cat),desc=r['data-survey-description']||'';
     return`<div>
       ${buildSlider(imgs)}
       <div class="popup-card">
         <div class="popup-badge" style="background:${col}22;color:${col}">${fmtLabel(cat)}</div>
         <div class="popup-title">${fmtLabel(finding)}</div>
         <div class="popup-chips">
-          <div class="chip">${r['data-base_info-nama']||'-'}</div>
-          <div class="chip">${r['data-start_date']||'-'}</div>
+          <div class="chip"><span class="chip-icon">&#128100;</span>${r['data-base_info-nama']||'-'}</div>
+          <div class="chip"><span class="chip-icon">&#128197;</span>${r['data-start_date']||'-'}</div>
         </div>
         ${desc?`<div class="popup-desc">${desc}</div>`:''}
       </div>
@@ -498,23 +536,23 @@
   function updateMap(){
     pointLayer.clearLayers();
     const start=parseDate(document.getElementById('startDate').value);
-    const end  =parseDate(document.getElementById('endDate').value);
-    const selO =document.getElementById('filterOfficer').value;
-    const selC =document.getElementById('filterCategory').value;
-    const selF =document.getElementById('filterFinding').value;
+    const end=parseDate(document.getElementById('endDate').value);
+    const selO=document.getElementById('filterOfficer').value;
+    const selC=document.getElementById('filterCategory').value;
+    const selF=document.getElementById('filterFinding').value;
     let counts={},total=0;
 
     rawData.forEach(r=>{
       const coord=r['data-coordinate'];if(!coord)return;
       const d=parseDate(r['data-start_date']);
       if(start&&d&&d<start)return;
-      if(end  &&d&&d>end)  return;
+      if(end&&d&&d>end)return;
       if(selO&&r['data-base_info-nama']!==selO)return;
-      if(selC&&r['data-survey-categ']  !==selC)return;
+      if(selC&&r['data-survey-categ']!==selC)return;
       if(selF&&r['data-survey-finding']!==selF)return;
       const[lat,lon]=coord.split(',').map(Number);if(isNaN(lat))return;
-      const cat    =r['data-survey-categ']   ||'Unknown';
-      const finding=r['data-survey-finding'] ||'-';
+      const cat=r['data-survey-categ']||'Unknown';
+      const finding=r['data-survey-finding']||'-';
       counts[cat]=(counts[cat]||0)+1;total++;
       const imgs=[convert(r['data-documentation-image_1']),convert(r['data-documentation-image_2'])].filter(Boolean);
       const m=L.marker([lat,lon]).bindPopup(buildPopup(r,cat,finding,imgs),{maxWidth:270});
@@ -524,6 +562,7 @@
     });
 
     document.getElementById('totalMain').innerText=total;
+    document.getElementById('headerCount').innerText=total;
 
     if(chart)chart.destroy();
     const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
@@ -532,108 +571,91 @@
     const values=entries.map(e=>e[1]);
     const colors=rawLabels.map(catColor);
     const max=values[0]||1;
-
     chartCanvas.height=Math.max(60,labels.length*34+30);
 
     chart=new Chart(chartCanvas,{
       type:'bar',
-      data:{
-        labels,
-        datasets:[{
-          data:values,
-          backgroundColor:colors.map(c=>c+'cc'),
-          borderColor:colors,
-          borderWidth:0,borderRadius:6,borderSkipped:false,
-        }]
-      },
+      data:{labels,datasets:[{data:values,backgroundColor:colors.map(c=>c+'cc'),borderColor:colors,borderWidth:0,borderRadius:6,borderSkipped:false}]},
       options:{
         indexAxis:'y',responsive:true,maintainAspectRatio:false,
         plugins:{
           legend:{display:false},
-          tooltip:{
-            callbacks:{label:ctx=>' '+ctx.raw+' findings'},
-            backgroundColor:'#1a1a2e',
-            titleFont:{family:'Montserrat',size:11},
-            bodyFont:{family:'Montserrat',size:11},
-            padding:8,cornerRadius:8,
-          }
+          tooltip:{callbacks:{label:ctx=>' '+ctx.raw+' findings'},backgroundColor:'#1a1a2e',titleFont:{family:'Montserrat',size:11},bodyFont:{family:'Montserrat',size:11},padding:8,cornerRadius:8}
         },
         scales:{
           x:{display:false,max:max*1.2,grid:{display:false}},
-          y:{
-            grid:{display:false},border:{display:false},
-            ticks:{font:{family:'Montserrat',size:10,weight:'600'},color:'#555',padding:4}
-          }
+          y:{grid:{display:false},border:{display:false},ticks:{font:{family:'Montserrat',size:10,weight:'600'},color:'#555',padding:4}}
         },
         onClick:(e,el)=>{
           if(!el.length)return;
-          const cat=rawLabels[el[0].index];
-          const val=values[el[0].index];
+          const cat=rawLabels[el[0].index],val=values[el[0].index];
           if(highlightCat===cat){
-            highlightCat=null;
-            document.getElementById('totalSub').style.display='none';
+            highlightCat=null;document.getElementById('totalSub').style.display='none';
             pointLayer.eachLayer(m=>m.setOpacity(1));
           } else {
             highlightCat=cat;
-            const sub=document.getElementById('totalSub');
-            sub.style.display='block';sub.innerText=val;
+            const sub=document.getElementById('totalSub');sub.style.display='block';sub.innerText=val;
             pointLayer.eachLayer(m=>m.setOpacity(m.category===cat?1:0.2));
           }
         },
         animation:{duration:400,easing:'easeOutQuart'},
       },
-      plugins:[{
-        id:'barLabels',
-        afterDatasetsDraw(ch){
-          const{ctx,data}=ch;
-          ch.getDatasetMeta(0).data.forEach((bar,i)=>{
-            ctx.save();
-            ctx.font='600 10px Montserrat';
-            ctx.fillStyle='#999';
-            ctx.textAlign='left';ctx.textBaseline='middle';
-            ctx.fillText(data.datasets[0].data[i],bar.x+5,bar.y);
-            ctx.restore();
-          });
-        }
-      }]
+      plugins:[{id:'barLabels',afterDatasetsDraw(ch){
+        const{ctx,data}=ch;
+        ch.getDatasetMeta(0).data.forEach((bar,i)=>{
+          ctx.save();ctx.font='600 10px Montserrat';ctx.fillStyle='#999';
+          ctx.textAlign='left';ctx.textBaseline='middle';
+          ctx.fillText(data.datasets[0].data[i],bar.x+5,bar.y);ctx.restore();
+        });
+      }}]
     });
   }
 
-  /* ── EVENTS ── */
-  ['startDate','endDate'].forEach(id=>{
-    document.getElementById(id).addEventListener('change',()=>{updateFilterDot();updateMap();});
+  /* ── TABS ── */
+  document.querySelectorAll('.tab-btn[data-tab]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    });
   });
+
+  /* ── PANEL OPEN/CLOSE ── */
+  function togglePanel(){
+    const p=document.getElementById('mainPanel');
+    const ob=document.getElementById('panelOpenBtn');
+    if(p.style.display==='none'){openPanel();}
+    else{p.style.display='none';ob.style.display='flex';}
+  }
+  function openPanel(){
+    document.getElementById('mainPanel').style.display='flex';
+    document.getElementById('panelOpenBtn').style.display='none';
+  }
+  document.getElementById('panelClose').onclick=()=>{
+    document.getElementById('mainPanel').style.display='none';
+    document.getElementById('panelOpenBtn').style.display='flex';
+  };
+
+  /* ── FILTER EVENTS ── */
+  ['startDate','endDate'].forEach(id=>document.getElementById(id).addEventListener('change',()=>updateMap()));
   ['filterOfficer','filterCategory','filterFinding'].forEach(id=>{
     document.getElementById(id).addEventListener('change',()=>{refreshCascade();updateMap();});
   });
-
+  document.getElementById('clearFilters').onclick=()=>{
+    ['startDate','endDate'].forEach(id=>document.getElementById(id).value='');
+    populateSelect('filterOfficer',allOfficers,'All Officers');
+    populateSelect('filterCategory',allCategories,'All Categories');
+    populateSelect('filterFinding',allFindings,'All Findings');
+    highlightCat=null;
+    document.getElementById('totalSub').style.display='none';
+    updateMap();
+  };
   document.getElementById('resetFilter').onclick=()=>{
     highlightCat=null;
     document.getElementById('totalSub').style.display='none';
     pointLayer.eachLayer(m=>m.setOpacity(1));
   };
-
-  /* ── PANEL COLLAPSE ── */
-  let panelOpen=true;
-  document.getElementById('collapseBtn').onclick=()=>{
-    panelOpen=!panelOpen;
-    document.getElementById('panelBody').style.display=panelOpen?'':'none';
-    document.getElementById('collapseBtn').innerHTML=panelOpen?'&#8722;':'&#43;';
-  };
-
-  /* ── ACCORDION ── */
-  function makeAccordion(headerId,bodyId,chevronId,defaultOpen=false){
-    let open=defaultOpen;
-    document.getElementById(headerId).onclick=()=>{
-      open=!open;
-      document.getElementById(bodyId).classList.toggle('open',open);
-      document.getElementById(chevronId).classList.toggle('open',open);
-    };
-  }
-  makeAccordion('filterHeader','filterBody','filterChevron',false);
-  makeAccordion('chartHeader', 'chartBody', 'chartChevron', true);
-  makeAccordion('layerHeader', 'layerList', 'layerChevron', false);
-  makeAccordion('legendHeader','legendBody','legendChevron', true);
 
   /* ── LAYER TOGGLES ── */
   toggleLulc.onchange        = e=>e.target.checked?map.addLayer(lulc)       :map.removeLayer(lulc);
