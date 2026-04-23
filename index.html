@@ -490,8 +490,8 @@
         <div class="popup-badge" style="background:${col}22;color:${col}">${fmtLabel(cat)}</div>
         <div class="popup-title">${fmtLabel(finding)}</div>
         <div class="popup-chips">
-          <div class="chip"><span class="chip-icon">&#128100;</span>${r['data-base_info-nama']||'-'}</div>
-          <div class="chip"><span class="chip-icon">&#128197;</span>${r['data-start_date']||'-'}</div>
+          <div class="chip">${r['data-base_info-nama']||'-'}</div>
+          <div class="chip">${r['data-start_date']||'-'}</div>
         </div>
         ${desc?`<div class="popup-desc">${desc}</div>`:''}
       </div>
