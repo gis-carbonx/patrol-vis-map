@@ -9,9 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
@@ -140,9 +137,7 @@
     .switch input:checked + .sw-track:before{transform:translateX(14px)}
 
     /* legend */
-    .legend-grid{
-      display:grid;grid-template-columns:1fr 1fr;gap:7px 10px;padding:4px 0;
-    }
+    .legend-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px 10px;padding:4px 0}
     .legend-item{display:flex;align-items:flex-start;gap:7px;font-size:10px;font-weight:500;color:#555;line-height:1.35}
     .lswatch{width:11px;height:11px;border-radius:3px;flex-shrink:0;margin-top:1px}
 
@@ -156,18 +151,6 @@
       display:none;align-items:center;gap:6px;transition:background .15s;
     }
     .panel-open-btn:hover{background:#f5f5f5}
-
-    /* ══ CLUSTER CUSTOM STYLES ══ */
-    .marker-cluster-small,.marker-cluster-medium,.marker-cluster-large{
-      background:rgba(245,166,35,0.18) !important;
-    }
-    .marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{
-      background:rgba(245,166,35,0.85) !important;
-      color:#1a1a2e !important;
-      font-family:'Montserrat',sans-serif !important;
-      font-weight:700 !important;
-      font-size:12px !important;
-    }
 
     /* ══ POPUP ══ */
     .leaflet-popup-content-wrapper{
@@ -280,7 +263,6 @@
 
   <!-- LAYERS + LEGEND -->
   <div class="tab-page" id="tab-layers">
-
     <div class="sec-label">LULC</div>
     <div class="toggle-row">
       <span class="toggle-label"><span class="ldot" style="background:#4CAF50"></span>LULC 2023</span>
@@ -290,7 +272,6 @@
       <span class="toggle-label"><span class="ldot" style="background:#00BCD4"></span>LULC 2025</span>
       <label class="switch"><input type="checkbox" id="toggleLulc2025"><span class="sw-track"></span></label>
     </div>
-
     <div class="sec-label">Satellite</div>
     <div class="toggle-row">
       <span class="toggle-label"><span class="ldot" style="background:#FF9800"></span>Landsat 2024</span>
@@ -300,18 +281,15 @@
       <span class="toggle-label"><span class="ldot" style="background:#F44336"></span>Landsat 2025</span>
       <label class="switch"><input type="checkbox" id="toggleLandsat2025"><span class="sw-track"></span></label>
     </div>
-
     <div class="sec-label">Other</div>
     <div class="toggle-row">
       <span class="toggle-label"><span class="ldot" style="background:#7B1FA2"></span>Boundary</span>
       <label class="switch"><input type="checkbox" id="toggleBoundary" checked><span class="sw-track"></span></label>
     </div>
     <div class="toggle-row">
-      <span class="toggle-label"><span class="ldot" style="background:#2196F3"></span>Points</span>
+      <span class="toggle-label"><span class="ldot" style="background:#f5a623"></span>Points</span>
       <label class="switch"><input type="checkbox" id="togglePoints" checked><span class="sw-track"></span></label>
     </div>
-
-    <!-- LEGEND inside Layers tab, always visible -->
     <div class="sec-label" style="margin-top:20px">LULC Classification</div>
     <div class="legend-grid">
       <div class="legend-item"><span class="lswatch" style="background:#ec4040"></span>Building</div>
@@ -326,8 +304,7 @@
     </div>
     <div class="page-pad"></div>
   </div>
-
-</div><!-- /panel -->
+</div>
 
 <button class="panel-open-btn" id="panelOpenBtn" onclick="openPanel()">
   &#9776; Panel
@@ -339,7 +316,7 @@
 </div>
 
 <script>
-  /* ── MAP ── */
+  /* ══ MAP ══ */
   const map = L.map('map',{center:[0.8,110.325],zoom:13,zoomControl:false});
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
   L.control.zoom({position:'bottomright'}).addTo(map);
@@ -350,54 +327,64 @@
   const landsat2025 = L.tileLayer('./data/landsat-2025/{z}/{x}/{y}.png', {opacity:1});
 
   let boundaryLayer;
+  const pointLayer = L.layerGroup().addTo(map);
 
   fetch('data/CMI.json').then(r=>r.json()).then(j=>{
     boundaryLayer=L.geoJSON(j,{style:{color:"#7B1FA2",weight:3,fillOpacity:0}}).addTo(map);
     map.fitBounds(boundaryLayer.getBounds());
   });
 
-  /* ── CLUSTER GROUP ── */
-  const clusterGroup = L.markerClusterGroup({
-    disableClusteringAtZoom: 16,   // individual markers at zoom 16+
-    maxClusterRadius: 60,
-    spiderfyOnMaxZoom: true,
-    showCoverageOnHover: false,
-    zoomToBoundsOnClick: true,
-    iconCreateFunction: function(cluster){
-      const count = cluster.getChildCount();
-      let size = count < 10 ? 36 : count < 50 ? 44 : 52;
-      return L.divIcon({
-        html: `<div style="
-          width:${size}px;height:${size}px;border-radius:50%;
-          background:rgba(245,166,35,0.90);
-          border:3px solid rgba(255,255,255,0.85);
-          display:flex;align-items:center;justify-content:center;
-          font-family:'Montserrat',sans-serif;font-weight:700;
-          font-size:${count<100?12:10}px;color:#1a1a2e;
-          box-shadow:0 2px 10px rgba(0,0,0,0.25);
-        ">${count}</div>`,
-        className:'',
-        iconSize:[size,size],
-        iconAnchor:[size/2,size/2],
-      });
-    }
-  }).addTo(map);
-
-  /* ── DATA ── */
-  const url="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
+  /* ══ DATA ══ */
+  const SHEET_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
   let rawData=[],chart,highlightCat=null;
-  Papa.parse(url,{download:true,header:true,complete:(res)=>{rawData=res.data;initDropdowns();updateMap();}});
-
-  /* ── UTILS ── */
-  function parseDate(s){
-    if(!s)return null;
-    const p=s.split('-');
-    if(p.length===3&&!isNaN(p[0])){
-      const m={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-      if(m[p[1]]!==undefined)return new Date(parseInt(p[2]),m[p[1]],parseInt(p[0]));
+  Papa.parse(SHEET_URL,{
+    download:true,header:true,
+    complete:(res)=>{
+      // clean empty rows
+      rawData=res.data.filter(r=>r['data-coordinate']&&r['data-coordinate'].trim());
+      initDropdowns();
+      updateMap();
     }
-    const d=new Date(s);return isNaN(d)?null:d;
+  });
+
+  /* ══ DATE HELPERS ══
+     All dates are normalised to midnight local time so comparisons
+     are purely calendar-based, not affected by timezone offsets.
+  ══════════════════════════════════════════════════════════════════ */
+  function toMidnight(d){
+    // Returns a new Date at midnight local time of the same day
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
   }
+
+  function parseRecordDate(s){
+    // Parses "dd-Mon-yyyy"  e.g. "24-Oct-2025"
+    // and  "yyyy-mm-dd"     e.g. "2025-10-24"
+    if(!s||!s.trim()) return null;
+    const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    const p=s.trim().split('-');
+    if(p.length===3){
+      // dd-Mon-yyyy
+      if(isNaN(p[0])===false && MON[p[1]]!==undefined){
+        return toMidnight(new Date(parseInt(p[2]), MON[p[1]], parseInt(p[0])));
+      }
+      // yyyy-mm-dd
+      if(p[0].length===4){
+        return toMidnight(new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2])));
+      }
+    }
+    const d=new Date(s);
+    return isNaN(d)?null:toMidnight(d);
+  }
+
+  function parseInputDate(s){
+    // <input type="date"> always returns "yyyy-mm-dd"
+    if(!s) return null;
+    const p=s.split('-');
+    if(p.length!==3) return null;
+    return toMidnight(new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2])));
+  }
+
+  /* ══ UTILS ══ */
   function fmtLabel(s){return(s||'').replace(/_/g,' ');}
   function convert(url){
     if(!url)return null;
@@ -405,7 +392,7 @@
     return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null;
   }
 
-  /* ── COLORS ── */
+  /* ══ CHART COLOR ══ */
   const PALETTE=['#6C63FF','#4ECDC4','#FF6B6B','#f5a623','#6BCB77','#74C0FC','#F06595','#A9E34B','#63E6BE','#FF922B'];
   const catColorMap={};
   function catColor(cat){
@@ -413,55 +400,110 @@
     return catColorMap[cat];
   }
 
-  /* ── DROPDOWNS ── */
+  /* ══ MARKER ICON — single colour ══ */
+  const POINT_COLOR = '#f5a623';
+  const pointIcon = L.divIcon({
+    html:`<div style="
+      width:10px;height:10px;border-radius:50%;
+      background:${POINT_COLOR};border:2px solid #fff;
+      box-shadow:0 1px 4px rgba(0,0,0,0.35);
+    "></div>`,
+    className:'',iconSize:[10,10],iconAnchor:[5,5],
+  });
+  const pointIconFaded = L.divIcon({
+    html:`<div style="
+      width:10px;height:10px;border-radius:50%;
+      background:${POINT_COLOR};border:2px solid #fff;
+      box-shadow:0 1px 4px rgba(0,0,0,0.15);
+      opacity:0.18;
+    "></div>`,
+    className:'',iconSize:[10,10],iconAnchor:[5,5],
+  });
+
+  /* ══ DROPDOWNS ══ */
   let allOfficers=[],allCategories=[],allFindings=[];
+
   function initDropdowns(){
     const o=new Set(),c=new Set(),f=new Set();
     rawData.forEach(r=>{
-      if(r['data-base_info-nama'])o.add(r['data-base_info-nama']);
-      if(r['data-survey-categ'])  c.add(r['data-survey-categ']);
-      if(r['data-survey-finding'])f.add(r['data-survey-finding']);
+      if(r['data-base_info-nama']) o.add(r['data-base_info-nama']);
+      if(r['data-survey-categ'])   c.add(r['data-survey-categ']);
+      if(r['data-survey-finding']) f.add(r['data-survey-finding']);
     });
-    allOfficers=[...o].sort();allCategories=[...c].sort();allFindings=[...f].sort();
-    populateSelect('filterOfficer',allOfficers,'All Officers');
-    populateSelect('filterCategory',allCategories,'All Categories');
-    populateSelect('filterFinding',allFindings,'All Findings');
+    allOfficers=[...o].sort();
+    allCategories=[...c].sort();
+    allFindings=[...f].sort();
+    populateSelect('filterOfficer',  allOfficers,   'All Officers');
+    populateSelect('filterCategory', allCategories, 'All Categories');
+    populateSelect('filterFinding',  allFindings,   'All Findings');
   }
+
   function populateSelect(id,values,ph){
-    const el=document.getElementById(id);const cur=el.value;
+    const el=document.getElementById(id);
+    const cur=el.value;
     el.innerHTML=`<option value="">${ph}</option>`;
-    values.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=fmtLabel(v);if(v===cur)o.selected=true;el.appendChild(o);});
+    values.forEach(v=>{
+      const o=document.createElement('option');
+      o.value=v; o.textContent=fmtLabel(v);
+      if(v===cur) o.selected=true;
+      el.appendChild(o);
+    });
   }
+
+  function rebuildSelect(id,values,ph,cur){
+    const el=document.getElementById(id);
+    el.innerHTML=`<option value="">${ph}</option>`;
+    values.forEach(v=>{
+      const o=document.createElement('option');
+      o.value=v; o.textContent=fmtLabel(v);
+      if(v===cur) o.selected=true;
+      el.appendChild(o);
+    });
+  }
+
   function refreshCascade(){
     const selO=document.getElementById('filterOfficer').value;
     const selC=document.getElementById('filterCategory').value;
     const selF=document.getElementById('filterFinding').value;
     const fil=rawData.filter(r=>{
-      if(selO&&r['data-base_info-nama']!==selO)return false;
-      if(selC&&r['data-survey-categ']!==selC)return false;
-      if(selF&&r['data-survey-finding']!==selF)return false;
+      if(selO&&r['data-base_info-nama']!==selO) return false;
+      if(selC&&r['data-survey-categ']!==selC)   return false;
+      if(selF&&r['data-survey-finding']!==selF) return false;
       return true;
     });
     const aO=new Set(),aC=new Set(),aF=new Set();
     fil.forEach(r=>{
-      if(r['data-base_info-nama'])aO.add(r['data-base_info-nama']);
-      if(r['data-survey-categ'])  aC.add(r['data-survey-categ']);
-      if(r['data-survey-finding'])aF.add(r['data-survey-finding']);
+      if(r['data-base_info-nama']) aO.add(r['data-base_info-nama']);
+      if(r['data-survey-categ'])   aC.add(r['data-survey-categ']);
+      if(r['data-survey-finding']) aF.add(r['data-survey-finding']);
     });
-    rebuildSelect('filterOfficer', selO?allOfficers:[...aO].sort(),'All Officers',selO);
-    rebuildSelect('filterCategory',selC?allCategories:[...aC].sort(),'All Categories',selC);
-    rebuildSelect('filterFinding', selF?allFindings:[...aF].sort(),'All Findings',selF);
-  }
-  function rebuildSelect(id,values,ph,cur){
-    const el=document.getElementById(id);
-    el.innerHTML=`<option value="">${ph}</option>`;
-    values.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=fmtLabel(v);if(v===cur)o.selected=true;el.appendChild(o);});
+    rebuildSelect('filterOfficer',  selO?allOfficers:[...aO].sort(),   'All Officers',  selO);
+    rebuildSelect('filterCategory', selC?allCategories:[...aC].sort(), 'All Categories',selC);
+    rebuildSelect('filterFinding',  selF?allFindings:[...aF].sort(),   'All Findings',  selF);
   }
 
-  /* ── SLIDER ── */
+  /* ══ CLEAR ALL FILTERS ══
+     Fully resets every filter input then re-runs the map.
+  ══════════════════════════ */
+  function clearAllFilters(){
+    // 1. clear date inputs
+    document.getElementById('startDate').value='';
+    document.getElementById('endDate').value='';
+    // 2. restore full option lists and deselect
+    rebuildSelect('filterOfficer',  allOfficers,   'All Officers',   '');
+    rebuildSelect('filterCategory', allCategories, 'All Categories', '');
+    rebuildSelect('filterFinding',  allFindings,   'All Findings',   '');
+    // 3. clear chart highlight
+    highlightCat=null;
+    document.getElementById('totalSub').style.display='none';
+    // 4. redraw
+    updateMap();
+  }
+
+  /* ══ SLIDER ══ */
   function buildSlider(imgs){
-    if(!imgs.length)return`<div class="popup-no-photo">&#128247;</div>`;
-    if(imgs.length===1)return`<div class="popup-slider"><div class="slides"><div class="slide"><img src="${imgs[0]}" onclick="openModal('${imgs[0]}')"></div></div></div>`;
+    if(!imgs.length) return`<div class="popup-no-photo">&#128247;</div>`;
+    if(imgs.length===1) return`<div class="popup-slider"><div class="slides"><div class="slide"><img src="${imgs[0]}" onclick="openModal('${imgs[0]}')"></div></div></div>`;
     const slides=imgs.map(s=>`<div class="slide"><img src="${s}" onclick="openModal('${s}')"></div>`).join('');
     const dots=imgs.map((_,i)=>`<span class="${i===0?'active':''}"></span>`).join('');
     const uid='sl_'+Math.random().toString(36).slice(2,7);
@@ -482,6 +524,7 @@
     c.querySelector('.slides').style.transform=`translateX(-${idx*270}px)`;
     dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
   }
+
   function buildPopup(r,cat,finding,imgs){
     const col=catColor(cat),desc=r['data-survey-description']||'';
     return`<div>
@@ -490,59 +533,71 @@
         <div class="popup-badge" style="background:${col}22;color:${col}">${fmtLabel(cat)}</div>
         <div class="popup-title">${fmtLabel(finding)}</div>
         <div class="popup-chips">
-          <div class="chip">${r['data-base_info-nama']||'-'}</div>
-          <div class="chip">${r['data-start_date']||'-'}</div>
+          <div class="chip"><span class="chip-icon">&#128100;</span>${r['data-base_info-nama']||'-'}</div>
+          <div class="chip"><span class="chip-icon">&#128197;</span>${r['data-start_date']||'-'}</div>
         </div>
         ${desc?`<div class="popup-desc">${desc}</div>`:''}
       </div>
     </div>`;
   }
 
-  /* ── UPDATE MAP ── */
+  /* ══ UPDATE MAP ══ */
   function updateMap(){
-    clusterGroup.clearLayers();
-    const start=parseDate(document.getElementById('startDate').value);
-    const end  =parseDate(document.getElementById('endDate').value);
-    const selO =document.getElementById('filterOfficer').value;
-    const selC =document.getElementById('filterCategory').value;
-    const selF =document.getElementById('filterFinding').value;
+    pointLayer.clearLayers();
+
+    // Use the fixed parseInputDate for filter inputs
+    const start = parseInputDate(document.getElementById('startDate').value);
+    const end   = parseInputDate(document.getElementById('endDate').value);
+    const selO  = document.getElementById('filterOfficer').value;
+    const selC  = document.getElementById('filterCategory').value;
+    const selF  = document.getElementById('filterFinding').value;
+
     let counts={},total=0;
+    const allMarkers=[];
 
     rawData.forEach(r=>{
-      const coord=r['data-coordinate'];if(!coord)return;
-      const d=parseDate(r['data-start_date']);
-      if(start&&d&&d<start)return;
-      if(end&&d&&d>end)return;
-      if(selO&&r['data-base_info-nama']!==selO)return;
-      if(selC&&r['data-survey-categ']!==selC)return;
-      if(selF&&r['data-survey-finding']!==selF)return;
-      const[lat,lon]=coord.split(',').map(Number);if(isNaN(lat))return;
-      const cat    =r['data-survey-categ']   ||'Unknown';
-      const finding=r['data-survey-finding'] ||'-';
-      counts[cat]=(counts[cat]||0)+1;total++;
+      const coord=r['data-coordinate'];
+      if(!coord||!coord.trim()) return;
 
-      const col=catColor(cat);
-      // colored custom marker per category
-      const icon=L.divIcon({
-        html:`<div style="
-          width:12px;height:12px;border-radius:50%;
-          background:${col};border:2px solid #fff;
-          box-shadow:0 1px 4px rgba(0,0,0,0.3);
-        "></div>`,
-        className:'',iconSize:[12,12],iconAnchor:[6,6],
-      });
+      /* ── date filter ── */
+      const recDate = parseRecordDate(r['data-start_date']);
+      if(start && recDate && recDate < start) return;
+      if(end   && recDate && recDate > end)   return;
+
+      /* ── dropdown filters ── */
+      if(selO && r['data-base_info-nama'] !== selO) return;
+      if(selC && r['data-survey-categ']   !== selC) return;
+      if(selF && r['data-survey-finding'] !== selF) return;
+
+      const parts=coord.split(',');
+      if(parts.length<2) return;
+      const lat=parseFloat(parts[0]),lon=parseFloat(parts[1]);
+      if(isNaN(lat)||isNaN(lon)) return;
+
+      const cat    = r['data-survey-categ']   || 'Unknown';
+      const finding= r['data-survey-finding'] || '-';
+      counts[cat]=(counts[cat]||0)+1;
+      total++;
 
       const imgs=[convert(r['data-documentation-image_1']),convert(r['data-documentation-image_2'])].filter(Boolean);
-      const m=L.marker([lat,lon],{icon}).bindPopup(buildPopup(r,cat,finding,imgs),{maxWidth:270});
+      const m=L.marker([lat,lon],{icon:pointIcon})
+               .bindPopup(buildPopup(r,cat,finding,imgs),{maxWidth:270});
       m.category=cat;
-      if(highlightCat)m.setOpacity(m.category===highlightCat?1:0.15);
-      clusterGroup.addLayer(m);
+      allMarkers.push(m);
+      pointLayer.addLayer(m);
     });
+
+    /* apply highlight if active */
+    if(highlightCat){
+      allMarkers.forEach(m=>{
+        m.setIcon(m.category===highlightCat ? pointIcon : pointIconFaded);
+      });
+    }
 
     document.getElementById('totalMain').innerText=total;
 
-    /* chart */
-    if(chart)chart.destroy();
+    /* ── chart ── */
+    if(chart) chart.destroy();
     const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
     const rawLabels=entries.map(e=>e[0]);
     const labels=rawLabels.map(fmtLabel);
@@ -553,43 +608,65 @@
 
     chart=new Chart(chartCanvas,{
       type:'bar',
-      data:{labels,datasets:[{data:values,backgroundColor:colors.map(c=>c+'cc'),borderColor:colors,borderWidth:0,borderRadius:6,borderSkipped:false}]},
+      data:{
+        labels,
+        datasets:[{
+          data:values,
+          backgroundColor:colors.map(c=>c+'cc'),
+          borderColor:colors,
+          borderWidth:0,borderRadius:6,borderSkipped:false,
+        }]
+      },
       options:{
         indexAxis:'y',responsive:true,maintainAspectRatio:false,
         plugins:{
           legend:{display:false},
-          tooltip:{callbacks:{label:ctx=>' '+ctx.raw+' findings'},backgroundColor:'#1a1a2e',titleFont:{family:'Montserrat',size:11},bodyFont:{family:'Montserrat',size:11},padding:8,cornerRadius:8}
+          tooltip:{
+            callbacks:{label:ctx=>' '+ctx.raw+' findings'},
+            backgroundColor:'#1a1a2e',
+            titleFont:{family:'Montserrat',size:11},
+            bodyFont:{family:'Montserrat',size:11},
+            padding:8,cornerRadius:8,
+          }
         },
         scales:{
           x:{display:false,max:max*1.2,grid:{display:false}},
-          y:{grid:{display:false},border:{display:false},ticks:{font:{family:'Montserrat',size:10,weight:'600'},color:'#555',padding:4}}
+          y:{grid:{display:false},border:{display:false},
+             ticks:{font:{family:'Montserrat',size:10,weight:'600'},color:'#555',padding:4}}
         },
         onClick:(e,el)=>{
-          if(!el.length)return;
+          if(!el.length) return;
           const cat=rawLabels[el[0].index],val=values[el[0].index];
           if(highlightCat===cat){
-            highlightCat=null;document.getElementById('totalSub').style.display='none';
-            clusterGroup.eachLayer(m=>{if(m.setOpacity)m.setOpacity(1);});
+            highlightCat=null;
+            document.getElementById('totalSub').style.display='none';
+            pointLayer.eachLayer(m=>m.setIcon(pointIcon));
           } else {
             highlightCat=cat;
-            const sub=document.getElementById('totalSub');sub.style.display='block';sub.innerText=val;
-            clusterGroup.eachLayer(m=>{if(m.setOpacity)m.setOpacity(m.category===cat?1:0.15);});
+            const sub=document.getElementById('totalSub');
+            sub.style.display='block'; sub.innerText=val;
+            pointLayer.eachLayer(m=>m.setIcon(m.category===cat?pointIcon:pointIconFaded));
           }
         },
         animation:{duration:400,easing:'easeOutQuart'},
       },
-      plugins:[{id:'barLabels',afterDatasetsDraw(ch){
-        const{ctx,data}=ch;
-        ch.getDatasetMeta(0).data.forEach((bar,i)=>{
-          ctx.save();ctx.font='600 10px Montserrat';ctx.fillStyle='#999';
-          ctx.textAlign='left';ctx.textBaseline='middle';
-          ctx.fillText(data.datasets[0].data[i],bar.x+5,bar.y);ctx.restore();
-        });
-      }}]
+      plugins:[{
+        id:'barLabels',
+        afterDatasetsDraw(ch){
+          const{ctx,data}=ch;
+          ch.getDatasetMeta(0).data.forEach((bar,i)=>{
+            ctx.save();
+            ctx.font='600 10px Montserrat';ctx.fillStyle='#999';
+            ctx.textAlign='left';ctx.textBaseline='middle';
+            ctx.fillText(data.datasets[0].data[i],bar.x+5,bar.y);
+            ctx.restore();
+          });
+        }
+      }]
     });
   }
 
-  /* ── TABS ── */
+  /* ══ TABS ══ */
   document.querySelectorAll('.tab-btn[data-tab]').forEach(btn=>{
     btn.addEventListener('click',()=>{
       document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
@@ -599,7 +676,7 @@
     });
   });
 
-  /* ── PANEL OPEN/CLOSE ── */
+  /* ══ PANEL ══ */
   function openPanel(){
     document.getElementById('mainPanel').style.display='flex';
     document.getElementById('panelOpenBtn').style.display='none';
@@ -609,33 +686,34 @@
     document.getElementById('panelOpenBtn').style.display='flex';
   };
 
-  /* ── FILTER EVENTS ── */
-  ['startDate','endDate'].forEach(id=>document.getElementById(id).addEventListener('change',()=>updateMap()));
-  ['filterOfficer','filterCategory','filterFinding'].forEach(id=>{
-    document.getElementById(id).addEventListener('change',()=>{refreshCascade();updateMap();});
+  /* ══ FILTER EVENTS ══ */
+  ['startDate','endDate'].forEach(id=>{
+    document.getElementById(id).addEventListener('change', updateMap);
   });
-  document.getElementById('clearFilters').onclick=()=>{
-    ['startDate','endDate'].forEach(id=>document.getElementById(id).value='');
-    populateSelect('filterOfficer',allOfficers,'All Officers');
-    populateSelect('filterCategory',allCategories,'All Categories');
-    populateSelect('filterFinding',allFindings,'All Findings');
-    highlightCat=null;document.getElementById('totalSub').style.display='none';
-    updateMap();
-  };
+  ['filterOfficer','filterCategory','filterFinding'].forEach(id=>{
+    document.getElementById(id).addEventListener('change',()=>{
+      refreshCascade();
+      updateMap();
+    });
+  });
+
+  document.getElementById('clearFilters').onclick = clearAllFilters;
+
   document.getElementById('resetFilter').onclick=()=>{
-    highlightCat=null;document.getElementById('totalSub').style.display='none';
-    clusterGroup.eachLayer(m=>{if(m.setOpacity)m.setOpacity(1);});
+    highlightCat=null;
+    document.getElementById('totalSub').style.display='none';
+    pointLayer.eachLayer(m=>m.setIcon(pointIcon));
   };
 
-  /* ── LAYER TOGGLES ── */
+  /* ══ LAYER TOGGLES ══ */
   toggleLulc.onchange        = e=>e.target.checked?map.addLayer(lulc)       :map.removeLayer(lulc);
   toggleLulc2025.onchange    = e=>e.target.checked?map.addLayer(lulc2025)   :map.removeLayer(lulc2025);
   toggleLandsat2024.onchange = e=>e.target.checked?map.addLayer(landsat2024):map.removeLayer(landsat2024);
   toggleLandsat2025.onchange = e=>e.target.checked?map.addLayer(landsat2025):map.removeLayer(landsat2025);
   toggleBoundary.onchange    = e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
-  togglePoints.onchange      = e=>e.target.checked?map.addLayer(clusterGroup):map.removeLayer(clusterGroup);
+  togglePoints.onchange      = e=>e.target.checked?map.addLayer(pointLayer) :map.removeLayer(pointLayer);
 
-  /* ── MODAL ── */
+  /* ══ MODAL ══ */
   function openModal(src){imageModal.style.display='flex';modalImage.src=src;}
   document.getElementById('closeModal').onclick=()=>imageModal.style.display='none';
   imageModal.onclick=e=>{if(e.target===imageModal)imageModal.style.display='none';};
