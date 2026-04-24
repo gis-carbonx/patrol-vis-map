@@ -337,7 +337,7 @@
   /* ══ DATA ══ */
   const SHEET_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
   let rawData=[],chart,highlightCat=null;
-  Papa.(SHEET_URL,{
+  Papa.parse(SHEET_URL,{
     download:true,header:true,
     complete:(res)=>{
       // clean empty rows
@@ -357,37 +357,21 @@
   }
 
   function parseRecordDate(s){
+    // Parses "dd-Mon-yyyy"  e.g. "24-Oct-2025"
+    // and  "yyyy-mm-dd"     e.g. "2025-10-24"
     if(!s||!s.trim()) return null;
-    s = s.trim();
-
-    const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,
-               Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-
-  // Format 1: "dd/mm/yy HH:MM"  → e.g. "23/04/26 10:07"
-  // Format 2: "dd/mm/yyyy HH:MM" → e.g. "23/04/2026 10:07"
-  // Format 3: "dd/mm/yyyy"       → e.g. "23/04/2026"
-    const slashMatch = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
-    if(slashMatch){
-      let day=parseInt(slashMatch[1]);
-      let mon=parseInt(slashMatch[2])-1;
-      let yr =parseInt(slashMatch[3]);
-      // 2-digit year: assume 2000s
-      if(yr < 100) yr += 2000;
-      return toMidnight(new Date(yr, mon, day));
+    const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    const p=s.trim().split('-');
+    if(p.length===3){
+      // dd-Mon-yyyy
+      if(isNaN(p[0])===false && MON[p[1]]!==undefined){
+        return toMidnight(new Date(parseInt(p[2]), MON[p[1]], parseInt(p[0])));
+      }
+      // yyyy-mm-dd
+      if(p[0].length===4){
+        return toMidnight(new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2])));
+      }
     }
-
-  // Format 4: "dd-Mon-yyyy" → e.g. "24-Oct-2025"
-    const p=s.split('-');
-    if(p.length>=3 && !isNaN(p[0]) && MON[p[1]]!==undefined){
-      return toMidnight(new Date(parseInt(p[2]), MON[p[1]], parseInt(p[0])));
-    }
-
-  // Format 5: "yyyy-mm-dd" → e.g. "2025-10-24"
-    if(p.length===3 && p[0].length===4){
-      return toMidnight(new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2])));
-    }
-
-  // Fallback
     const d=new Date(s);
     return isNaN(d)?null:toMidnight(d);
   }
