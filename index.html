@@ -3,881 +3,720 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Biodiversity Patrol</title>
+  <title>CMI Patrol Data</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --font: 'Plus Jakarta Sans', sans-serif;
-      --bg: #f4f6f9;
-      --white: #ffffff;
-      --border: #e8ecf0;
-      --text: #1a2332;
-      --text-2: #5a6474;
-      --text-3: #9aa3b0;
-      --accent-eco: #3b82f6;
-      --accent-illegal: #ef4444;
-      --accent-bio: #22c55e;
-      --accent-other: #6b7280;
-      --sidebar-w: 290px;
-      --topbar-h: 60px;
-      --bottombar-h: 56px;
-      --radius: 12px;
-      --shadow: 0 2px 12px rgba(0,0,0,0.08);
-      --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
-    }
-    html, body { height: 100%; overflow: hidden; font-family: var(--font); background: var(--bg); }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;overflow:hidden;font-family:'Montserrat',sans-serif}
+    #map{height:100%;width:100%}
 
-    /* ── TOP BAR ── */
-    .topbar {
-      position: absolute; top: 0; left: 0; right: 0; z-index: 1200;
-      height: var(--topbar-h);
-      background: var(--white);
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; padding: 0 20px;
-      gap: 12px;
+    /* ══ TOP HEADER ══ */
+    .top-bar{
+      position:absolute;top:0;left:0;right:0;z-index:1100;
+      height:52px;background:#fff;border-bottom:1px solid #ebebeb;
+      display:flex;align-items:center;padding:0 20px;gap:14px;
     }
-    .topbar-logo {
-      width: 36px; height: 36px; border-radius: 10px;
-      background: #14532d;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; flex-shrink: 0;
-    }
-    .topbar-brand { display: flex; flex-direction: column; }
-    .topbar-title { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.2; }
-    .topbar-sub   { font-size: 11px; color: var(--text-3); font-weight: 500; }
-    .topbar-spacer { flex: 1; }
-    .topbar-actions { display: flex; gap: 8px; }
-    .topbar-btn {
-      width: 36px; height: 36px; border-radius: 10px;
-      border: 1px solid var(--border); background: var(--white);
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      color: var(--text-2); font-size: 15px; transition: all .15s;
-    }
-    .topbar-btn:hover { background: var(--bg); color: var(--text); }
+    .top-bar-brand{display:flex;align-items:center;gap:10px}
+    .top-bar-logo{height:28px;width:auto;display:block}
+    .top-bar-sep{color:#ddd;font-size:16px}
+    .top-bar-sub{font-size:11px;font-weight:500;color:#888;letter-spacing:.2px}
 
-    /* ── MAP ── */
-    #map {
-      position: absolute;
-      top: var(--topbar-h); left: var(--sidebar-w); right: 0;
-      bottom: var(--bottombar-h);
-      z-index: 1;
+    /* ══ PANEL ══ */
+    .panel{
+      position:absolute;top:68px;left:16px;z-index:1000;width:300px;
+      background:#fff;border-radius:16px;
+      box-shadow:0 4px 24px rgba(0,0,0,0.11);
+      display:flex;flex-direction:column;
+      max-height:calc(100vh - 84px);
     }
+    .panel-tabs{
+      flex-shrink:0;display:flex;
+      border-bottom:1px solid #f0f0f0;
+      padding:0 4px;border-radius:16px 16px 0 0;
+      background:#fff;overflow:hidden;
+    }
+    .tab-btn{
+      flex:1;padding:12px 4px 10px;
+      border:none;background:none;cursor:pointer;
+      font-size:10px;font-weight:600;font-family:'Montserrat',sans-serif;
+      color:#bbb;letter-spacing:.4px;text-transform:uppercase;
+      border-bottom:2px solid transparent;
+      transition:color .15s,border-color .15s;
+    }
+    .tab-btn:hover{color:#888}
+    .tab-btn.active{color:#1a1a2e;border-bottom-color:#f5a623}
+    .panel-close{
+      position:absolute;top:10px;right:12px;
+      background:none;border:none;cursor:pointer;
+      color:#ccc;font-size:16px;line-height:1;padding:4px;
+      border-radius:6px;transition:background .15s,color .15s;
+    }
+    .panel-close:hover{background:#f5f5f5;color:#888}
 
-    /* search bar over map */
-    .map-search {
-      position: absolute; top: calc(var(--topbar-h) + 14px); left: calc(var(--sidebar-w) + 14px);
-      z-index: 900; display: flex; gap: 8px;
+    .tab-page{
+      display:none;flex:1;overflow-y:auto;overflow-x:hidden;
+      padding:14px 16px;
+      scrollbar-width:thin;scrollbar-color:#e8e8e8 transparent;
     }
-    .map-search input {
-      width: 260px; padding: 9px 14px 9px 36px;
-      border-radius: 10px; border: 1px solid var(--border);
-      background: var(--white); font-family: var(--font); font-size: 13px;
-      color: var(--text); outline: none; box-shadow: var(--shadow);
-      transition: border .15s;
-    }
-    .map-search input:focus { border-color: #22c55e; }
-    .map-search-icon {
-      position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
-      color: var(--text-3); font-size: 14px; pointer-events: none;
-    }
-    .map-zoom-btns {
-      position: absolute; top: calc(var(--topbar-h) + 14px); left: calc(var(--sidebar-w) + 14px);
-      z-index: 900; display: flex; flex-direction: column; gap: 4px;
-    }
-    .map-tool-btn {
-      width: 36px; height: 36px; border-radius: 10px;
-      border: 1px solid var(--border); background: var(--white);
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      color: var(--text-2); font-size: 16px;
-      box-shadow: var(--shadow); transition: all .15s;
-    }
-    .map-tool-btn:hover { background: var(--bg); }
-    .map-tools-left {
-      position: absolute;
-      top: calc(var(--topbar-h) + 14px);
-      left: calc(var(--sidebar-w) + 14px);
-      z-index: 900; display: flex; flex-direction: column; gap: 6px;
-    }
+    .tab-page::-webkit-scrollbar{width:3px}
+    .tab-page::-webkit-scrollbar-thumb{background:#e8e8e8;border-radius:4px}
+    .tab-page.active{display:block}
+    .page-pad{height:10px}
 
-    /* ── SIDEBAR ── */
-    .sidebar {
-      position: absolute; top: var(--topbar-h); left: 0; bottom: var(--bottombar-h);
-      width: var(--sidebar-w); z-index: 1100;
-      background: var(--white); border-right: 1px solid var(--border);
-      display: flex; flex-direction: column; overflow: hidden;
+    .sec-label{
+      font-size:9px;font-weight:700;letter-spacing:.8px;
+      color:#bbb;text-transform:uppercase;margin-bottom:8px;margin-top:14px;
     }
-    .sidebar-header {
-      padding: 16px 16px 12px; border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
-    }
-    .sidebar-title { font-size: 13px; font-weight: 700; color: var(--text); }
-    .sidebar-collapse {
-      border: none; background: none; cursor: pointer;
-      color: var(--text-3); font-size: 16px; padding: 4px;
-      border-radius: 6px; transition: all .15s; display: flex; align-items: center;
-    }
-    .sidebar-collapse:hover { background: var(--bg); color: var(--text-2); }
-    .sidebar-body {
-      flex: 1; overflow-y: auto; padding: 8px 0;
-      scrollbar-width: thin; scrollbar-color: var(--border) transparent;
-    }
-    .sidebar-body::-webkit-scrollbar { width: 3px; }
-    .sidebar-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    .sec-label:first-child{margin-top:0}
 
-    /* layer group */
-    .layer-group { margin-bottom: 2px; }
-    .layer-group-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 16px 8px; cursor: pointer; user-select: none;
+    /* filter */
+    .filter-date{display:flex;gap:6px;margin-bottom:10px}
+    .filter-date input{
+      flex:1;padding:8px 10px;border:1.5px solid #f0f0f0;border-radius:10px;
+      font-size:11px;font-family:'Montserrat',sans-serif;
+      color:#333;background:#fafafa;outline:none;transition:border .15s;
     }
-    .layer-group-header:hover { background: var(--bg); }
-    .layer-group-title {
-      font-size: 12px; font-weight: 700; color: var(--text);
-      display: flex; align-items: center; gap: 8px;
+    .filter-date input:focus{border-color:#f5a623;background:#fff}
+    .filter-selects{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
+    .filter-selects select{
+      width:100%;padding:8px 10px;border:1.5px solid #f0f0f0;border-radius:10px;
+      font-size:11px;font-family:'Montserrat',sans-serif;
+      color:#333;background:#fafafa;outline:none;cursor:pointer;appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;
+      transition:border .15s;
     }
-    .layer-group-title svg { color: var(--text-3); }
-    .layer-group-actions { display: flex; align-items: center; gap: 8px; }
-    .layer-chk { width: 16px; height: 16px; accent-color: #22c55e; cursor: pointer; }
-    .chevron { font-size: 10px; color: var(--text-3); transition: transform .2s; }
-    .chevron.open { transform: rotate(180deg); }
+    .filter-selects select:focus{border-color:#f5a623;background:#fff}
+    .btn-clear{
+      width:100%;padding:8px;border:1.5px solid #f0f0f0;border-radius:10px;
+      background:#fafafa;color:#888;
+      font-size:11px;font-weight:600;font-family:'Montserrat',sans-serif;
+      cursor:pointer;transition:all .15s;margin-top:8px;
+    }
+    .btn-clear:hover{border-color:#f5a623;color:#f5a623;background:#fff}
 
-    .layer-items { padding: 0 16px 8px; display: flex; flex-direction: column; gap: 2px; }
-    .layer-item {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 5px 6px; border-radius: 8px; transition: background .1s;
+    /* overview */
+    .stat-row{display:flex;align-items:baseline;gap:8px;margin:0 0 12px}
+    .stat-main{font-size:30px;font-weight:700;color:#1a1a2e;line-height:1}
+    .stat-sub{font-size:14px;font-weight:700;color:#f5a623;display:none}
+    .stat-hint{font-size:10px;color:#bbb;font-weight:500;align-self:center}
+    .chart-wrap{margin-bottom:14px;position:relative}
+    .btn-reset{
+      width:100%;padding:9px;border:none;border-radius:10px;
+      background:#1a1a2e;color:#fff;
+      font-size:11px;font-weight:700;letter-spacing:.4px;font-family:'Montserrat',sans-serif;
+      cursor:pointer;transition:background .15s;
     }
-    .layer-item:hover { background: var(--bg); }
-    .layer-item-left { display: flex; align-items: center; gap: 9px; }
-    .layer-swatch { width: 13px; height: 13px; border-radius: 3px; flex-shrink: 0; }
-    .layer-item-label { font-size: 12px; font-weight: 500; color: var(--text-2); }
-    .layer-eye { border: none; background: none; cursor: pointer; color: var(--text-3); font-size: 14px; padding: 2px; line-height: 1; }
-    .layer-eye:hover { color: var(--text); }
+    .btn-reset:hover{background:#f5a623}
 
-    /* patrol finding rows */
-    .patrol-item {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 8px 6px; border-radius: 8px; transition: background .1s;
+    /* layer rows */
+    .toggle-row{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:8px 0;border-bottom:1px solid #f7f7f7;
     }
-    .patrol-item:hover { background: var(--bg); }
-    .patrol-item-left { display: flex; align-items: center; gap: 9px; }
-    .patrol-icon {
-      width: 28px; height: 28px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0;
+    .toggle-row:last-child{border-bottom:none}
+    .toggle-label{font-size:11px;font-weight:500;color:#444;display:flex;align-items:center;gap:8px}
+    .ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .switch{position:relative;width:32px;height:18px;flex-shrink:0}
+    .switch input{opacity:0;width:0;height:0}
+    .sw-track{
+      position:absolute;inset:0;background:#e8e8e8;border-radius:18px;
+      cursor:pointer;transition:background .2s;
     }
-    .patrol-info { display: flex; flex-direction: column; }
-    .patrol-name  { font-size: 12px; font-weight: 700; color: var(--text); }
-    .patrol-sub   { font-size: 10px; color: var(--text-3); font-weight: 500; }
-    .patrol-actions { display: flex; align-items: center; gap: 8px; }
-    .chevron-sm { font-size: 10px; color: var(--text-3); }
+    .sw-track:before{
+      content:'';position:absolute;width:12px;height:12px;border-radius:50%;
+      background:#fff;left:3px;top:3px;transition:transform .2s;
+    }
+    .switch input:checked + .sw-track{background:#f5a623}
+    .switch input:checked + .sw-track:before{transform:translateX(14px)}
 
-    /* transparency slider */
-    .slider-section { padding: 12px 16px 16px; border-top: 1px solid var(--border); flex-shrink: 0; }
-    .slider-label { font-size: 11px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; }
-    input[type=range] {
-      -webkit-appearance: none; width: 100%; height: 4px;
-      background: linear-gradient(to right, #22c55e 60%, var(--border) 60%);
-      border-radius: 4px; outline: none; cursor: pointer;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
-      background: var(--white); border: 2px solid #22c55e; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-    }
+    /* legend */
+    .legend-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px 10px;padding:4px 0}
+    .legend-item{display:flex;align-items:flex-start;gap:7px;font-size:10px;font-weight:500;color:#555;line-height:1.35}
+    .lswatch{width:11px;height:11px;border-radius:3px;flex-shrink:0;margin-top:1px}
 
-    /* ── BOTTOM BAR ── */
-    .bottombar {
-      position: absolute; bottom: 0; left: 0; right: 0; z-index: 1200;
-      height: var(--bottombar-h);
-      background: var(--white); border-top: 1px solid var(--border);
-      display: flex; align-items: center; padding: 0 20px; gap: 28px;
+    /* panel open btn */
+    .panel-open-btn{
+      position:absolute;top:68px;left:16px;z-index:1000;
+      background:#fff;border:1px solid #ebebeb;border-radius:10px;
+      padding:8px 14px;font-size:11px;font-weight:600;
+      font-family:'Montserrat',sans-serif;color:#444;
+      cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.09);
+      display:none;align-items:center;gap:6px;transition:background .15s;
     }
-    .legend-label { font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: .5px; flex-shrink: 0; }
-    .legend-items { display: flex; gap: 20px; flex-wrap: wrap; }
-    .legend-item { display: flex; align-items: center; gap: 8px; }
-    .legend-icon {
-      width: 28px; height: 28px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0;
-    }
-    .legend-text { display: flex; flex-direction: column; }
-    .legend-name { font-size: 11px; font-weight: 700; color: var(--text); line-height: 1.2; }
-    .legend-desc { font-size: 10px; color: var(--text-3); font-style: italic; }
-    .legend-sep { width: 1px; height: 30px; background: var(--border); flex-shrink: 0; }
+    .panel-open-btn:hover{background:#f5f5f5}
 
-    /* ── FINDING PANEL (right) ── */
-    .finding-panel {
-      position: absolute; top: calc(var(--topbar-h) + 14px); right: 14px;
-      bottom: calc(var(--bottombar-h) + 14px);
-      width: 300px; z-index: 1100;
-      background: var(--white); border-radius: var(--radius);
-      box-shadow: var(--shadow-lg);
-      display: none; flex-direction: column; overflow: hidden;
+    /* ══ POPUP ══ */
+    .leaflet-popup-content-wrapper{
+      border-radius:20px;padding:0;overflow:hidden;border:none;
+      box-shadow:0 12px 40px rgba(0,0,0,0.18);
     }
-    .finding-panel.open { display: flex; }
-    .fp-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 16px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0;
-    }
-    .fp-title { font-size: 14px; font-weight: 700; color: var(--text); }
-    .fp-close {
-      width: 28px; height: 28px; border-radius: 8px;
-      border: 1px solid var(--border); background: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--text-3); font-size: 16px; transition: all .15s;
-    }
-    .fp-close:hover { background: var(--bg); color: var(--text); }
-    .fp-body { flex: 1; overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .leaflet-popup-content{margin:0;width:270px !important}
+    .leaflet-popup-tip{background:#fff}
 
-    .fp-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
-      width: fit-content;
+    .popup-slider{position:relative;width:270px;height:180px;overflow:hidden;background:#f0f0f0}
+    .popup-slider .slides{display:flex;height:100%;transition:transform .3s ease}
+    .popup-slider .slide{min-width:270px;height:180px;overflow:hidden}
+    .popup-slider .slide img{width:100%;height:100%;object-fit:cover;cursor:pointer;display:block}
+    .slider-btn{
+      position:absolute;top:50%;transform:translateY(-50%);
+      background:rgba(255,255,255,0.85);color:#333;
+      border:none;border-radius:50%;width:28px;height:28px;font-size:16px;
+      line-height:28px;text-align:center;cursor:pointer;z-index:10;padding:0;
+      box-shadow:0 2px 8px rgba(0,0,0,0.15);transition:background .15s;
     }
-    .fp-badge-icon { font-size: 14px; }
-    .fp-image {
-      width: 100%; height: 160px; border-radius: 10px; overflow: hidden;
-      background: #f0f4f0; display: flex; align-items: center; justify-content: center;
-    }
-    .fp-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .fp-image-placeholder { font-size: 36px; }
-    .fp-rows { display: flex; flex-direction: column; gap: 0; }
-    .fp-row {
-      display: flex; align-items: flex-start;
-      padding: 9px 0; border-bottom: 1px solid var(--border); gap: 12px;
-    }
-    .fp-row:last-child { border-bottom: none; }
-    .fp-row-label { font-size: 11px; color: var(--text-3); font-weight: 600; min-width: 90px; flex-shrink: 0; padding-top: 1px; }
-    .fp-row-val   { font-size: 12px; color: var(--text); font-weight: 600; line-height: 1.4; }
-    .fp-row-val small { display: block; font-size: 10px; color: var(--text-3); font-weight: 400; font-style: italic; }
-    .fp-photos-label { font-size: 12px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
-    .fp-photos-count {
-      background: var(--bg); color: var(--text-3);
-      border-radius: 20px; padding: 1px 8px; font-size: 10px; font-weight: 700;
-    }
-    .fp-photos-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
-    .fp-photo {
-      height: 72px; border-radius: 8px; overflow: hidden;
-      background: #f0f4f0; cursor: pointer;
-    }
-    .fp-photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .2s; }
-    .fp-photo:hover img { transform: scale(1.05); }
+    .slider-btn.prev{left:8px}
+    .slider-btn.next{right:8px}
+    .slider-btn:hover{background:#fff}
+    .slider-dots{position:absolute;bottom:8px;width:100%;display:flex;justify-content:center;gap:5px}
+    .slider-dots span{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.5)}
+    .slider-dots span.active{background:#fff;width:14px;border-radius:4px}
 
-    /* ── MAP MARKER ICONS ── */
-    .leaflet-popup-content-wrapper {
-      border-radius: 16px; padding: 0; overflow: hidden; border: none;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    .popup-card{padding:14px 16px 16px}
+    .popup-badge{
+      display:inline-block;padding:3px 9px;border-radius:20px;
+      font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px;
     }
-    .leaflet-popup-content { margin: 0; }
-    .leaflet-popup-tip { background: var(--white); }
+    .popup-title{font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:10px;line-height:1.4}
+    .popup-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+    .chip{display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;background:#f7f7f7;font-size:10px;font-weight:600;color:#555}
+    .chip-icon{font-size:11px}
+    .popup-desc{font-size:11px;color:#888;line-height:1.6;padding-top:10px;border-top:1px solid #f2f2f2}
+    .popup-no-photo{height:70px;background:#fff8f0;display:flex;align-items:center;justify-content:center;font-size:28px}
 
-    .mk-icon {
-      display: flex; align-items: center; justify-content: center;
-      border-radius: 50%; border: 2px solid rgba(255,255,255,0.9);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.25); cursor: pointer;
+    /* ══ MODAL ══ */
+    .img-modal{
+      display:none;position:fixed;z-index:9999;
+      inset:0;background:rgba(10,10,20,0.92);
+      justify-content:center;align-items:center;
     }
-
-    /* ── MODAL ── */
-    .img-modal {
-      display: none; position: fixed; z-index: 9999;
-      inset: 0; background: rgba(10,10,20,.9);
-      justify-content: center; align-items: center;
+    .img-modal img{max-width:92%;max-height:88%;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.5)}
+    .modal-close{
+      position:absolute;top:20px;right:32px;color:#fff;font-size:34px;
+      cursor:pointer;opacity:.7;transition:opacity .15s;line-height:1;
     }
-    .img-modal img { max-width: 90%; max-height: 86%; border-radius: 14px; }
-    .modal-close {
-      position: absolute; top: 20px; right: 28px; color: #fff; font-size: 30px;
-      cursor: pointer; opacity: .7; transition: opacity .15s; line-height: 1;
-      background: none; border: none;
-    }
-    .modal-close:hover { opacity: 1; }
-
-    /* ── FILTER PANEL (hidden, used for topbar filter btn) ── */
-    .filter-overlay {
-      position: absolute; top: calc(var(--topbar-h) + 8px); right: 14px;
-      z-index: 1300; background: var(--white); border-radius: var(--radius);
-      box-shadow: var(--shadow-lg); padding: 16px; width: 280px;
-      display: none;
-    }
-    .filter-overlay.open { display: block; }
-    .filter-overlay label { font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: .4px; display: block; margin-bottom: 5px; margin-top: 12px; }
-    .filter-overlay label:first-child { margin-top: 0; }
-    .filter-overlay input, .filter-overlay select {
-      width: 100%; padding: 8px 10px;
-      border: 1.5px solid var(--border); border-radius: 8px;
-      font-family: var(--font); font-size: 12px; color: var(--text);
-      background: var(--bg); outline: none; transition: border .15s;
-      appearance: none;
-    }
-    .filter-overlay input:focus, .filter-overlay select:focus { border-color: #22c55e; background: var(--white); }
-    .filter-date-row { display: flex; gap: 6px; }
-    .filter-date-row input { flex: 1; }
-    .filter-btn-row { display: flex; gap: 8px; margin-top: 14px; }
-    .btn-apply {
-      flex: 1; padding: 9px; border-radius: 8px; border: none;
-      background: #14532d; color: #fff; font-family: var(--font); font-size: 12px; font-weight: 700;
-      cursor: pointer; transition: background .15s;
-    }
-    .btn-apply:hover { background: #166534; }
-    .btn-clear2 {
-      padding: 9px 14px; border-radius: 8px;
-      border: 1.5px solid var(--border); background: var(--white);
-      color: var(--text-2); font-family: var(--font); font-size: 12px; font-weight: 600;
-      cursor: pointer; transition: all .15s;
-    }
-    .btn-clear2:hover { border-color: #ef4444; color: #ef4444; }
+    .modal-close:hover{opacity:1}
   </style>
 </head>
 <body>
-
-<!-- TOP BAR -->
-<div class="topbar">
-  <div class="topbar-logo">🌿</div>
-  <div class="topbar-brand">
-    <div class="topbar-title">Biodiversity Patrol</div>
-    <div class="topbar-sub">Monitor. Protect. Preserve.</div>
-  </div>
-  <div class="topbar-spacer"></div>
-  <div class="topbar-actions">
-    <button class="topbar-btn" title="Help">?</button>
-    <button class="topbar-btn" id="filterToggleBtn" title="Filter">⚙</button>
-    <button class="topbar-btn" title="Menu">☰</button>
-  </div>
-</div>
-
-<!-- SIDEBAR -->
-<div class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <span class="sidebar-title">Map Layers</span>
-    <button class="sidebar-collapse" id="sidebarCollapse" title="Collapse">«</button>
-  </div>
-  <div class="sidebar-body">
-
-    <!-- Land Cover -->
-    <div class="layer-group">
-      <div class="layer-group-header" onclick="toggleGroup('lc')">
-        <span class="layer-group-title">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-          Land Cover
-        </span>
-        <div class="layer-group-actions">
-          <input type="checkbox" class="layer-chk" id="lcAll" checked onclick="e=>e.stopPropagation()">
-          <span class="chevron open" id="chevron-lc">▼</span>
-        </div>
-      </div>
-      <div class="layer-items" id="group-lc">
-        <div class="layer-item"><div class="layer-item-left"><span class="layer-swatch" style="background:#2d6a4f"></span><span class="layer-item-label">Primary Forest</span></div><button class="layer-eye">👁</button></div>
-        <div class="layer-item"><div class="layer-item-left"><span class="layer-swatch" style="background:#52b788"></span><span class="layer-item-label">Secondary Forest</span></div><button class="layer-eye">👁</button></div>
-        <div class="layer-item"><div class="layer-item-left"><span class="layer-swatch" style="background:#b7e4c7"></span><span class="layer-item-label">Shrubland</span></div><button class="layer-eye">👁</button></div>
-        <div class="layer-item"><div class="layer-item-left"><span class="layer-swatch" style="background:#e9c46a"></span><span class="layer-item-label">Grassland</span></div><button class="layer-eye">👁</button></div>
-        <div class="layer-item"><div class="layer-item-left"><span class="layer-swatch" style="background:#d4a373"></span><span class="layer-item-label">Agriculture</span></div><button class="layer-eye">👁</button></div>
-        <div class="layer-item"><div class="layer-item-left"><span class="layer-swatch" style="background:#f4a5a5"></span><span class="layer-item-label">Built-up / Settlement</span></div><button class="layer-eye">👁</button></div>
-        <div class="layer-item"><div class="layer-item-left"><span class="layer-swatch" style="background:#90e0ef"></span><span class="layer-item-label">Water</span></div><button class="layer-eye">👁</button></div>
-        <div class="layer-item"><div class="layer-item-left"><span class="layer-swatch" style="background:#ced4da"></span><span class="layer-item-label">Other</span></div><button class="layer-eye">👁</button></div>
-      </div>
-    </div>
-
-    <!-- Project Area -->
-    <div class="layer-group">
-      <div class="layer-group-header" onclick="toggleGroup('pa')">
-        <span class="layer-group-title">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>
-          Project Area
-        </span>
-        <div class="layer-group-actions">
-          <input type="checkbox" class="layer-chk" id="toggleBoundary2" checked onclick="toggleBoundary2Change(event)">
-          <span class="chevron open" id="chevron-pa">▼</span>
-        </div>
-      </div>
-      <div class="layer-items" id="group-pa" style="display:none"></div>
-    </div>
-
-    <!-- Patrol Findings -->
-    <div class="layer-group">
-      <div class="layer-group-header" onclick="toggleGroup('pf')">
-        <span class="layer-group-title">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          Patrol Findings
-        </span>
-        <div class="layer-group-actions">
-          <input type="checkbox" class="layer-chk" id="togglePoints2" checked onclick="togglePoints2Change(event)">
-          <span class="chevron open" id="chevron-pf">▼</span>
-        </div>
-      </div>
-      <div class="layer-items" id="group-pf">
-        <div class="patrol-item" onclick="filterByCategory('Ecosystem')">
-          <div class="patrol-item-left">
-            <div class="patrol-icon" style="background:#dbeafe;color:#3b82f6">💧</div>
-            <div class="patrol-info">
-              <span class="patrol-name">Ecosystem</span>
-              <span class="patrol-sub">River, Wetland, etc.</span>
-            </div>
-          </div>
-          <div class="patrol-actions">
-            <input type="checkbox" class="layer-chk" checked onclick="e=>e.stopPropagation()">
-            <span class="chevron-sm">›</span>
-          </div>
-        </div>
-        <div class="patrol-item" onclick="filterByCategory('Illegal_Activity')">
-          <div class="patrol-item-left">
-            <div class="patrol-icon" style="background:#fee2e2;color:#ef4444">⚠</div>
-            <div class="patrol-info">
-              <span class="patrol-name">Illegal Activity</span>
-              <span class="patrol-sub">Illegal Logging, Mining, etc.</span>
-            </div>
-          </div>
-          <div class="patrol-actions">
-            <input type="checkbox" class="layer-chk" checked onclick="e=>e.stopPropagation()">
-            <span class="chevron-sm">›</span>
-          </div>
-        </div>
-        <div class="patrol-item" onclick="filterByCategory('Biodiversity')">
-          <div class="patrol-item-left">
-            <div class="patrol-icon" style="background:#dcfce7;color:#22c55e">🐾</div>
-            <div class="patrol-info">
-              <span class="patrol-name">Biodiversity</span>
-              <span class="patrol-sub">Wildlife, Plant, etc.</span>
-            </div>
-          </div>
-          <div class="patrol-actions">
-            <input type="checkbox" class="layer-chk" checked onclick="e=>e.stopPropagation()">
-            <span class="chevron-sm">›</span>
-          </div>
-        </div>
-        <div class="patrol-item" onclick="filterByCategory('')">
-          <div class="patrol-item-left">
-            <div class="patrol-icon" style="background:#f3f4f6;color:#6b7280">⋯</div>
-            <div class="patrol-info">
-              <span class="patrol-name">Other</span>
-              <span class="patrol-sub">Other Findings</span>
-            </div>
-          </div>
-          <div class="patrol-actions">
-            <input type="checkbox" class="layer-chk" checked onclick="e=>e.stopPropagation()">
-            <span class="chevron-sm">›</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Satellite -->
-    <div class="layer-group">
-      <div class="layer-group-header" onclick="toggleGroup('sat')">
-        <span class="layer-group-title">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M20.2 20.2c-2.04 2.04-5.35 2.04-7.39 0L7.4 14.8c-2.04-2.04-2.04-5.35 0-7.39 2.04-2.04 5.35-2.04 7.39 0l5.4 5.4c2.05 2.04 2.05 5.35.01 7.39z"/><path d="M7.5 7.5L3 3M20.5 20.5L17 17"/></svg>
-          Satellite Imagery
-        </span>
-        <div class="layer-group-actions">
-          <span class="chevron" id="chevron-sat">▼</span>
-        </div>
-      </div>
-      <div class="layer-items" id="group-sat" style="display:none">
-        <div class="layer-item"><div class="layer-item-left"><span class="layer-swatch" style="background:#fb923c"></span><span class="layer-item-label">Landsat 2024</span></div><input type="checkbox" class="layer-chk" id="toggleLandsat2024"></div>
-        <div class="layer-item"><div class="layer-item-left"><span class="layer-swatch" style="background:#ef4444"></span><span class="layer-item-label">Landsat 2025</span></div><input type="checkbox" class="layer-chk" id="toggleLandsat2025"></div>
-        <div class="layer-item"><div class="layer-item-left"><span class="layer-swatch" style="background:#4ade80"></span><span class="layer-item-label">LULC 2023</span></div><input type="checkbox" class="layer-chk" id="toggleLulc" checked></div>
-        <div class="layer-item"><div class="layer-item-left"><span class="layer-swatch" style="background:#22d3ee"></span><span class="layer-item-label">LULC 2025</span></div><input type="checkbox" class="layer-chk" id="toggleLulc2025"></div>
-      </div>
-    </div>
-
-  </div>
-  <div class="slider-section">
-    <div class="slider-label">Layer Transparency</div>
-    <input type="range" id="opacitySlider" min="0" max="100" value="60">
-  </div>
-</div>
-
-<!-- MAP -->
 <div id="map"></div>
 
-<!-- MAP TOOLS (left, over map) -->
-<div class="map-tools-left" id="mapTools">
-  <div style="display:flex;flex-direction:column;gap:4px;">
-    <button class="map-tool-btn" onclick="map.zoomIn()">+</button>
-    <button class="map-tool-btn" onclick="map.zoomOut()">−</button>
+<!-- ══ TOP HEADER ══ -->
+<div class="top-bar">
+  <div class="top-bar-brand">
+    <img src="./data/CMI-Brandmark-FullColor-BlackBG.png" alt="CMI" class="top-bar-logo">
   </div>
-  <button class="map-tool-btn" onclick="locateMe()" style="margin-top:6px">⊕</button>
-  <button class="map-tool-btn">⧉</button>
+  <span class="top-bar-sep">/</span>
+  <span class="top-bar-sub">Field Patrol Data Visualization</span>
 </div>
 
-<!-- SEARCH (over map) -->
-<div class="map-search" id="mapSearch" style="left:calc(var(--sidebar-w) + 60px)">
-  <div style="position:relative">
-    <span class="map-search-icon">🔍</span>
-    <input type="text" placeholder="Search location" id="searchInput">
+<!-- ══ PANEL ══ -->
+<div class="panel" id="mainPanel">
+  <div class="panel-tabs">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="filter">Filter</button>
+    <button class="tab-btn" data-tab="layers">Layers</button>
+    <button class="panel-close" id="panelClose" title="Close">&#x2715;</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="tab-page active" id="tab-overview">
+    <div class="stat-row">
+      <span class="stat-main" id="totalMain">0</span>
+      <span class="stat-sub" id="totalSub"></span>
+      <span class="stat-hint">findings</span>
+    </div>
+    <div class="sec-label">Category Breakdown</div>
+    <div class="chart-wrap"><canvas id="chartCanvas"></canvas></div>
+    <button class="btn-reset" id="resetFilter">Show All</button>
+    <div class="page-pad"></div>
+  </div>
+
+  <!-- FILTER -->
+  <div class="tab-page" id="tab-filter">
+    <div class="sec-label">Date Range</div>
+    <div class="filter-date">
+      <input type="date" id="startDate">
+      <input type="date" id="endDate">
+    </div>
+    <div class="sec-label">Officer</div>
+    <div class="filter-selects">
+      <select id="filterOfficer"><option value="">All Officers</option></select>
+    </div>
+    <div class="sec-label">Category</div>
+    <div class="filter-selects">
+      <select id="filterCategory"><option value="">All Categories</option></select>
+    </div>
+    <div class="sec-label">Finding</div>
+    <div class="filter-selects">
+      <select id="filterFinding"><option value="">All Findings</option></select>
+    </div>
+    <button class="btn-clear" id="clearFilters">Clear All Filters</button>
+    <div class="page-pad"></div>
+  </div>
+
+  <!-- LAYERS + LEGEND -->
+  <div class="tab-page" id="tab-layers">
+    <div class="sec-label">LULC</div>
+    <div class="toggle-row">
+      <span class="toggle-label"><span class="ldot" style="background:#4CAF50"></span>LULC 2023</span>
+      <label class="switch"><input type="checkbox" id="toggleLulc" checked><span class="sw-track"></span></label>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-label"><span class="ldot" style="background:#00BCD4"></span>LULC 2025</span>
+      <label class="switch"><input type="checkbox" id="toggleLulc2025"><span class="sw-track"></span></label>
+    </div>
+    <div class="sec-label">Satellite</div>
+    <div class="toggle-row">
+      <span class="toggle-label"><span class="ldot" style="background:#FF9800"></span>Landsat 2024</span>
+      <label class="switch"><input type="checkbox" id="toggleLandsat2024"><span class="sw-track"></span></label>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-label"><span class="ldot" style="background:#F44336"></span>Landsat 2025</span>
+      <label class="switch"><input type="checkbox" id="toggleLandsat2025"><span class="sw-track"></span></label>
+    </div>
+    <div class="sec-label">Other</div>
+    <div class="toggle-row">
+      <span class="toggle-label"><span class="ldot" style="background:#7B1FA2"></span>Boundary</span>
+      <label class="switch"><input type="checkbox" id="toggleBoundary" checked><span class="sw-track"></span></label>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-label"><span class="ldot" style="background:#f5a623"></span>Points</span>
+      <label class="switch"><input type="checkbox" id="togglePoints" checked><span class="sw-track"></span></label>
+    </div>
+    <div class="sec-label" style="margin-top:20px">LULC Classification</div>
+    <div class="legend-grid">
+      <div class="legend-item"><span class="lswatch" style="background:#ec4040"></span>Building</div>
+      <div class="legend-item"><span class="lswatch" style="background:#a1a1a1"></span>Cleared / Bare Land</div>
+      <div class="legend-item"><span class="lswatch" style="background:#ecb240"></span>Oil Palm / Newly Planted</div>
+      <div class="legend-item"><span class="lswatch" style="background:#5c9640"></span>Forest</div>
+      <div class="legend-item"><span class="lswatch" style="background:#ffffce;border:1px solid #e0e0b0"></span>Mixed Dry Agriculture</div>
+      <div class="legend-item"><span class="lswatch" style="background:#b2ec40"></span>Old Shrubs</div>
+      <div class="legend-item"><span class="lswatch" style="background:#222"></span>Road</div>
+      <div class="legend-item"><span class="lswatch" style="background:#ddff96"></span>Shrubs</div>
+      <div class="legend-item"><span class="lswatch" style="background:#b6cce1"></span>Water</div>
+    </div>
+    <div class="page-pad"></div>
   </div>
 </div>
 
-<!-- FILTER PANEL -->
-<div class="filter-overlay" id="filterOverlay">
-  <label>Date Range</label>
-  <div class="filter-date-row">
-    <input type="date" id="startDate">
-    <input type="date" id="endDate">
-  </div>
-  <label>Officer</label>
-  <select id="filterOfficer"><option value="">All Officers</option></select>
-  <label>Category</label>
-  <select id="filterCategory"><option value="">All Categories</option></select>
-  <label>Finding</label>
-  <select id="filterFinding"><option value="">All Findings</option></select>
-  <div class="filter-btn-row">
-    <button class="btn-apply" id="applyFilter">Apply</button>
-    <button class="btn-clear2" id="clearFilters">Clear</button>
-  </div>
-</div>
+<button class="panel-open-btn" id="panelOpenBtn" onclick="openPanel()">
+  &#9776; Panel
+</button>
 
-<!-- FINDING PANEL (right) -->
-<div class="finding-panel" id="findingPanel">
-  <div class="fp-header">
-    <div class="fp-title">Patrol Finding</div>
-    <button class="fp-close" onclick="closeFindingPanel()">×</button>
-  </div>
-  <div class="fp-body" id="findingBody"></div>
-</div>
-
-<!-- BOTTOM BAR -->
-<div class="bottombar">
-  <span class="legend-label">Legend</span>
-  <div class="legend-items">
-    <div class="legend-item">
-      <div class="legend-icon" style="background:#dbeafe;color:#3b82f6;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;">💧</div>
-      <div class="legend-text">
-        <span class="legend-name">Ecosystem</span>
-        <span class="legend-desc">River, Wetland, etc.</span>
-      </div>
-    </div>
-    <div class="legend-sep"></div>
-    <div class="legend-item">
-      <div class="legend-icon" style="background:#fee2e2;color:#ef4444;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;">⚠</div>
-      <div class="legend-text">
-        <span class="legend-name">Illegal Activity</span>
-        <span class="legend-desc">Illegal Logging, Mining, etc.</span>
-      </div>
-    </div>
-    <div class="legend-sep"></div>
-    <div class="legend-item">
-      <div class="legend-icon" style="background:#dcfce7;color:#22c55e;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;">🐾</div>
-      <div class="legend-text">
-        <span class="legend-name">Biodiversity</span>
-        <span class="legend-desc">Wildlife, Plant, etc.</span>
-      </div>
-    </div>
-    <div class="legend-sep"></div>
-    <div class="legend-item">
-      <div class="legend-icon" style="background:#f3f4f6;color:#6b7280;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;">⋯</div>
-      <div class="legend-text">
-        <span class="legend-name">Other</span>
-        <span class="legend-desc">Other Findings</span>
-      </div>
-    </div>
-    <div class="legend-sep"></div>
-    <div class="legend-item">
-      <div style="width:22px;height:14px;border:2px dashed #7c3aed;border-radius:2px;flex-shrink:0"></div>
-      <div class="legend-text">
-        <span class="legend-name">Project Area</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- IMAGE MODAL -->
 <div id="imageModal" class="img-modal">
-  <button class="modal-close" id="closeModal">×</button>
+  <span class="modal-close" id="closeModal">&times;</span>
   <img id="modalImage">
 </div>
 
 <script>
-/* ══ CATEGORY CONFIG ══ */
-const CAT_CONFIG = {
-  'Ecosystem':        { color:'#3b82f6', bg:'#dbeafe', icon:'💧',  label:'Ecosystem',        sub:'River, Wetland, etc.' },
-  'Illegal_Activity': { color:'#ef4444', bg:'#fee2e2', icon:'⚠',  label:'Illegal Activity',  sub:'Illegal Logging, Mining, etc.' },
-  'Biodiversity':     { color:'#22c55e', bg:'#dcfce7', icon:'🐾', label:'Biodiversity',       sub:'Wildlife, Plant, etc.' },
-};
-const DEFAULT_CFG = { color:'#6b7280', bg:'#f3f4f6', icon:'⋯',  label:'Other',            sub:'Other Findings' };
+  /* ══ MAP ══ */
+  const map = L.map('map',{center:[0.8,110.325],zoom:13,zoomControl:false});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
+  L.control.zoom({position:'bottomright'}).addTo(map);
 
-function getCfg(cat) {
-  return CAT_CONFIG[cat] || DEFAULT_CFG;
-}
+  const lulc        = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png',        {opacity:1}).addTo(map);
+  const lulc2025    = L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',   {opacity:1});
+  const landsat2024 = L.tileLayer('./data/landsat-2024/{z}/{x}/{y}.png', {opacity:1});
+  const landsat2025 = L.tileLayer('./data/landsat-2025/{z}/{x}/{y}.png', {opacity:1});
 
-/* ══ MAP ══ */
-const SIDEBAR_W = 290;
-const map = L.map('map', {
-  center:[0.8, 110.325], zoom:13,
-  zoomControl:false,
-  attributionControl:true
-});
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-  attribution:'Tiles © Esri'
-}).addTo(map);
+  let boundaryLayer;
+  const pointLayer = L.layerGroup().addTo(map);
 
-const lulcLayer       = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png',        {opacity:.6}).addTo(map);
-const lulc2025Layer   = L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',   {opacity:.6});
-const landsat2024Layer= L.tileLayer('./data/landsat-2024/{z}/{x}/{y}.png', {opacity:.6});
-const landsat2025Layer= L.tileLayer('./data/landsat-2025/{z}/{x}/{y}.png', {opacity:.6});
+  fetch('data/CMI.json').then(r=>r.json()).then(j=>{
+    boundaryLayer=L.geoJSON(j,{style:{color:"#7B1FA2",weight:3,fillOpacity:0}}).addTo(map);
+    map.fitBounds(boundaryLayer.getBounds());
+  });
 
-let boundaryLayer;
-const pointLayer = L.layerGroup().addTo(map);
+  /* ══ DATA ══ */
+  const SHEET_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
+  let rawData=[],chart,highlightCat=null;
+  Papa.parse(SHEET_URL,{
+    download:true,header:true,
+    complete:(res)=>{
+      // clean empty rows
+      rawData=res.data.filter(r=>r['data-coordinate']&&r['data-coordinate'].trim());
+      initDropdowns();
+      updateMap();
+    }
+  });
 
-fetch('data/CMI.json').then(r=>r.json()).then(j=>{
-  boundaryLayer = L.geoJSON(j, {
-    style:{ color:'#7c3aed', weight:2.5, fillOpacity:0, dashArray:'6 4' }
-  }).addTo(map);
-  map.fitBounds(boundaryLayer.getBounds());
-});
+  /* ══ DATE HELPERS ══
+     All dates are normalised to midnight local time so comparisons
+     are purely calendar-based, not affected by timezone offsets.
+  ══════════════════════════════════════════════════════════════════ */
+  function toMidnight(d){
+    // Returns a new Date at midnight local time of the same day
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
 
-/* ══ OPACITY SLIDER ══ */
-const opacitySlider = document.getElementById('opacitySlider');
-opacitySlider.addEventListener('input', () => {
-  const v = opacitySlider.value / 100;
-  [lulcLayer, lulc2025Layer, landsat2024Layer, landsat2025Layer].forEach(l => l.setOpacity(v));
-  updateSliderBg();
-});
-function updateSliderBg() {
-  const pct = opacitySlider.value + '%';
-  opacitySlider.style.background = `linear-gradient(to right, #22c55e ${pct}, #e8ecf0 ${pct})`;
-}
-updateSliderBg();
+  function parseRecordDate(s){
+    // Parses "dd-Mon-yyyy"  e.g. "24-Oct-2025"
+    // and  "yyyy-mm-dd"     e.g. "2025-10-24"
+    if(!s||!s.trim()) return null;
+    const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    const p=s.trim().split('-');
+    if(p.length===3){
+      // dd-Mon-yyyy
+      if(isNaN(p[0])===false && MON[p[1]]!==undefined){
+        return toMidnight(new Date(parseInt(p[2]), MON[p[1]], parseInt(p[0])));
+      }
+      // yyyy-mm-dd
+      if(p[0].length===4){
+        return toMidnight(new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2])));
+      }
+    }
+    const d=new Date(s);
+    return isNaN(d)?null:toMidnight(d);
+  }
 
-/* ══ DATA ══ */
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
-let rawData = [], allOfficers = [], allCategories = [], allFindings = [];
+  function parseInputDate(s){
+    // <input type="date"> always returns "yyyy-mm-dd"
+    if(!s) return null;
+    const p=s.split('-');
+    if(p.length!==3) return null;
+    return toMidnight(new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2])));
+  }
 
-Papa.parse(SHEET_URL, {
-  download:true, header:true,
-  complete:(res) => {
-    rawData = res.data.filter(r => r['data-coordinate'] && r['data-coordinate'].trim());
-    initDropdowns();
+  /* ══ UTILS ══ */
+  function fmtLabel(s){return(s||'').replace(/_/g,' ');}
+  function convert(url){
+    if(!url)return null;
+    const id=url.match(/[-\w]{25,}/);
+    return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null;
+  }
+
+  /* ══ CHART COLOR ══ */
+  const PALETTE=['#6C63FF','#4ECDC4','#FF6B6B','#f5a623','#6BCB77','#74C0FC','#F06595','#A9E34B','#63E6BE','#FF922B'];
+  const catColorMap={};
+  function catColor(cat){
+    if(!catColorMap[cat])catColorMap[cat]=PALETTE[Object.keys(catColorMap).length%PALETTE.length];
+    return catColorMap[cat];
+  }
+
+  /* ══ MARKER ICON — single colour ══ */
+  const POINT_COLOR = '#f5a623';
+  const pointIcon = L.divIcon({
+    html:`<div style="
+      width:10px;height:10px;border-radius:50%;
+      background:${POINT_COLOR};border:2px solid #fff;
+      box-shadow:0 1px 4px rgba(0,0,0,0.35);
+    "></div>`,
+    className:'',iconSize:[10,10],iconAnchor:[5,5],
+  });
+  const pointIconFaded = L.divIcon({
+    html:`<div style="
+      width:10px;height:10px;border-radius:50%;
+      background:${POINT_COLOR};border:2px solid #fff;
+      box-shadow:0 1px 4px rgba(0,0,0,0.15);
+      opacity:0.18;
+    "></div>`,
+    className:'',iconSize:[10,10],iconAnchor:[5,5],
+  });
+
+  /* ══ DROPDOWNS ══ */
+  let allOfficers=[],allCategories=[],allFindings=[];
+
+  function initDropdowns(){
+    const o=new Set(),c=new Set(),f=new Set();
+    rawData.forEach(r=>{
+      if(r['data-base_info-nama']) o.add(r['data-base_info-nama']);
+      if(r['data-survey-categ'])   c.add(r['data-survey-categ']);
+      if(r['data-survey-finding']) f.add(r['data-survey-finding']);
+    });
+    allOfficers=[...o].sort();
+    allCategories=[...c].sort();
+    allFindings=[...f].sort();
+    populateSelect('filterOfficer',  allOfficers,   'All Officers');
+    populateSelect('filterCategory', allCategories, 'All Categories');
+    populateSelect('filterFinding',  allFindings,   'All Findings');
+  }
+
+  function populateSelect(id,values,ph){
+    const el=document.getElementById(id);
+    const cur=el.value;
+    el.innerHTML=`<option value="">${ph}</option>`;
+    values.forEach(v=>{
+      const o=document.createElement('option');
+      o.value=v; o.textContent=fmtLabel(v);
+      if(v===cur) o.selected=true;
+      el.appendChild(o);
+    });
+  }
+
+  function rebuildSelect(id,values,ph,cur){
+    const el=document.getElementById(id);
+    el.innerHTML=`<option value="">${ph}</option>`;
+    values.forEach(v=>{
+      const o=document.createElement('option');
+      o.value=v; o.textContent=fmtLabel(v);
+      if(v===cur) o.selected=true;
+      el.appendChild(o);
+    });
+  }
+
+  function refreshCascade(){
+    const selO=document.getElementById('filterOfficer').value;
+    const selC=document.getElementById('filterCategory').value;
+    const selF=document.getElementById('filterFinding').value;
+    const fil=rawData.filter(r=>{
+      if(selO&&r['data-base_info-nama']!==selO) return false;
+      if(selC&&r['data-survey-categ']!==selC)   return false;
+      if(selF&&r['data-survey-finding']!==selF) return false;
+      return true;
+    });
+    const aO=new Set(),aC=new Set(),aF=new Set();
+    fil.forEach(r=>{
+      if(r['data-base_info-nama']) aO.add(r['data-base_info-nama']);
+      if(r['data-survey-categ'])   aC.add(r['data-survey-categ']);
+      if(r['data-survey-finding']) aF.add(r['data-survey-finding']);
+    });
+    rebuildSelect('filterOfficer',  selO?allOfficers:[...aO].sort(),   'All Officers',  selO);
+    rebuildSelect('filterCategory', selC?allCategories:[...aC].sort(), 'All Categories',selC);
+    rebuildSelect('filterFinding',  selF?allFindings:[...aF].sort(),   'All Findings',  selF);
+  }
+
+  /* ══ CLEAR ALL FILTERS ══
+     Fully resets every filter input then re-runs the map.
+  ══════════════════════════ */
+  function clearAllFilters(){
+    // 1. clear date inputs
+    document.getElementById('startDate').value='';
+    document.getElementById('endDate').value='';
+    // 2. restore full option lists and deselect
+    rebuildSelect('filterOfficer',  allOfficers,   'All Officers',   '');
+    rebuildSelect('filterCategory', allCategories, 'All Categories', '');
+    rebuildSelect('filterFinding',  allFindings,   'All Findings',   '');
+    // 3. clear chart highlight
+    highlightCat=null;
+    document.getElementById('totalSub').style.display='none';
+    // 4. redraw
     updateMap();
   }
-});
 
-/* ══ DATE HELPERS ══ */
-function toMidnight(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
-function parseRecordDate(s){
-  if(!s||!s.trim()) return null;
-  const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-  const p=s.trim().split('-');
-  if(p.length===3){
-    if(!isNaN(p[0]) && MON[p[1]]!==undefined)
-      return toMidnight(new Date(parseInt(p[2]),MON[p[1]],parseInt(p[0])));
-    if(p[0].length===4)
-      return toMidnight(new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2])));
+  /* ══ SLIDER ══ */
+  function buildSlider(imgs){
+    if(!imgs.length) return`<div class="popup-no-photo">&#128247;</div>`;
+    if(imgs.length===1) return`<div class="popup-slider"><div class="slides"><div class="slide"><img src="${imgs[0]}" onclick="openModal('${imgs[0]}')"></div></div></div>`;
+    const slides=imgs.map(s=>`<div class="slide"><img src="${s}" onclick="openModal('${s}')"></div>`).join('');
+    const dots=imgs.map((_,i)=>`<span class="${i===0?'active':''}"></span>`).join('');
+    const uid='sl_'+Math.random().toString(36).slice(2,7);
+    return`<div class="popup-slider" id="${uid}">
+      <div class="slides">${slides}</div>
+      <button class="slider-btn prev" onclick="slideMove('${uid}',-1)">&#8249;</button>
+      <button class="slider-btn next" onclick="slideMove('${uid}',1)">&#8250;</button>
+      <div class="slider-dots">${dots}</div>
+    </div>`;
   }
-  const d=new Date(s); return isNaN(d)?null:toMidnight(d);
-}
-function parseInputDate(s){
-  if(!s) return null;
-  const p=s.split('-'); if(p.length!==3) return null;
-  return toMidnight(new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2])));
-}
-
-/* ══ UTILS ══ */
-function fmtLabel(s){ return (s||'').replace(/_/g,' '); }
-function convert(url){
-  if(!url) return null;
-  const id = url.match(/[-\w]{25,}/);
-  return id ? `https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000` : null;
-}
-
-/* ══ DROPDOWNS ══ */
-function initDropdowns(){
-  const o=new Set(), c=new Set(), f=new Set();
-  rawData.forEach(r=>{
-    if(r['data-base_info-nama']) o.add(r['data-base_info-nama']);
-    if(r['data-survey-categ'])   c.add(r['data-survey-categ']);
-    if(r['data-survey-finding']) f.add(r['data-survey-finding']);
-  });
-  allOfficers=[...o].sort(); allCategories=[...c].sort(); allFindings=[...f].sort();
-  populateSelect('filterOfficer',  allOfficers,   'All Officers');
-  populateSelect('filterCategory', allCategories, 'All Categories');
-  populateSelect('filterFinding',  allFindings,   'All Findings');
-}
-function populateSelect(id, values, ph){
-  const el = document.getElementById(id);
-  el.innerHTML = `<option value="">${ph}</option>`;
-  values.forEach(v => {
-    const o = document.createElement('option');
-    o.value = v; o.textContent = fmtLabel(v); el.appendChild(o);
-  });
-}
-
-/* ══ MARKER ICON ══ */
-function makeIcon(cfg, faded=false) {
-  return L.divIcon({
-    html:`<div class="mk-icon" style="
-      width:32px;height:32px;
-      background:${cfg.bg};
-      border-color:${faded?'rgba(255,255,255,0.4)':'rgba(255,255,255,0.9)'};
-      opacity:${faded?0.25:1};
-      font-size:15px;
-    ">${cfg.icon}</div>`,
-    className:'', iconSize:[32,32], iconAnchor:[16,16]
-  });
-}
-
-/* ══ FINDING PANEL ══ */
-let currentHighlightCat = null;
-
-function openFindingPanel(r) {
-  const cat = r['data-survey-categ'] || '';
-  const cfg = getCfg(cat);
-  const finding = r['data-survey-finding'] || '-';
-  const desc = r['data-survey-description'] || '';
-  const imgs = [
-    convert(r['data-documentation-image_1']),
-    convert(r['data-documentation-image_2'])
-  ].filter(Boolean);
-
-  let mainImg = imgs.length
-    ? `<div class="fp-image"><img src="${imgs[0]}" onerror="this.parentNode.innerHTML='<div class=fp-image-placeholder>📷</div>'"></div>`
-    : `<div class="fp-image"><div class="fp-image-placeholder">📷</div></div>`;
-
-  let photosHtml = '';
-  if (imgs.length > 0) {
-    const thumbs = imgs.map(src =>
-      `<div class="fp-photo"><img src="${src}" onclick="openModal('${src}')" onerror="this.style.display='none'"></div>`
-    ).join('');
-    photosHtml = `
-      <div class="fp-photos-label">Related Photos <span class="fp-photos-count">${imgs.length}</span></div>
-      <div class="fp-photos-grid">${thumbs}</div>
-    `;
+  const sliderIndex={};
+  function slideMove(uid,dir){
+    const c=document.getElementById(uid);if(!c)return;
+    const sl=c.querySelectorAll('.slide'),dots=c.querySelectorAll('.slider-dots span'),n=sl.length;
+    let idx=(sliderIndex[uid]||0)+dir;
+    if(idx<0)idx=n-1;if(idx>=n)idx=0;
+    sliderIndex[uid]=idx;
+    c.querySelector('.slides').style.transform=`translateX(-${idx*270}px)`;
+    dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
   }
 
-  document.getElementById('findingBody').innerHTML = `
-    <div class="fp-badge" style="background:${cfg.bg};color:${cfg.color}">
-      <span class="fp-badge-icon">${cfg.icon}</span>${fmtLabel(cat)}
-    </div>
-    ${mainImg}
-    <div class="fp-rows">
-      ${finding !== '-' ? `<div class="fp-row"><div class="fp-row-label">Finding</div><div class="fp-row-val">${fmtLabel(finding)}</div></div>` : ''}
-      <div class="fp-row"><div class="fp-row-label">Officer</div><div class="fp-row-val">${r['data-base_info-nama']||'-'}</div></div>
-      <div class="fp-row"><div class="fp-row-label">Date</div><div class="fp-row-val">${r['data-start_date']||'-'}</div></div>
-      ${r['_id'] ? `<div class="fp-row"><div class="fp-row-label">Patrol ID</div><div class="fp-row-val">${r['_id']||'-'}</div></div>` : ''}
-      ${desc ? `<div class="fp-row"><div class="fp-row-label">Notes</div><div class="fp-row-val">${desc}</div></div>` : ''}
-      ${r['data-coordinate'] ? `<div class="fp-row"><div class="fp-row-label">Location</div><div class="fp-row-val" style="font-size:11px;font-family:monospace">${r['data-coordinate']}</div></div>` : ''}
-    </div>
-    ${photosHtml}
-  `;
-  document.getElementById('findingPanel').classList.add('open');
-}
-function closeFindingPanel(){
-  document.getElementById('findingPanel').classList.remove('open');
-}
-
-/* ══ CATEGORY FILTER FROM SIDEBAR ══ */
-function filterByCategory(cat) {
-  if (currentHighlightCat === cat) {
-    currentHighlightCat = null;
-  } else {
-    currentHighlightCat = cat;
+  function buildPopup(r,cat,finding,imgs){
+    const col=catColor(cat),desc=r['data-survey-description']||'';
+    return`<div>
+      ${buildSlider(imgs)}
+      <div class="popup-card">
+        <div class="popup-badge" style="background:${col}22;color:${col}">${fmtLabel(cat)}</div>
+        <div class="popup-title">${fmtLabel(finding)}</div>
+        <div class="popup-chips">
+          <div class="chip"><span class="chip-icon">&#128100;</span>${r['data-base_info-nama']||'-'}</div>
+          <div class="chip"><span class="chip-icon">&#128197;</span>${r['data-start_date']||'-'}</div>
+        </div>
+        ${desc?`<div class="popup-desc">${desc}</div>`:''}
+      </div>
+    </div>`;
   }
-  updateMap();
-}
 
-/* ══ UPDATE MAP ══ */
-function updateMap(){
-  pointLayer.clearLayers();
-  const start = parseInputDate(document.getElementById('startDate').value);
-  const end   = parseInputDate(document.getElementById('endDate').value);
-  const selO  = document.getElementById('filterOfficer').value;
-  const selC  = document.getElementById('filterCategory').value;
-  const selF  = document.getElementById('filterFinding').value;
+  /* ══ UPDATE MAP ══ */
+  function updateMap(){
+    pointLayer.clearLayers();
 
-  rawData.forEach(r => {
-    const coord = r['data-coordinate'];
-    if(!coord || !coord.trim()) return;
-    const recDate = parseRecordDate(r['data-start_date']);
-    if(start && recDate && recDate < start) return;
-    if(end   && recDate && recDate > end)   return;
-    if(selO && r['data-base_info-nama'] !== selO) return;
-    if(selC && r['data-survey-categ']   !== selC) return;
-    if(selF && r['data-survey-finding'] !== selF) return;
+    // Use the fixed parseInputDate for filter inputs
+    const start = parseInputDate(document.getElementById('startDate').value);
+    const end   = parseInputDate(document.getElementById('endDate').value);
+    const selO  = document.getElementById('filterOfficer').value;
+    const selC  = document.getElementById('filterCategory').value;
+    const selF  = document.getElementById('filterFinding').value;
 
-    const parts = coord.split(',');
-    if(parts.length < 2) return;
-    const lat = parseFloat(parts[0]), lon = parseFloat(parts[1]);
-    if(isNaN(lat) || isNaN(lon)) return;
+    let counts={},total=0;
+    const allMarkers=[];
 
-    const cat = r['data-survey-categ'] || '';
-    const cfg = getCfg(cat);
-    const faded = currentHighlightCat && currentHighlightCat !== cat;
-    const icon = makeIcon(cfg, faded);
+    rawData.forEach(r=>{
+      const coord=r['data-coordinate'];
+      if(!coord||!coord.trim()) return;
 
-    const m = L.marker([lat, lon], {icon}).addTo(pointLayer);
-    m.category = cat;
-    m.on('click', () => openFindingPanel(r));
+      /* ── date filter ── */
+      const recDate = parseRecordDate(r['data-start_date']);
+      if(start && recDate && recDate < start) return;
+      if(end   && recDate && recDate > end)   return;
+
+      /* ── dropdown filters ── */
+      if(selO && r['data-base_info-nama'] !== selO) return;
+      if(selC && r['data-survey-categ']   !== selC) return;
+      if(selF && r['data-survey-finding'] !== selF) return;
+
+      const parts=coord.split(',');
+      if(parts.length<2) return;
+      const lat=parseFloat(parts[0]),lon=parseFloat(parts[1]);
+      if(isNaN(lat)||isNaN(lon)) return;
+
+      const cat    = r['data-survey-categ']   || 'Unknown';
+      const finding= r['data-survey-finding'] || '-';
+      counts[cat]=(counts[cat]||0)+1;
+      total++;
+
+      const imgs=[convert(r['data-documentation-image_1']),convert(r['data-documentation-image_2'])].filter(Boolean);
+      const m=L.marker([lat,lon],{icon:pointIcon})
+               .bindPopup(buildPopup(r,cat,finding,imgs),{maxWidth:270});
+      m.category=cat;
+      allMarkers.push(m);
+      pointLayer.addLayer(m);
+    });
+
+    /* apply highlight if active */
+    if(highlightCat){
+      allMarkers.forEach(m=>{
+        m.setIcon(m.category===highlightCat ? pointIcon : pointIconFaded);
+      });
+    }
+
+    document.getElementById('totalMain').innerText=total;
+
+    /* ── chart ── */
+    if(chart) chart.destroy();
+    const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+    const rawLabels=entries.map(e=>e[0]);
+    const labels=rawLabels.map(fmtLabel);
+    const values=entries.map(e=>e[1]);
+    const colors=rawLabels.map(catColor);
+    const max=values[0]||1;
+    chartCanvas.height=Math.max(60,labels.length*34+30);
+
+    chart=new Chart(chartCanvas,{
+      type:'bar',
+      data:{
+        labels,
+        datasets:[{
+          data:values,
+          backgroundColor:colors.map(c=>c+'cc'),
+          borderColor:colors,
+          borderWidth:0,borderRadius:6,borderSkipped:false,
+        }]
+      },
+      options:{
+        indexAxis:'y',responsive:true,maintainAspectRatio:false,
+        plugins:{
+          legend:{display:false},
+          tooltip:{
+            callbacks:{label:ctx=>' '+ctx.raw+' findings'},
+            backgroundColor:'#1a1a2e',
+            titleFont:{family:'Montserrat',size:11},
+            bodyFont:{family:'Montserrat',size:11},
+            padding:8,cornerRadius:8,
+          }
+        },
+        scales:{
+          x:{display:false,max:max*1.2,grid:{display:false}},
+          y:{grid:{display:false},border:{display:false},
+             ticks:{font:{family:'Montserrat',size:10,weight:'600'},color:'#555',padding:4}}
+        },
+        onClick:(e,el)=>{
+          if(!el.length) return;
+          const cat=rawLabels[el[0].index],val=values[el[0].index];
+          if(highlightCat===cat){
+            highlightCat=null;
+            document.getElementById('totalSub').style.display='none';
+            pointLayer.eachLayer(m=>m.setIcon(pointIcon));
+          } else {
+            highlightCat=cat;
+            const sub=document.getElementById('totalSub');
+            sub.style.display='block'; sub.innerText=val;
+            pointLayer.eachLayer(m=>m.setIcon(m.category===cat?pointIcon:pointIconFaded));
+          }
+        },
+        animation:{duration:400,easing:'easeOutQuart'},
+      },
+      plugins:[{
+        id:'barLabels',
+        afterDatasetsDraw(ch){
+          const{ctx,data}=ch;
+          ch.getDatasetMeta(0).data.forEach((bar,i)=>{
+            ctx.save();
+            ctx.font='600 10px Montserrat';ctx.fillStyle='#999';
+            ctx.textAlign='left';ctx.textBaseline='middle';
+            ctx.fillText(data.datasets[0].data[i],bar.x+5,bar.y);
+            ctx.restore();
+          });
+        }
+      }]
+    });
+  }
+
+  /* ══ TABS ══ */
+  document.querySelectorAll('.tab-btn[data-tab]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    });
   });
-}
 
-/* ══ LAYER TOGGLES ══ */
-document.getElementById('toggleLulc').onchange       = e => e.target.checked ? map.addLayer(lulcLayer)        : map.removeLayer(lulcLayer);
-document.getElementById('toggleLulc2025').onchange   = e => e.target.checked ? map.addLayer(lulc2025Layer)    : map.removeLayer(lulc2025Layer);
-document.getElementById('toggleLandsat2024').onchange= e => e.target.checked ? map.addLayer(landsat2024Layer) : map.removeLayer(landsat2024Layer);
-document.getElementById('toggleLandsat2025').onchange= e => e.target.checked ? map.addLayer(landsat2025Layer) : map.removeLayer(landsat2025Layer);
+  /* ══ PANEL ══ */
+  function openPanel(){
+    document.getElementById('mainPanel').style.display='flex';
+    document.getElementById('panelOpenBtn').style.display='none';
+  }
+  document.getElementById('panelClose').onclick=()=>{
+    document.getElementById('mainPanel').style.display='none';
+    document.getElementById('panelOpenBtn').style.display='flex';
+  };
 
-function toggleBoundary2Change(e){
-  e.stopPropagation();
-  if(boundaryLayer) e.target.checked ? map.addLayer(boundaryLayer) : map.removeLayer(boundaryLayer);
-}
-function togglePoints2Change(e){
-  e.stopPropagation();
-  e.target.checked ? map.addLayer(pointLayer) : map.removeLayer(pointLayer);
-}
+  /* ══ FILTER EVENTS ══ */
+  ['startDate','endDate'].forEach(id=>{
+    document.getElementById(id).addEventListener('change', updateMap);
+  });
+  ['filterOfficer','filterCategory','filterFinding'].forEach(id=>{
+    document.getElementById(id).addEventListener('change',()=>{
+      refreshCascade();
+      updateMap();
+    });
+  });
 
-/* ══ GROUP COLLAPSE ══ */
-function toggleGroup(id){
-  const g = document.getElementById('group-'+id);
-  const c = document.getElementById('chevron-'+id);
-  const open = g.style.display !== 'none';
-  g.style.display = open ? 'none' : 'flex';
-  c.classList.toggle('open', !open);
-}
+  document.getElementById('clearFilters').onclick = clearAllFilters;
 
-/* ══ SIDEBAR COLLAPSE ══ */
-document.getElementById('sidebarCollapse').onclick = () => {
-  const sb = document.getElementById('sidebar');
-  const isCollapsed = sb.style.width === '0px';
-  sb.style.width = isCollapsed ? '' : '0px';
-  sb.style.overflow = isCollapsed ? '' : 'hidden';
-  document.getElementById('mapTools').style.left = isCollapsed ? 'calc(var(--sidebar-w) + 14px)' : '14px';
-  document.getElementById('mapSearch').style.left = isCollapsed ? 'calc(var(--sidebar-w) + 60px)' : '60px';
-};
+  document.getElementById('resetFilter').onclick=()=>{
+    highlightCat=null;
+    document.getElementById('totalSub').style.display='none';
+    pointLayer.eachLayer(m=>m.setIcon(pointIcon));
+  };
 
-/* ══ FILTER TOGGLE ══ */
-document.getElementById('filterToggleBtn').onclick = (e) => {
-  e.stopPropagation();
-  document.getElementById('filterOverlay').classList.toggle('open');
-};
-document.addEventListener('click', (e) => {
-  const fo = document.getElementById('filterOverlay');
-  if(!fo.contains(e.target) && e.target.id !== 'filterToggleBtn') fo.classList.remove('open');
-});
-document.getElementById('applyFilter').onclick = () => {
-  updateMap();
-  document.getElementById('filterOverlay').classList.remove('open');
-};
-document.getElementById('clearFilters').onclick = () => {
-  document.getElementById('startDate').value = '';
-  document.getElementById('endDate').value = '';
-  populateSelect('filterOfficer',  allOfficers,   'All Officers');
-  populateSelect('filterCategory', allCategories, 'All Categories');
-  populateSelect('filterFinding',  allFindings,   'All Findings');
-  currentHighlightCat = null;
-  updateMap();
-};
+  /* ══ LAYER TOGGLES ══ */
+  toggleLulc.onchange        = e=>e.target.checked?map.addLayer(lulc)       :map.removeLayer(lulc);
+  toggleLulc2025.onchange    = e=>e.target.checked?map.addLayer(lulc2025)   :map.removeLayer(lulc2025);
+  toggleLandsat2024.onchange = e=>e.target.checked?map.addLayer(landsat2024):map.removeLayer(landsat2024);
+  toggleLandsat2025.onchange = e=>e.target.checked?map.addLayer(landsat2025):map.removeLayer(landsat2025);
+  toggleBoundary.onchange    = e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
+  togglePoints.onchange      = e=>e.target.checked?map.addLayer(pointLayer) :map.removeLayer(pointLayer);
 
-/* ══ LOCATE ══ */
-function locateMe(){
-  map.locate({setView:true, maxZoom:15});
-}
-
-/* ══ MODAL ══ */
-function openModal(src){ document.getElementById('imageModal').style.display='flex'; document.getElementById('modalImage').src=src; }
-document.getElementById('closeModal').onclick = () => document.getElementById('imageModal').style.display='none';
-document.getElementById('imageModal').onclick = e => { if(e.target===document.getElementById('imageModal')) e.target.style.display='none'; };
+  /* ══ MODAL ══ */
+  function openModal(src){imageModal.style.display='flex';modalImage.src=src;}
+  document.getElementById('closeModal').onclick=()=>imageModal.style.display='none';
+  imageModal.onclick=e=>{if(e.target===imageModal)imageModal.style.display='none';};
 </script>
 </body>
 </html>
