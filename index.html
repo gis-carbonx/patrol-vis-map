@@ -23,9 +23,7 @@
     }
     .top-bar-left{display:flex;align-items:center;gap:12px}
     .top-bar-logo{display:flex;align-items:center;gap:10px}
-    .logo-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center}
-    .logo-icon svg{width:32px;height:32px}
-    .brand-text h1{font-size:14px;font-weight:700;color:#1a2e1a;letter-spacing:-0.2px;line-height:1.2}
+    .logo-img{height:32px;width:auto;display:block}
     .brand-text p{font-size:10px;font-weight:500;color:#6b7280;letter-spacing:0.2px}
     .top-bar-right{display:flex;align-items:center;gap:8px}
     .icon-btn{
@@ -98,14 +96,13 @@
     /* legend */
     .legend-title{font-size:10px;font-weight:700;color:#6b7280;letter-spacing:0.5px;text-transform:uppercase;padding:12px 16px 6px}
     .legend-item{display:flex;align-items:center;gap:8px;padding:4px 16px;font-size:11px;color:#4b5563;font-weight:400}
-    .legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+    .legend-dot{width:14px;height:14px;border-radius:2px;flex-shrink:0}
 
     /* patrol findings legend */
     .findings-section{padding:0 16px;margin-top:8px}
     .findings-title{font-size:11px;font-weight:700;color:#374151;margin-bottom:10px}
     .finding-row{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:11px;color:#374151;font-weight:500}
     .finding-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-    .finding-sub{font-size:10px;color:#9ca3af;font-weight:400}
 
     /* divider */
     .divider{height:1px;background:#f3f4f6;margin:8px 0}
@@ -119,20 +116,7 @@
     .info-hint-icon{flex-shrink:0;width:16px;height:16px;border-radius:50%;background:#e5e7eb;
       display:flex;align-items:center;justify-content:center;font-size:9px;color:#6b7280;margin-top:1px}
 
-    /* ══ MAP CONTROLS ══ */
-    .map-search{
-      position:absolute;top:72px;left:284px;z-index:900;
-      background:#fff;border-radius:10px;border:1.5px solid #e8eaed;
-      display:flex;align-items:center;gap:8px;padding:0 14px;
-      box-shadow:0 2px 8px rgba(0,0,0,0.08);width:240px;height:40px;
-    }
-    .map-search svg{color:#9ca3af;flex-shrink:0;width:16px;height:16px}
-    .map-search input{
-      border:none;outline:none;font-size:12px;font-family:'Inter',sans-serif;
-      color:#374151;background:transparent;width:100%;
-    }
-    .map-search input::placeholder{color:#9ca3af}
-
+    /* ══ ZOOM CONTROLS ══ */
     .map-zoom{
       position:absolute;bottom:80px;right:16px;z-index:900;
       display:flex;flex-direction:column;gap:2px;
@@ -149,7 +133,7 @@
     .bottom-bar{
       position:absolute;bottom:0;left:268px;right:0;z-index:900;
       background:#fff;border-top:1px solid #e8eaed;
-      display:flex;align-items:center;gap:0;padding:0;height:56px;overflow:hidden;
+      display:flex;align-items:center;padding:0;height:56px;overflow:hidden;
     }
     .bottom-cat{
       flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -185,10 +169,6 @@
     .detail-cat{display:flex;align-items:center;gap:8px;padding:12px 16px 0}
     .detail-cat-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
     .detail-cat-name{font-size:13px;font-weight:600;color:#374151}
-    .detail-img{width:100%;height:170px;object-fit:cover;margin-top:12px}
-    .detail-img-wrap{position:relative;margin-top:12px;background:#f3f4f6}
-    .detail-img-wrap img{width:100%;height:170px;object-fit:cover;display:block}
-    .detail-img-placeholder{width:100%;height:100px;display:flex;align-items:center;justify-content:center;background:#f9fafb;color:#d1d5db;font-size:32px;margin-top:12px}
     .detail-body{flex:1;overflow-y:auto;padding:0 0 8px;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
     .detail-body::-webkit-scrollbar{width:3px}
     .detail-body::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
@@ -236,11 +216,12 @@
     }
     .modal-close:hover{opacity:1}
 
-    /* ══ FILTER SIDEBAR (top-right icon) ══ */
+    /* ══ FILTER DRAWER ══ */
     .filter-drawer{
       position:absolute;top:56px;right:0;bottom:0;z-index:1100;
       width:280px;background:#fff;border-left:1px solid #e8eaed;
       display:none;flex-direction:column;padding:16px;gap:12px;
+      overflow-y:auto;
     }
     .filter-drawer.open{display:flex}
     .filter-drawer-title{font-size:13px;font-weight:700;color:#1a2e1a;margin-bottom:4px}
@@ -265,9 +246,6 @@
       font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s;
     }
     .btn-clear-f:hover{border-color:#2d6a2d;color:#2d6a2d}
-
-    /* scale bar */
-    .map-scale{position:absolute;bottom:64px;left:284px;z-index:900}
   </style>
 </head>
 <body>
@@ -277,18 +255,7 @@
 <div class="top-bar">
   <div class="top-bar-left">
     <div class="top-bar-logo">
-      <div class="logo-icon">
-        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="16" cy="16" r="15" fill="#e8f5e9"/>
-          <path d="M16 8C12 8 9 11 9 14c0 2 1 3.5 2.5 4.5L10 26h12l-1.5-7.5C22 17.5 23 16 23 14c0-3-3-6-7-6z" fill="#2d6a2d"/>
-          <path d="M13 14c1-2 3-3 5-2.5" stroke="#81c784" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M16 26v-8" stroke="#1b5e20" stroke-width="1" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <div class="brand-text">
-        <h1>Biodiversity Patrol</h1>
-        <p>Monitor. Protect. Preserve.</p>
-      </div>
+      <img src="./data/CMI-Brandmark-FullColor-BlackBG.png" alt="CMI" class="logo-img">
     </div>
   </div>
   <div class="top-bar-right">
@@ -327,10 +294,15 @@
         </label>
       </div>
 
-      <!-- LULC toggle header -->
+      <!-- Landcover group label -->
       <div class="layer-item" style="padding-bottom:2px">
         <div class="layer-item-left">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" fill="#5c9640" rx="1"/><rect x="9" y="1" width="6" height="6" fill="#ecb240" rx="1"/><rect x="1" y="9" width="6" height="6" fill="#a1a1a1" rx="1"/><rect x="9" y="9" width="6" height="6" fill="#b2ec40" rx="1"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="1" width="6" height="6" fill="#5c9640" rx="1"/>
+            <rect x="9" y="1" width="6" height="6" fill="#ecb240" rx="1"/>
+            <rect x="1" y="9" width="6" height="6" fill="#a1a1a1" rx="1"/>
+            <rect x="9" y="9" width="6" height="6" fill="#b2ec40" rx="1"/>
+          </svg>
           <span class="layer-label">Landcover</span>
         </div>
       </div>
@@ -338,7 +310,7 @@
       <div class="layer-item" style="padding-left:32px">
         <div class="layer-item-left">
           <div class="layer-icon" style="background:#4CAF50;border-radius:3px"></div>
-          <span class="layer-label" style="font-size:11px">Landcover (Integrated)</span>
+          <span class="layer-label" style="font-size:11px">LULC 2023</span>
         </div>
         <label class="switch"><input type="checkbox" id="toggleLulc" checked><span class="sw-track"></span></label>
       </div>
@@ -378,17 +350,18 @@
 
     <div class="divider"></div>
 
-    <!-- Landcover legend -->
+    <!-- Landcover legend — warna sesuai permintaan -->
     <div style="padding:0 0 4px">
-      <div class="legend-title">Landcover (Integrated)</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#5c9640;border-radius:2px"></div>Primary Forest</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#b2ec40;border-radius:2px"></div>Secondary Forest</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ffffce;border:1px solid #ccc;border-radius:2px"></div>Shrubland</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ecb240;border-radius:2px"></div>Grassland</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#a1a1a1;border-radius:2px"></div>Agriculture</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ec4040;border-radius:2px"></div>Built-up / Settlement</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#b6cce1;border-radius:2px"></div>Water</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#e0e0e0;border-radius:2px"></div>Other</div>
+      <div class="legend-title">LULC Classification</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ec4040"></div>Building</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#a1a1a1"></div>Cleared / Bare Land</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ecb240"></div>Oil Palm / Newly Planted</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#5c9640"></div>Forest</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ffffce;border:1px solid #ccc"></div>Mixed Dry Agriculture</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#b2ec40"></div>Old Shrubs</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#000000"></div>Road</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ddff96"></div>Shrubs</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#b6cce1"></div>Water</div>
     </div>
 
     <div class="divider"></div>
@@ -397,7 +370,6 @@
     <div class="findings-section">
       <div class="findings-title">Patrol Findings</div>
       <div id="findingsLegend">
-        <!-- dynamically populated -->
         <div class="finding-row"><div class="finding-dot" style="background:#3b82f6"></div><span>Ecosystem</span></div>
         <div class="finding-row"><div class="finding-dot" style="background:#22c55e"></div><span>Biodiversity</span></div>
         <div class="finding-row"><div class="finding-dot" style="background:#ef4444"></div><span>Illegal Activities</span></div>
@@ -414,17 +386,10 @@
   </div>
 </div>
 
-<!-- ══ MAP SEARCH ══ -->
-<div class="map-search">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-  <input type="text" placeholder="Search location" id="searchInput">
-</div>
-
 <!-- ══ ZOOM CONTROLS ══ -->
 <div class="map-zoom">
   <button class="zoom-btn" onclick="map.zoomIn()">+</button>
   <button class="zoom-btn" onclick="map.zoomOut()">−</button>
-  <button class="zoom-btn" title="My location" style="font-size:13px">⊙</button>
   <button class="zoom-btn" title="Home" onclick="resetView()" style="font-size:13px">⌂</button>
 </div>
 
@@ -440,33 +405,36 @@
 <!-- ══ FILTER DRAWER ══ -->
 <div class="filter-drawer" id="filterDrawer">
   <div class="filter-drawer-title">Filter Data</div>
+
   <div>
     <div class="filter-label">Date Range</div>
     <div class="filter-date-row">
-      <input type="date" class="filter-input" id="startDate">
-      <input type="date" class="filter-input" id="endDate">
+      <input type="date" class="filter-input" id="startDate" placeholder="From">
+      <input type="date" class="filter-input" id="endDate" placeholder="To">
     </div>
   </div>
+
   <div>
     <div class="filter-label">Officer</div>
     <select class="filter-input" id="filterOfficer"><option value="">All Officers</option></select>
   </div>
+
   <div>
     <div class="filter-label">Category</div>
     <select class="filter-input" id="filterCategory"><option value="">All Categories</option></select>
   </div>
+
   <div>
     <div class="filter-label">Finding</div>
     <select class="filter-input" id="filterFinding"><option value="">All Findings</option></select>
   </div>
+
   <button class="btn-apply" id="applyFilters">Apply Filters</button>
   <button class="btn-clear-f" id="clearFilters">Clear All</button>
 </div>
 
 <!-- ══ BOTTOM BAR ══ -->
-<div class="bottom-bar" id="bottomBar">
-  <!-- populated by JS -->
-</div>
+<div class="bottom-bar" id="bottomBar"></div>
 
 <!-- ══ MODAL ══ -->
 <div id="imageModal" class="img-modal">
@@ -475,22 +443,17 @@
 </div>
 
 <script>
-  /* ══ CAT COLOR MAP (matching image) ══ */
-  const CAT_COLORS = {
-    'default': ['#3b82f6','#22c55e','#ef4444','#f59e0b','#a855f7','#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6']
-  };
-  const catColorMap={};
-  const PALETTE=['#3b82f6','#22c55e','#ef4444','#f59e0b','#a855f7','#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6'];
+  /* ══ CAT COLOR MAP ══ */
+  const catColorMap = {};
+  const PALETTE = ['#3b82f6','#22c55e','#ef4444','#f59e0b','#a855f7','#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6'];
   function catColor(cat){
-    if(!catColorMap[cat]) catColorMap[cat]=PALETTE[Object.keys(catColorMap).length%PALETTE.length];
+    if(!catColorMap[cat]) catColorMap[cat] = PALETTE[Object.keys(catColorMap).length % PALETTE.length];
     return catColorMap[cat];
   }
 
   /* ══ MAP ══ */
-  const map = L.map('map',{center:[0.8,110.325],zoom:13,zoomControl:false,attributionControl:false});
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{opacity:0.6}).addTo(map);
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{opacity:0.85}).addTo(map);
-  L.control.attribution({position:'bottomright',prefix:false}).addTo(map);
+  const map = L.map('map', {center:[0.8,110.325], zoom:13, zoomControl:false, attributionControl:false});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {opacity:0.85}).addTo(map);
 
   const lulc        = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png',        {opacity:1}).addTo(map);
   const lulc2025    = L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',   {opacity:1});
@@ -500,90 +463,142 @@
   let boundaryLayer, mapBounds;
   const pointLayer = L.layerGroup().addTo(map);
 
-  fetch('data/CMI.json').then(r=>r.json()).then(j=>{
-    boundaryLayer=L.geoJSON(j,{style:{color:"#7c3aed",weight:2.5,fillOpacity:0,dashArray:'8 4'}}).addTo(map);
-    mapBounds=boundaryLayer.getBounds();
-    map.fitBounds(mapBounds,{paddingTopLeft:[268,0]});
+  fetch('data/CMI.json').then(r => r.json()).then(j => {
+    boundaryLayer = L.geoJSON(j, {style:{color:"#7c3aed", weight:2.5, fillOpacity:0, dashArray:'8 4'}}).addTo(map);
+    mapBounds = boundaryLayer.getBounds();
+    map.fitBounds(mapBounds, {paddingTopLeft:[268,0]});
   });
 
-  function resetView(){if(mapBounds)map.fitBounds(mapBounds,{paddingTopLeft:[268,0]});}
+  function resetView(){
+    if(mapBounds) map.fitBounds(mapBounds, {paddingTopLeft:[268,0]});
+  }
 
   /* ══ DATA ══ */
-  const SHEET_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
-  let rawData=[], highlightCat=null;
+  const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
+  let rawData = [], highlightCat = null;
 
-  Papa.parse(SHEET_URL,{
-    download:true, header:true,
-    complete:(res)=>{
-      rawData=res.data.filter(r=>r['data-coordinate']&&r['data-coordinate'].trim());
+  Papa.parse(SHEET_URL, {
+    download: true, header: true,
+    complete: (res) => {
+      rawData = res.data.filter(r => r['data-coordinate'] && r['data-coordinate'].trim());
       initDropdowns();
       updateMap();
       buildBottomBar();
     }
   });
 
-  /* ══ DATE HELPERS ══ */
-  function toMidnight(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate());}
-  function parseRecordDate(s){
-    if(!s||!s.trim())return null;
-    const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-    const p=s.trim().split('-');
-    if(p.length===3){
-      if(!isNaN(p[0])&&MON[p[1]]!==undefined) return toMidnight(new Date(parseInt(p[2]),MON[p[1]],parseInt(p[0])));
-      if(p[0].length===4) return toMidnight(new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2])));
-    }
-    const d=new Date(s); return isNaN(d)?null:toMidnight(d);
-  }
-  function parseInputDate(s){
-    if(!s)return null;
-    const p=s.split('-');
-    if(p.length!==3)return null;
-    return toMidnight(new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2])));
+  /* ══ DATE HELPERS ══
+     Semua tanggal dinormalisasi ke midnight lokal agar perbandingan
+     murni berbasis kalender, tidak terpengaruh offset timezone.
+  ══════════════════════════════════════════════════════════════════ */
+  function toMidnight(d){
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
   }
 
-  function fmtLabel(s){return(s||'').replace(/_/g,' ');}
+  /**
+   * Parsing tanggal dari spreadsheet.
+   * Format yang didukung:
+   *   "dd-Mon-yyyy"  → "24-Oct-2025"
+   *   "yyyy-mm-dd"   → "2025-10-24"
+   *   "dd/mm/yyyy"   → "24/10/2025"
+   *   "mm/dd/yyyy"   → dicoba sebagai fallback via Date()
+   */
+  function parseRecordDate(s){
+    if(!s || !s.trim()) return null;
+    const MON = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    s = s.trim();
+
+    // dd-Mon-yyyy  (e.g. "24-Oct-2025")
+    const dashParts = s.split('-');
+    if(dashParts.length === 3){
+      if(!isNaN(dashParts[0]) && MON[dashParts[1]] !== undefined){
+        const d = new Date(parseInt(dashParts[2]), MON[dashParts[1]], parseInt(dashParts[0]));
+        return isNaN(d) ? null : toMidnight(d);
+      }
+      // yyyy-mm-dd  (e.g. "2025-10-24")
+      if(dashParts[0].length === 4 && !isNaN(dashParts[1]) && !isNaN(dashParts[2])){
+        const d = new Date(parseInt(dashParts[0]), parseInt(dashParts[1])-1, parseInt(dashParts[2]));
+        return isNaN(d) ? null : toMidnight(d);
+      }
+    }
+
+    // dd/mm/yyyy  (e.g. "24/10/2025")
+    const slashParts = s.split('/');
+    if(slashParts.length === 3){
+      // Coba dd/mm/yyyy dulu (lebih umum di Indonesia)
+      const d1 = new Date(parseInt(slashParts[2]), parseInt(slashParts[1])-1, parseInt(slashParts[0]));
+      if(!isNaN(d1) && d1.getFullYear() > 1970) return toMidnight(d1);
+    }
+
+    // Fallback: biarkan browser parse
+    const d = new Date(s);
+    return isNaN(d) ? null : toMidnight(d);
+  }
+
+  /**
+   * Parsing tanggal dari <input type="date">.
+   * Browser selalu mengembalikan "yyyy-mm-dd".
+   */
+  function parseInputDate(s){
+    if(!s) return null;
+    const p = s.split('-');
+    if(p.length !== 3) return null;
+    return toMidnight(new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2])));
+  }
+
+  /* ══ UTILS ══ */
+  function fmtLabel(s){ return (s||'').replace(/_/g,' '); }
   function convert(url){
-    if(!url)return null;
-    const id=url.match(/[-\w]{25,}/);
-    return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null;
+    if(!url) return null;
+    const id = url.match(/[-\w]{25,}/);
+    return id ? `https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000` : null;
   }
 
   /* ══ MARKER ICON per category ══ */
   function makeIcon(color, faded=false){
     return L.divIcon({
       html:`<div style="width:12px;height:12px;border-radius:50%;background:${color};border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);opacity:${faded?0.2:1}"></div>`,
-      className:'',iconSize:[12,12],iconAnchor:[6,6],
+      className:'', iconSize:[12,12], iconAnchor:[6,6],
     });
   }
 
   /* ══ DROPDOWNS ══ */
-  let allOfficers=[],allCategories=[],allFindings=[];
+  let allOfficers=[], allCategories=[], allFindings=[];
+
   function initDropdowns(){
-    const o=new Set(),c=new Set(),f=new Set();
-    rawData.forEach(r=>{
-      if(r['data-base_info-nama'])o.add(r['data-base_info-nama']);
-      if(r['data-survey-categ'])c.add(r['data-survey-categ']);
-      if(r['data-survey-finding'])f.add(r['data-survey-finding']);
+    const o=new Set(), c=new Set(), f=new Set();
+    rawData.forEach(r => {
+      if(r['data-base_info-nama']) o.add(r['data-base_info-nama']);
+      if(r['data-survey-categ'])   c.add(r['data-survey-categ']);
+      if(r['data-survey-finding']) f.add(r['data-survey-finding']);
     });
-    allOfficers=[...o].sort(); allCategories=[...c].sort(); allFindings=[...f].sort();
-    populateSelect('filterOfficer',allOfficers,'All Officers');
-    populateSelect('filterCategory',allCategories,'All Categories');
-    populateSelect('filterFinding',allFindings,'All Findings');
+    allOfficers   = [...o].sort();
+    allCategories = [...c].sort();
+    allFindings   = [...f].sort();
+    populateSelect('filterOfficer',   allOfficers,   'All Officers');
+    populateSelect('filterCategory',  allCategories, 'All Categories');
+    populateSelect('filterFinding',   allFindings,   'All Findings');
   }
-  function populateSelect(id,values,ph){
-    const el=document.getElementById(id);
-    const cur=el.value;
-    el.innerHTML=`<option value="">${ph}</option>`;
-    values.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=fmtLabel(v);if(v===cur)o.selected=true;el.appendChild(o);});
+
+  function populateSelect(id, values, ph){
+    const el = document.getElementById(id);
+    const cur = el.value;
+    el.innerHTML = `<option value="">${ph}</option>`;
+    values.forEach(v => {
+      const o = document.createElement('option');
+      o.value = v; o.textContent = fmtLabel(v);
+      if(v === cur) o.selected = true;
+      el.appendChild(o);
+    });
   }
 
   /* ══ SLIDER for detail panel ══ */
-  const dsIndex={};
+  const dsIndex = {};
   function buildDetailSlider(imgs, uid){
     if(!imgs.length) return `<div style="height:80px;background:#f9fafb;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:28px;margin-top:12px">📷</div>`;
-    if(imgs.length===1) return `<div class="detail-slider"><div class="slides"><div class="slide"><img src="${imgs[0]}" onclick="openModal('${imgs[0]}')"></div></div></div>`;
-    const slides=imgs.map(s=>`<div class="slide"><img src="${s}" onclick="openModal('${s}')"></div>`).join('');
-    const dots=imgs.map((_,i)=>`<span class="${i===0?'active':''}"></span>`).join('');
+    if(imgs.length === 1) return `<div class="detail-slider"><div class="slides"><div class="slide"><img src="${imgs[0]}" onclick="openModal('${imgs[0]}')"></div></div></div>`;
+    const slides = imgs.map(s => `<div class="slide"><img src="${s}" onclick="openModal('${s}')"></div>`).join('');
+    const dots   = imgs.map((_,i) => `<span class="${i===0?'active':''}"></span>`).join('');
     return `<div class="detail-slider" id="${uid}">
       <div class="slides">${slides}</div>
       <button class="ds-btn prev" onclick="dsMv('${uid}',-1)">‹</button>
@@ -591,128 +606,139 @@
       <div class="ds-dots">${dots}</div>
     </div>`;
   }
-  function dsMv(uid,dir){
-    const c=document.getElementById(uid);if(!c)return;
-    const sl=c.querySelectorAll('.slide'),dots=c.querySelectorAll('.ds-dots span'),n=sl.length;
-    let idx=((dsIndex[uid]||0)+dir+n)%n;
-    dsIndex[uid]=idx;
-    c.querySelector('.slides').style.transform=`translateX(-${idx*100}%)`;
-    dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
+  function dsMv(uid, dir){
+    const c = document.getElementById(uid); if(!c) return;
+    const sl = c.querySelectorAll('.slide'), dots = c.querySelectorAll('.ds-dots span'), n = sl.length;
+    let idx = ((dsIndex[uid]||0) + dir + n) % n;
+    dsIndex[uid] = idx;
+    c.querySelector('.slides').style.transform = `translateX(-${idx*100}%)`;
+    dots.forEach((d,i) => d.classList.toggle('active', i===idx));
   }
 
   /* ══ DETAIL PANEL ══ */
   function openDetail(r){
-    const cat=r['data-survey-categ']||'Unknown';
-    const finding=r['data-survey-finding']||'-';
-    const col=catColor(cat);
-    const imgs=[convert(r['data-documentation-image_1']),convert(r['data-documentation-image_2'])].filter(Boolean);
-    const uid='ds_'+Math.random().toString(36).slice(2,7);
+    const cat    = r['data-survey-categ']   || 'Unknown';
+    const finding= r['data-survey-finding'] || '-';
+    const col    = catColor(cat);
+    const imgs   = [convert(r['data-documentation-image_1']), convert(r['data-documentation-image_2'])].filter(Boolean);
+    const uid    = 'ds_' + Math.random().toString(36).slice(2,7);
 
-    const lat=(r['data-coordinate']||'').split(',')[0]?.trim()||'-';
-    const lon=(r['data-coordinate']||'').split(',')[1]?.trim()||'-';
-    const coord=(lat!=='-'&&lon!=='-')?`${parseFloat(lat).toFixed(5)}, ${parseFloat(lon).toFixed(5)}`:'-';
+    const parts  = (r['data-coordinate']||'').split(',');
+    const lat    = parts[0]?.trim() || '';
+    const lon    = parts[1]?.trim() || '';
+    const coord  = (lat&&lon) ? `${parseFloat(lat).toFixed(5)}, ${parseFloat(lon).toFixed(5)}` : '-';
 
-    document.getElementById('detailBody').innerHTML=`
+    document.getElementById('detailBody').innerHTML = `
       <div class="detail-cat">
         <div class="detail-cat-dot" style="background:${col}"></div>
         <span class="detail-cat-name">${fmtLabel(cat)}</span>
       </div>
-      ${buildDetailSlider(imgs,uid)}
+      ${buildDetailSlider(imgs, uid)}
       <div style="height:8px"></div>
       <div class="detail-row"><span class="detail-key">Type</span><span class="detail-val">${fmtLabel(finding)}</span></div>
       <div class="detail-row"><span class="detail-key">Date</span><span class="detail-val">${r['data-start_date']||'-'}</span></div>
       <div class="detail-row"><span class="detail-key">Patrol ID</span><span class="detail-val">${r['_id']||r['id']||'-'}</span></div>
       <div class="detail-row"><span class="detail-key">Patrol Team</span><span class="detail-val">${r['data-base_info-nama']||'-'}</span></div>
-      ${r['data-survey-description']?`<div class="detail-row"><span class="detail-key">Notes</span><span class="detail-val">${r['data-survey-description']}</span></div>`:''}
+      ${r['data-survey-description'] ? `<div class="detail-row"><span class="detail-key">Notes</span><span class="detail-val">${r['data-survey-description']}</span></div>` : ''}
       <div class="detail-row"><span class="detail-key">Location</span><span class="detail-val" style="font-family:monospace;font-size:10px">${coord}</span></div>
-      ${imgs.length?`
+      ${imgs.length ? `
       <div class="detail-photos-section">
         <div class="detail-photos-title">Photos <span class="detail-photos-count">${imgs.length}</span></div>
         <div class="detail-photos-grid">
           ${imgs.map(s=>`<img class="detail-thumb" src="${s}" onclick="openModal('${s}')">`).join('')}
         </div>
-      </div>`:''}
+      </div>` : ''}
     `;
     document.getElementById('detailPanel').classList.add('open');
   }
 
-  document.getElementById('detailClose').onclick=()=>{
+  document.getElementById('detailClose').onclick = () => {
     document.getElementById('detailPanel').classList.remove('open');
   };
 
   /* ══ UPDATE MAP ══ */
   function updateMap(){
     pointLayer.clearLayers();
-    const start=parseInputDate(document.getElementById('startDate').value);
-    const end=parseInputDate(document.getElementById('endDate').value);
-    const selO=document.getElementById('filterOfficer').value;
-    const selC=document.getElementById('filterCategory').value;
-    const selF=document.getElementById('filterFinding').value;
 
-    const allMarkers=[];
+    const start = parseInputDate(document.getElementById('startDate').value);
+    const end   = parseInputDate(document.getElementById('endDate').value);
+    const selO  = document.getElementById('filterOfficer').value;
+    const selC  = document.getElementById('filterCategory').value;
+    const selF  = document.getElementById('filterFinding').value;
 
-    rawData.forEach(r=>{
-      const coord=r['data-coordinate'];
-      if(!coord||!coord.trim())return;
-      const recDate=parseRecordDate(r['data-start_date']);
-      if(start&&recDate&&recDate<start)return;
-      if(end&&recDate&&recDate>end)return;
-      if(selO&&r['data-base_info-nama']!==selO)return;
-      if(selC&&r['data-survey-categ']!==selC)return;
-      if(selF&&r['data-survey-finding']!==selF)return;
+    const allMarkers = [];
 
-      const parts=coord.split(',');
-      if(parts.length<2)return;
-      const lat=parseFloat(parts[0]),lon=parseFloat(parts[1]);
-      if(isNaN(lat)||isNaN(lon))return;
+    rawData.forEach(r => {
+      const coord = r['data-coordinate'];
+      if(!coord || !coord.trim()) return;
 
-      const cat=r['data-survey-categ']||'Unknown';
-      const col=catColor(cat);
-      const m=L.marker([lat,lon],{icon:makeIcon(col)});
-      m.category=cat;
-      m.on('click',()=>openDetail(r));
+      /* ── filter tanggal ── */
+      if(start !== null || end !== null){
+        const recDate = parseRecordDate(r['data-start_date']);
+        // Jika tanggal record tidak bisa di-parse, skip jika ada filter tanggal aktif
+        if(recDate === null) return;
+        if(start !== null && recDate < start) return;
+        if(end   !== null && recDate > end)   return;
+      }
+
+      /* ── filter dropdown ── */
+      if(selO && r['data-base_info-nama'] !== selO) return;
+      if(selC && r['data-survey-categ']   !== selC) return;
+      if(selF && r['data-survey-finding'] !== selF) return;
+
+      const parts = coord.split(',');
+      if(parts.length < 2) return;
+      const lat = parseFloat(parts[0]), lon = parseFloat(parts[1]);
+      if(isNaN(lat) || isNaN(lon)) return;
+
+      const cat = r['data-survey-categ'] || 'Unknown';
+      const col = catColor(cat);
+      const m = L.marker([lat,lon], {icon: makeIcon(col)});
+      m.category = cat;
+      m.on('click', () => openDetail(r));
       allMarkers.push(m);
       pointLayer.addLayer(m);
     });
 
+    /* terapkan highlight jika aktif */
     if(highlightCat){
-      allMarkers.forEach(m=>{
-        m.setIcon(makeIcon(catColor(m.category), m.category!==highlightCat));
+      allMarkers.forEach(m => {
+        m.setIcon(makeIcon(catColor(m.category), m.category !== highlightCat));
       });
     }
   }
 
   /* ══ BOTTOM BAR ══ */
   function buildBottomBar(){
-    const cats=Object.keys(catColorMap);
-    // predefined from data — sub labels per category
-    const subLabels={};
-    rawData.forEach(r=>{
-      const c=r['data-survey-categ'];
-      const f=r['data-survey-finding'];
-      if(c&&f){
-        if(!subLabels[c])subLabels[c]=new Set();
+    // Tunggu data selesai di-parse agar catColorMap terisi
+    const subLabels = {};
+    rawData.forEach(r => {
+      const c = r['data-survey-categ'];
+      const f = r['data-survey-finding'];
+      if(c && f){
+        if(!subLabels[c]) subLabels[c] = new Set();
         subLabels[c].add(fmtLabel(f));
       }
     });
 
-    const bar=document.getElementById('bottomBar');
-    bar.innerHTML=Object.keys(catColorMap).map(cat=>{
-      const col=catColor(cat);
-      const subs=[...(subLabels[cat]||[])].slice(0,3).join(', ');
+    const bar = document.getElementById('bottomBar');
+    bar.innerHTML = Object.keys(catColorMap).map(cat => {
+      const col  = catColor(cat);
+      const subs = [...(subLabels[cat]||[])].slice(0,3).join(', ');
+      const subTrim = subs.length > 32 ? subs.slice(0,32)+'…' : subs;
       return `<div class="bottom-cat" onclick="filterByCat('${cat}')">
         <div class="bottom-cat-top">
           <div class="bottom-cat-dot" style="background:${col}"></div>
           <span class="bottom-cat-name">${fmtLabel(cat)}</span>
         </div>
-        ${subs?`<div class="bottom-cat-sub">${subs.length>30?subs.slice(0,30)+'…':subs}</div>`:''}
+        ${subTrim ? `<div class="bottom-cat-sub">${subTrim}</div>` : ''}
       </div>`;
     }).join('');
 
-    // also update findings legend in sidebar
-    const fl=document.getElementById('findingsLegend');
-    if(Object.keys(catColorMap).length>0){
-      fl.innerHTML=Object.keys(catColorMap).map(cat=>`
+    // Update findings legend di sidebar dengan warna dari data aktual
+    const fl = document.getElementById('findingsLegend');
+    if(Object.keys(catColorMap).length > 0){
+      fl.innerHTML = Object.keys(catColorMap).map(cat => `
         <div class="finding-row">
           <div class="finding-dot" style="background:${catColor(cat)}"></div>
           <span>${fmtLabel(cat)}</span>
@@ -722,53 +748,63 @@
   }
 
   function filterByCat(cat){
-    if(highlightCat===cat){
-      highlightCat=null;
-      pointLayer.eachLayer(m=>m.setIcon(makeIcon(catColor(m.category))));
+    if(highlightCat === cat){
+      highlightCat = null;
+      pointLayer.eachLayer(m => m.setIcon(makeIcon(catColor(m.category))));
     } else {
-      highlightCat=cat;
-      pointLayer.eachLayer(m=>m.setIcon(makeIcon(catColor(m.category),m.category!==cat)));
+      highlightCat = cat;
+      pointLayer.eachLayer(m => m.setIcon(makeIcon(catColor(m.category), m.category !== cat)));
     }
   }
 
   /* ══ FILTER DRAWER ══ */
-  document.getElementById('filterToggleBtn').onclick=()=>{
+  document.getElementById('filterToggleBtn').onclick = () => {
     document.getElementById('filterDrawer').classList.toggle('open');
   };
-  document.getElementById('applyFilters').onclick=()=>{
+
+  document.getElementById('applyFilters').onclick = () => {
     updateMap();
     document.getElementById('filterDrawer').classList.remove('open');
   };
-  document.getElementById('clearFilters').onclick=()=>{
-    document.getElementById('startDate').value='';
-    document.getElementById('endDate').value='';
-    populateSelect('filterOfficer',allOfficers,'All Officers');
-    populateSelect('filterCategory',allCategories,'All Categories');
-    populateSelect('filterFinding',allFindings,'All Findings');
-    highlightCat=null;
+
+  document.getElementById('clearFilters').onclick = () => {
+    document.getElementById('startDate').value = '';
+    document.getElementById('endDate').value   = '';
+    populateSelect('filterOfficer',   allOfficers,   'All Officers');
+    populateSelect('filterCategory',  allCategories, 'All Categories');
+    populateSelect('filterFinding',   allFindings,   'All Findings');
+    highlightCat = null;
+    pointLayer.eachLayer(m => m.setIcon(makeIcon(catColor(m.category))));
     updateMap();
   };
 
   /* ══ SECTION TOGGLE ══ */
   function toggleSection(id, chevronId){
-    const el=document.getElementById(id);
-    const ch=document.getElementById(chevronId);
-    if(el.style.display==='none'){el.style.display='';ch.classList.add('open');ch.textContent='▲';}
-    else{el.style.display='none';ch.classList.remove('open');ch.textContent='▼';}
+    const el = document.getElementById(id);
+    const ch = document.getElementById(chevronId);
+    if(el.style.display === 'none'){
+      el.style.display = '';
+      ch.classList.add('open');
+      ch.textContent = '▲';
+    } else {
+      el.style.display = 'none';
+      ch.classList.remove('open');
+      ch.textContent = '▼';
+    }
   }
 
   /* ══ LAYER TOGGLES ══ */
-  document.getElementById('toggleLulc').onchange=e=>e.target.checked?map.addLayer(lulc):map.removeLayer(lulc);
-  document.getElementById('toggleLulc2025').onchange=e=>e.target.checked?map.addLayer(lulc2025):map.removeLayer(lulc2025);
-  document.getElementById('toggleLandsat2024').onchange=e=>e.target.checked?map.addLayer(landsat2024):map.removeLayer(landsat2024);
-  document.getElementById('toggleLandsat2025').onchange=e=>e.target.checked?map.addLayer(landsat2025):map.removeLayer(landsat2025);
-  document.getElementById('toggleBoundary').onchange=e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
-  document.getElementById('togglePoints').onchange=e=>e.target.checked?map.addLayer(pointLayer):map.removeLayer(pointLayer);
+  document.getElementById('toggleLulc').onchange        = e => e.target.checked ? map.addLayer(lulc)        : map.removeLayer(lulc);
+  document.getElementById('toggleLulc2025').onchange    = e => e.target.checked ? map.addLayer(lulc2025)    : map.removeLayer(lulc2025);
+  document.getElementById('toggleLandsat2024').onchange = e => e.target.checked ? map.addLayer(landsat2024) : map.removeLayer(landsat2024);
+  document.getElementById('toggleLandsat2025').onchange = e => e.target.checked ? map.addLayer(landsat2025) : map.removeLayer(landsat2025);
+  document.getElementById('toggleBoundary').onchange    = e => boundaryLayer && (e.target.checked ? map.addLayer(boundaryLayer) : map.removeLayer(boundaryLayer));
+  document.getElementById('togglePoints').onchange      = e => e.target.checked ? map.addLayer(pointLayer)  : map.removeLayer(pointLayer);
 
   /* ══ MODAL ══ */
-  function openModal(src){imageModal.style.display='flex';modalImage.src=src;}
-  document.getElementById('closeModal').onclick=()=>imageModal.style.display='none';
-  imageModal.onclick=e=>{if(e.target===imageModal)imageModal.style.display='none';};
+  function openModal(src){ imageModal.style.display='flex'; modalImage.src=src; }
+  document.getElementById('closeModal').onclick = () => imageModal.style.display = 'none';
+  imageModal.onclick = e => { if(e.target === imageModal) imageModal.style.display = 'none'; };
 </script>
 </body>
 </html>
