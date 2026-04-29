@@ -3,13 +3,12 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Biodiversity Patrol</title>
+  <title>CMI Field Patrol</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
@@ -18,21 +17,24 @@
     /* ══ TOP HEADER ══ */
     .top-bar{
       position:absolute;top:0;left:0;right:0;z-index:1200;
-      height:56px;background:#fff;border-bottom:1px solid #e8eaed;
+      height:56px;background:#111;border-bottom:1px solid #222;
       display:flex;align-items:center;justify-content:space-between;padding:0 20px;
     }
-    .top-bar-left{display:flex;align-items:center;gap:12px}
-    .top-bar-logo{display:flex;align-items:center;gap:10px}
-    .logo-img{height:32px;width:auto;display:block}
-    .brand-text p{font-size:10px;font-weight:500;color:#6b7280;letter-spacing:0.2px}
+    .top-bar-left{display:flex;align-items:center;gap:14px}
+    .logo-img{height:30px;width:auto;display:block}
+    .top-bar-divider{width:1px;height:28px;background:#333}
+    .top-bar-title{display:flex;flex-direction:column;gap:1px}
+    .top-bar-title-main{font-size:13px;font-weight:700;color:#fff;letter-spacing:-0.1px;line-height:1.2}
+    .top-bar-title-sub{font-size:10px;font-weight:400;color:#888;letter-spacing:0.2px}
     .top-bar-right{display:flex;align-items:center;gap:8px}
     .icon-btn{
-      width:36px;height:36px;border-radius:8px;border:1.5px solid #e8eaed;
-      background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;
-      color:#6b7280;transition:all .15s;
+      width:36px;height:36px;border-radius:8px;border:1.5px solid #333;
+      background:#1a1a1a;cursor:pointer;display:flex;align-items:center;justify-content:center;
+      color:#aaa;transition:all .15s;
     }
-    .icon-btn:hover{background:#f4f6f8;border-color:#d1d5db;color:#374151}
-    .icon-btn svg{width:18px;height:18px}
+    .icon-btn:hover{background:#2a2a2a;border-color:#444;color:#fff}
+    .icon-btn.active{background:#2d6a2d;border-color:#2d6a2d;color:#fff}
+    .icon-btn svg{width:16px;height:16px}
 
     /* ══ LAYOUT ══ */
     #map{position:absolute;top:56px;left:0;right:0;bottom:0}
@@ -43,209 +45,219 @@
       width:268px;background:#fff;border-right:1px solid #e8eaed;
       display:flex;flex-direction:column;overflow:hidden;
     }
-    .sidebar-section{padding:16px 16px 0}
-    .sidebar-section-header{
-      display:flex;align-items:center;justify-content:space-between;
-      padding:10px 0;cursor:pointer;
-    }
-    .sidebar-section-title{font-size:12px;font-weight:700;color:#374151;letter-spacing:0.3px;text-transform:uppercase}
-    .sidebar-section-chevron{color:#9ca3af;transition:transform .2s;font-size:12px}
-    .sidebar-section-chevron.open{transform:rotate(180deg)}
     .sidebar-body{flex:1;overflow-y:auto;padding-bottom:16px;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
     .sidebar-body::-webkit-scrollbar{width:3px}
     .sidebar-body::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
 
+    .sidebar-section-header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:12px 16px 10px;cursor:pointer;
+      border-bottom:1px solid #f3f4f6;
+    }
+    .sidebar-section-title{font-size:11px;font-weight:700;color:#374151;letter-spacing:0.4px;text-transform:uppercase}
+    .sidebar-chevron{color:#9ca3af;font-size:10px;transition:transform .2s}
+    .sidebar-chevron.open{transform:rotate(180deg)}
+
     /* layer items */
     .layer-item{
       display:flex;align-items:center;justify-content:space-between;
-      padding:8px 16px;
+      padding:7px 16px;
     }
     .layer-item-left{display:flex;align-items:center;gap:10px}
-    .layer-icon{width:16px;height:16px;border-radius:3px;flex-shrink:0}
-    .layer-icon.boundary{background:transparent;border:2px dashed #7c3aed}
-    .layer-label{font-size:12px;font-weight:500;color:#374151}
+    .layer-icon-sq{width:14px;height:14px;border-radius:3px;flex-shrink:0}
+    .layer-icon-bd{width:14px;height:14px;border-radius:3px;flex-shrink:0;background:transparent;border:2px dashed #7c3aed}
+    .layer-label{font-size:11px;font-weight:500;color:#374151}
 
-    /* custom checkbox */
-    .cb-wrap{position:relative;width:18px;height:18px}
+    /* checkbox */
+    .cb-wrap{position:relative;width:18px;height:18px;cursor:pointer}
     .cb-wrap input{position:absolute;opacity:0;width:0;height:0}
     .cb-box{
       width:18px;height:18px;border-radius:4px;border:1.5px solid #d1d5db;
-      background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;
-      transition:all .15s;
+      background:#fff;display:flex;align-items:center;justify-content:center;transition:all .15s;
     }
     .cb-wrap input:checked + .cb-box{background:#2d6a2d;border-color:#2d6a2d}
-    .cb-wrap input:checked + .cb-box::after{
-      content:'✓';color:#fff;font-size:10px;font-weight:700;line-height:1
-    }
+    .cb-wrap input:checked + .cb-box::after{content:'✓';color:#fff;font-size:10px;font-weight:700}
 
     /* switch */
     .switch{position:relative;width:34px;height:20px;flex-shrink:0}
     .switch input{opacity:0;width:0;height:0}
-    .sw-track{
-      position:absolute;inset:0;background:#e5e7eb;border-radius:20px;
-      cursor:pointer;transition:background .2s;
-    }
-    .sw-track:before{
-      content:'';position:absolute;width:14px;height:14px;border-radius:50%;
-      background:#fff;left:3px;top:3px;transition:transform .2s;
-      box-shadow:0 1px 3px rgba(0,0,0,0.2);
-    }
+    .sw-track{position:absolute;inset:0;background:#e5e7eb;border-radius:20px;cursor:pointer;transition:background .2s}
+    .sw-track:before{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;left:3px;top:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
     .switch input:checked + .sw-track{background:#2d6a2d}
     .switch input:checked + .sw-track:before{transform:translateX(14px)}
 
     /* legend */
-    .legend-title{font-size:10px;font-weight:700;color:#6b7280;letter-spacing:0.5px;text-transform:uppercase;padding:12px 16px 6px}
-    .legend-item{display:flex;align-items:center;gap:8px;padding:4px 16px;font-size:11px;color:#4b5563;font-weight:400}
-    .legend-dot{width:14px;height:14px;border-radius:2px;flex-shrink:0}
+    .legend-title{font-size:9px;font-weight:700;color:#9ca3af;letter-spacing:0.6px;text-transform:uppercase;padding:10px 16px 5px}
+    .legend-item{display:flex;align-items:center;gap:8px;padding:3px 16px;font-size:11px;color:#4b5563}
+    .legend-swatch{width:14px;height:14px;border-radius:2px;flex-shrink:0}
 
-    /* patrol findings legend */
-    .findings-section{padding:0 16px;margin-top:8px}
-    .findings-title{font-size:11px;font-weight:700;color:#374151;margin-bottom:10px}
-    .finding-row{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:11px;color:#374151;font-weight:500}
-    .finding-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+    /* findings */
+    .finding-row{display:flex;align-items:center;gap:8px;padding:4px 16px;font-size:11px;color:#374151;font-weight:500;cursor:pointer;transition:background .1s;border-radius:0}
+    .finding-row:hover{background:#f9fafb}
+    .finding-row.active-cat{background:#f0fdf4}
+    .finding-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+    .finding-count{margin-left:auto;font-size:10px;color:#9ca3af;font-weight:400}
 
     /* divider */
-    .divider{height:1px;background:#f3f4f6;margin:8px 0}
+    .divider{height:1px;background:#f3f4f6;margin:6px 0}
 
     /* info hint */
     .info-hint{
       display:flex;align-items:flex-start;gap:8px;background:#f8fafc;
-      border-radius:8px;margin:12px 16px 0;padding:10px 12px;
-      font-size:11px;color:#6b7280;line-height:1.5;
+      border-radius:8px;margin:10px 12px;padding:9px 11px;
+      font-size:10px;color:#6b7280;line-height:1.5;
     }
-    .info-hint-icon{flex-shrink:0;width:16px;height:16px;border-radius:50%;background:#e5e7eb;
-      display:flex;align-items:center;justify-content:center;font-size:9px;color:#6b7280;margin-top:1px}
+    .info-hint-icon{flex-shrink:0;width:15px;height:15px;border-radius:50%;background:#e5e7eb;
+      display:flex;align-items:center;justify-content:center;font-size:8px;color:#6b7280;margin-top:1px}
+
+    /* ══ FILTER DRAWER ══ */
+    .filter-drawer{
+      position:absolute;top:56px;right:0;bottom:0;z-index:1100;
+      width:272px;background:#fff;border-left:1px solid #e8eaed;
+      display:none;flex-direction:column;overflow:hidden;
+      box-shadow:-4px 0 20px rgba(0,0,0,0.08);
+    }
+    .filter-drawer.open{display:flex}
+    .filter-drawer-head{
+      padding:16px;border-bottom:1px solid #f3f4f6;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .filter-drawer-title{font-size:13px;font-weight:700;color:#111}
+    .filter-drawer-close{
+      width:26px;height:26px;border-radius:6px;border:none;background:#f3f4f6;
+      cursor:pointer;font-size:14px;color:#6b7280;display:flex;align-items:center;justify-content:center;
+    }
+    .filter-drawer-close:hover{background:#e5e7eb}
+    .filter-drawer-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:14px}
+
+    .f-group{}
+    .f-label{font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+    .f-date-row{display:flex;gap:6px}
+    .f-input{
+      width:100%;padding:8px 11px;border:1.5px solid #e8eaed;border-radius:9px;
+      font-size:11px;font-family:'Inter',sans-serif;color:#374151;background:#fafafa;
+      outline:none;transition:border .15s;appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 10px center;padding-right:26px;
+    }
+    .f-input.date-input{background-image:none;padding-right:11px}
+    .f-input:focus{border-color:#2d6a2d;background:#fff}
+
+    /* active filter badge */
+    .filter-badge{
+      display:none;position:absolute;top:-4px;right:-4px;
+      width:14px;height:14px;border-radius:50%;background:#ef4444;
+      font-size:8px;font-weight:700;color:#fff;
+      align-items:center;justify-content:center;
+    }
+    .icon-btn-wrap{position:relative}
+
+    .f-summary{
+      background:#f0fdf4;border-radius:9px;padding:10px 12px;
+      font-size:10px;color:#166534;line-height:1.6;
+    }
+    .f-summary strong{font-weight:700}
+
+    .btn-clear-f{
+      width:100%;padding:9px;border:1.5px solid #e8eaed;border-radius:9px;
+      background:#fff;color:#6b7280;font-size:11px;font-weight:600;
+      font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s;margin-top:4px;
+    }
+    .btn-clear-f:hover{border-color:#ef4444;color:#ef4444}
 
     /* ══ ZOOM CONTROLS ══ */
     .map-zoom{
-      position:absolute;bottom:80px;right:16px;z-index:900;
+      position:absolute;bottom:72px;right:16px;z-index:900;
       display:flex;flex-direction:column;gap:2px;
     }
     .zoom-btn{
       width:32px;height:32px;background:#fff;border:1.5px solid #e8eaed;border-radius:8px;
       cursor:pointer;display:flex;align-items:center;justify-content:center;
-      font-size:16px;color:#374151;box-shadow:0 1px 4px rgba(0,0,0,0.08);
-      transition:background .15s;font-weight:300;
+      font-size:18px;color:#374151;box-shadow:0 1px 4px rgba(0,0,0,0.08);
+      transition:background .15s;font-weight:300;line-height:1;
     }
     .zoom-btn:hover{background:#f9fafb}
 
-    /* ══ BOTTOM LEGEND BAR ══ */
+    /* ══ BOTTOM BAR ══ */
     .bottom-bar{
       position:absolute;bottom:0;left:268px;right:0;z-index:900;
       background:#fff;border-top:1px solid #e8eaed;
-      display:flex;align-items:center;padding:0;height:56px;overflow:hidden;
+      display:flex;align-items:center;height:52px;overflow:hidden;
     }
     .bottom-cat{
       flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-      gap:2px;padding:0 8px;border-right:1px solid #f3f4f6;cursor:pointer;
+      gap:2px;padding:0 6px;border-right:1px solid #f3f4f6;cursor:pointer;
       transition:background .15s;height:100%;
     }
     .bottom-cat:last-child{border-right:none}
     .bottom-cat:hover{background:#f9fafb}
-    .bottom-cat-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-    .bottom-cat-name{font-size:11px;font-weight:600;color:#374151}
-    .bottom-cat-sub{font-size:9px;color:#9ca3af;text-align:center}
-    .bottom-cat-top{display:flex;align-items:center;gap:6px}
+    .bottom-cat.active{background:#f0fdf4}
+    .bottom-cat-top{display:flex;align-items:center;gap:5px}
+    .bottom-cat-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+    .bottom-cat-name{font-size:10px;font-weight:600;color:#374151}
+    .bottom-cat-sub{font-size:9px;color:#9ca3af;text-align:center;line-height:1.3}
+    .bottom-cat-count{font-size:9px;font-weight:700;color:#6b7280;background:#f3f4f6;border-radius:10px;padding:0 5px}
 
     /* ══ RIGHT DETAIL PANEL ══ */
     .detail-panel{
-      position:absolute;top:72px;right:16px;bottom:72px;z-index:1000;
-      width:300px;background:#fff;border-radius:16px;
+      position:absolute;top:68px;right:16px;bottom:64px;z-index:1000;
+      width:296px;background:#fff;border-radius:14px;
       box-shadow:0 8px 32px rgba(0,0,0,0.14);
       display:none;flex-direction:column;overflow:hidden;
     }
     .detail-panel.open{display:flex}
     .detail-header{
       display:flex;align-items:center;justify-content:space-between;
-      padding:16px 16px 12px;border-bottom:1px solid #f3f4f6;
+      padding:14px 16px 10px;border-bottom:1px solid #f3f4f6;flex-shrink:0;
     }
-    .detail-header-title{font-size:13px;font-weight:700;color:#1a2e1a}
+    .detail-header-title{font-size:12px;font-weight:700;color:#111;letter-spacing:0.1px}
     .detail-close{
-      width:28px;height:28px;border-radius:6px;border:none;background:#f9fafb;
+      width:26px;height:26px;border-radius:6px;border:none;background:#f9fafb;
       cursor:pointer;display:flex;align-items:center;justify-content:center;
-      color:#9ca3af;font-size:16px;transition:all .15s;
+      color:#9ca3af;font-size:15px;transition:all .15s;
     }
     .detail-close:hover{background:#f3f4f6;color:#374151}
-    .detail-cat{display:flex;align-items:center;gap:8px;padding:12px 16px 0}
-    .detail-cat-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
-    .detail-cat-name{font-size:13px;font-weight:600;color:#374151}
-    .detail-body{flex:1;overflow-y:auto;padding:0 0 8px;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
+    .detail-body{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
     .detail-body::-webkit-scrollbar{width:3px}
     .detail-body::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
+    .detail-cat-row{display:flex;align-items:center;gap:8px;padding:12px 16px 0}
+    .detail-cat-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+    .detail-cat-name{font-size:12px;font-weight:600;color:#374151}
     .detail-row{
       display:flex;align-items:flex-start;justify-content:space-between;
-      padding:9px 16px;border-bottom:1px solid #f9fafb;gap:12px;
+      padding:8px 16px;border-bottom:1px solid #f9fafb;gap:12px;
     }
-    .detail-row:last-child{border-bottom:none}
-    .detail-key{font-size:11px;color:#9ca3af;font-weight:500;flex-shrink:0;min-width:80px}
+    .detail-key{font-size:10px;color:#9ca3af;font-weight:500;flex-shrink:0;min-width:76px;padding-top:1px}
     .detail-val{font-size:11px;color:#374151;font-weight:500;text-align:right;word-break:break-word}
-    .detail-photos-section{padding:12px 16px 6px}
-    .detail-photos-title{font-size:11px;font-weight:700;color:#374151;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-    .detail-photos-count{background:#e5e7eb;border-radius:20px;padding:1px 7px;font-size:10px;font-weight:600;color:#6b7280}
-    .detail-photos-grid{display:flex;gap:6px}
-    .detail-thumb{width:80px;height:60px;border-radius:8px;object-fit:cover;cursor:pointer;transition:opacity .15s}
-    .detail-thumb:hover{opacity:.85}
 
-    /* slider in detail */
-    .detail-slider{position:relative;overflow:hidden;background:#f3f4f6;margin-top:12px}
+    /* slider */
+    .detail-slider{position:relative;overflow:hidden;background:#f3f4f6;margin-top:10px;flex-shrink:0}
     .detail-slider .slides{display:flex;transition:transform .3s ease}
-    .detail-slider .slide{min-width:100%;overflow:hidden}
-    .detail-slider .slide img{width:100%;height:170px;object-fit:cover;display:block;cursor:pointer}
+    .detail-slider .slide{min-width:100%}
+    .detail-slider .slide img{width:100%;height:160px;object-fit:cover;display:block;cursor:pointer}
     .ds-btn{
       position:absolute;top:50%;transform:translateY(-50%);
-      background:rgba(255,255,255,0.9);color:#374151;border:none;
-      border-radius:50%;width:26px;height:26px;font-size:14px;
-      cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;
-      box-shadow:0 1px 4px rgba(0,0,0,0.15);
+      background:rgba(255,255,255,0.88);color:#374151;border:none;border-radius:50%;
+      width:26px;height:26px;font-size:15px;cursor:pointer;z-index:10;
+      display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,0.15);
     }
-    .ds-btn.prev{left:8px}
-    .ds-btn.next{right:8px}
-    .ds-dots{position:absolute;bottom:6px;width:100%;display:flex;justify-content:center;gap:4px}
+    .ds-btn.prev{left:7px}.ds-btn.next{right:7px}
+    .ds-dots{position:absolute;bottom:5px;width:100%;display:flex;justify-content:center;gap:4px}
     .ds-dots span{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.5)}
-    .ds-dots span.active{background:#fff;width:14px;border-radius:4px}
+    .ds-dots span.active{background:#fff;width:13px;border-radius:4px}
+
+    .detail-photos-section{padding:10px 16px 6px}
+    .detail-photos-title{font-size:10px;font-weight:700;color:#374151;margin-bottom:6px;display:flex;align-items:center;gap:5px}
+    .detail-photos-count{background:#e5e7eb;border-radius:20px;padding:1px 6px;font-size:9px;font-weight:600;color:#6b7280}
+    .detail-photos-grid{display:flex;gap:5px;flex-wrap:wrap}
+    .detail-thumb{width:76px;height:56px;border-radius:7px;object-fit:cover;cursor:pointer;transition:opacity .15s}
+    .detail-thumb:hover{opacity:.82}
 
     /* ══ MODAL ══ */
-    .img-modal{
-      display:none;position:fixed;z-index:9999;inset:0;
-      background:rgba(0,0,0,0.88);justify-content:center;align-items:center;
-    }
+    .img-modal{display:none;position:fixed;z-index:9999;inset:0;background:rgba(0,0,0,0.9);justify-content:center;align-items:center}
     .img-modal img{max-width:90%;max-height:88%;border-radius:12px}
-    .modal-close{
-      position:absolute;top:20px;right:28px;color:#fff;font-size:30px;
-      cursor:pointer;opacity:.7;transition:opacity .15s;line-height:1;
-    }
+    .modal-close{position:absolute;top:18px;right:26px;color:#fff;font-size:28px;cursor:pointer;opacity:.7;transition:opacity .15s;line-height:1}
     .modal-close:hover{opacity:1}
-
-    /* ══ FILTER DRAWER ══ */
-    .filter-drawer{
-      position:absolute;top:56px;right:0;bottom:0;z-index:1100;
-      width:280px;background:#fff;border-left:1px solid #e8eaed;
-      display:none;flex-direction:column;padding:16px;gap:12px;
-      overflow-y:auto;
-    }
-    .filter-drawer.open{display:flex}
-    .filter-drawer-title{font-size:13px;font-weight:700;color:#1a2e1a;margin-bottom:4px}
-    .filter-label{font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-    .filter-input{
-      width:100%;padding:9px 12px;border:1.5px solid #e8eaed;border-radius:10px;
-      font-size:12px;font-family:'Inter',sans-serif;color:#374151;background:#fafafa;
-      outline:none;transition:border .15s;
-    }
-    .filter-input:focus{border-color:#2d6a2d;background:#fff}
-    .filter-date-row{display:flex;gap:6px}
-    .filter-date-row .filter-input{flex:1}
-    .btn-apply{
-      width:100%;padding:10px;border:none;border-radius:10px;
-      background:#2d6a2d;color:#fff;font-size:12px;font-weight:700;
-      font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s;
-    }
-    .btn-apply:hover{background:#1f4d1f}
-    .btn-clear-f{
-      width:100%;padding:9px;border:1.5px solid #e8eaed;border-radius:10px;
-      background:#fff;color:#6b7280;font-size:12px;font-weight:600;
-      font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s;
-    }
-    .btn-clear-f:hover{border-color:#2d6a2d;color:#2d6a2d}
   </style>
 </head>
 <body>
@@ -254,17 +266,20 @@
 <!-- ══ TOP HEADER ══ -->
 <div class="top-bar">
   <div class="top-bar-left">
-    <div class="top-bar-logo">
-      <img src="./data/CMI-Brandmark-FullColor-BlackBG.png" alt="CMI" class="logo-img">
+    <img src="./data/CMI-Brandmark-FullColor-BlackBG.png" alt="CMI" class="logo-img">
+    <div class="top-bar-divider"></div>
+    <div class="top-bar-title">
+      <span class="top-bar-title-main">Field Patrol Dashboard</span>
+      <span class="top-bar-title-sub">Conservation Monitoring & Intelligence</span>
     </div>
   </div>
   <div class="top-bar-right">
-    <button class="icon-btn" title="Help">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3" stroke-linecap="round"/></svg>
-    </button>
-    <button class="icon-btn" title="Filter" id="filterToggleBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-    </button>
+    <div class="icon-btn-wrap">
+      <button class="icon-btn" title="Filter" id="filterToggleBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      </button>
+      <span class="filter-badge" id="filterBadge">!</span>
+    </div>
     <button class="icon-btn" title="Menu">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
@@ -274,115 +289,112 @@
 <!-- ══ LEFT SIDEBAR ══ -->
 <div class="sidebar">
   <div class="sidebar-body">
-    <!-- Map Layers section -->
-    <div class="sidebar-section">
-      <div class="sidebar-section-header" onclick="toggleSection('layersSection','chevron1')">
-        <span class="sidebar-section-title">Map Layers</span>
-        <span class="sidebar-section-chevron open" id="chevron1">▲</span>
-      </div>
+
+    <!-- Map Layers -->
+    <div class="sidebar-section-header" onclick="toggleSection('secLayers','chev1')">
+      <span class="sidebar-section-title">Map Layers</span>
+      <span class="sidebar-chevron open" id="chev1">▲</span>
     </div>
-    <div id="layersSection">
-      <!-- Boundary -->
+    <div id="secLayers">
       <div class="layer-item">
         <div class="layer-item-left">
-          <div class="layer-icon boundary"></div>
+          <div class="layer-icon-bd"></div>
           <span class="layer-label">Project Area</span>
         </div>
-        <label class="cb-wrap">
-          <input type="checkbox" id="toggleBoundary" checked>
-          <div class="cb-box"></div>
-        </label>
+        <label class="cb-wrap"><input type="checkbox" id="toggleBoundary" checked><div class="cb-box"></div></label>
       </div>
-
-      <!-- Landcover group label -->
-      <div class="layer-item" style="padding-bottom:2px">
-        <div class="layer-item-left">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <rect x="1" y="1" width="6" height="6" fill="#5c9640" rx="1"/>
-            <rect x="9" y="1" width="6" height="6" fill="#ecb240" rx="1"/>
-            <rect x="1" y="9" width="6" height="6" fill="#a1a1a1" rx="1"/>
-            <rect x="9" y="9" width="6" height="6" fill="#b2ec40" rx="1"/>
-          </svg>
-          <span class="layer-label">Landcover</span>
-        </div>
-      </div>
-
-      <div class="layer-item" style="padding-left:32px">
-        <div class="layer-item-left">
-          <div class="layer-icon" style="background:#4CAF50;border-radius:3px"></div>
-          <span class="layer-label" style="font-size:11px">LULC 2023</span>
-        </div>
+      <div style="padding:5px 16px 2px"><span style="font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">Landcover</span></div>
+      <div class="layer-item" style="padding-left:28px">
+        <div class="layer-item-left"><div class="layer-icon-sq" style="background:#4CAF50"></div><span class="layer-label" style="font-size:11px">LULC 2023</span></div>
         <label class="switch"><input type="checkbox" id="toggleLulc" checked><span class="sw-track"></span></label>
       </div>
-
-      <div class="layer-item" style="padding-left:32px">
-        <div class="layer-item-left">
-          <div class="layer-icon" style="background:#00BCD4;border-radius:3px"></div>
-          <span class="layer-label" style="font-size:11px">LULC 2025</span>
-        </div>
+      <div class="layer-item" style="padding-left:28px">
+        <div class="layer-item-left"><div class="layer-icon-sq" style="background:#00BCD4"></div><span class="layer-label" style="font-size:11px">LULC 2025</span></div>
         <label class="switch"><input type="checkbox" id="toggleLulc2025"><span class="sw-track"></span></label>
       </div>
-
-      <div class="layer-item" style="padding-left:32px">
-        <div class="layer-item-left">
-          <div class="layer-icon" style="background:#FF9800;border-radius:3px"></div>
-          <span class="layer-label" style="font-size:11px">Landsat 2024</span>
-        </div>
+      <div class="layer-item" style="padding-left:28px">
+        <div class="layer-item-left"><div class="layer-icon-sq" style="background:#FF9800"></div><span class="layer-label" style="font-size:11px">Landsat 2024</span></div>
         <label class="switch"><input type="checkbox" id="toggleLandsat2024"><span class="sw-track"></span></label>
       </div>
-
-      <div class="layer-item" style="padding-left:32px">
-        <div class="layer-item-left">
-          <div class="layer-icon" style="background:#F44336;border-radius:3px"></div>
-          <span class="layer-label" style="font-size:11px">Landsat 2025</span>
-        </div>
+      <div class="layer-item" style="padding-left:28px">
+        <div class="layer-item-left"><div class="layer-icon-sq" style="background:#F44336"></div><span class="layer-label" style="font-size:11px">Landsat 2025</span></div>
         <label class="switch"><input type="checkbox" id="toggleLandsat2025"><span class="sw-track"></span></label>
       </div>
-
       <div class="layer-item">
-        <div class="layer-item-left">
-          <div class="layer-icon" style="background:#f5a623;border-radius:50%"></div>
-          <span class="layer-label">Patrol Points</span>
-        </div>
+        <div class="layer-item-left"><div class="layer-icon-sq" style="background:#f5a623;border-radius:50%"></div><span class="layer-label">Patrol Points</span></div>
         <label class="switch"><input type="checkbox" id="togglePoints" checked><span class="sw-track"></span></label>
       </div>
     </div>
 
     <div class="divider"></div>
 
-    <!-- Landcover legend — warna sesuai permintaan -->
-    <div style="padding:0 0 4px">
-      <div class="legend-title">LULC Classification</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ec4040"></div>Building</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#a1a1a1"></div>Cleared / Bare Land</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ecb240"></div>Oil Palm / Newly Planted</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#5c9640"></div>Forest</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ffffce;border:1px solid #ccc"></div>Mixed Dry Agriculture</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#b2ec40"></div>Old Shrubs</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#000000"></div>Road</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ddff96"></div>Shrubs</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#b6cce1"></div>Water</div>
+    <!-- LULC Legend -->
+    <div class="sidebar-section-header" onclick="toggleSection('secLulcLeg','chev2')">
+      <span class="sidebar-section-title">LULC Classification</span>
+      <span class="sidebar-chevron open" id="chev2">▲</span>
+    </div>
+    <div id="secLulcLeg">
+      <div class="legend-item"><div class="legend-swatch" style="background:#ec4040"></div>Building</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#a1a1a1"></div>Cleared / Bare Land</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#ecb240"></div>Oil Palm / Newly Planted</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#5c9640"></div>Forest</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#ffffce;border:1px solid #ccc"></div>Mixed Dry Agriculture</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#b2ec40"></div>Old Shrubs</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#000"></div>Road</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#ddff96"></div>Shrubs</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#b6cce1"></div>Water</div>
+      <div style="height:6px"></div>
     </div>
 
     <div class="divider"></div>
 
-    <!-- Patrol Findings legend -->
-    <div class="findings-section">
-      <div class="findings-title">Patrol Findings</div>
-      <div id="findingsLegend">
-        <div class="finding-row"><div class="finding-dot" style="background:#3b82f6"></div><span>Ecosystem</span></div>
-        <div class="finding-row"><div class="finding-dot" style="background:#22c55e"></div><span>Biodiversity</span></div>
-        <div class="finding-row"><div class="finding-dot" style="background:#ef4444"></div><span>Illegal Activities</span></div>
-        <div class="finding-row"><div class="finding-dot" style="background:#f59e0b"></div><span>Natural Disturbance</span></div>
-        <div class="finding-row"><div class="finding-dot" style="background:#a855f7"></div><span>Communities</span></div>
-      </div>
+    <!-- Patrol Findings -->
+    <div class="sidebar-section-header" onclick="toggleSection('secFindings','chev3')">
+      <span class="sidebar-section-title">Patrol Findings</span>
+      <span class="sidebar-chevron open" id="chev3">▲</span>
+    </div>
+    <div id="secFindings" style="padding:4px 0">
+      <div id="findingsLegend"></div>
     </div>
 
-    <!-- Info hint -->
     <div class="info-hint">
       <div class="info-hint-icon">i</div>
-      <span>Click on a point on the map to view details</span>
+      <span>Click on a point on the map to view details. Click a category to highlight.</span>
     </div>
+  </div>
+</div>
+
+<!-- ══ FILTER DRAWER ══ -->
+<div class="filter-drawer" id="filterDrawer">
+  <div class="filter-drawer-head">
+    <span class="filter-drawer-title">Filter Data</span>
+    <button class="filter-drawer-close" id="filterClose">✕</button>
+  </div>
+  <div class="filter-drawer-body">
+    <div class="f-group">
+      <div class="f-label">Date Range</div>
+      <div class="f-date-row">
+        <input type="date" class="f-input date-input" id="startDate" title="From">
+        <input type="date" class="f-input date-input" id="endDate" title="To">
+      </div>
+    </div>
+    <div class="f-group">
+      <div class="f-label">Officer</div>
+      <select class="f-input" id="filterOfficer"><option value="">All Officers</option></select>
+    </div>
+    <div class="f-group">
+      <div class="f-label">Category</div>
+      <select class="f-input" id="filterCategory"><option value="">All Categories</option></select>
+    </div>
+    <div class="f-group">
+      <div class="f-label">Finding</div>
+      <select class="f-input" id="filterFinding"><option value="">All Findings</option></select>
+    </div>
+
+    <!-- Active filter summary -->
+    <div class="f-summary" id="filterSummary" style="display:none"></div>
+
+    <button class="btn-clear-f" id="clearFilters">✕ Clear All Filters</button>
   </div>
 </div>
 
@@ -390,7 +402,7 @@
 <div class="map-zoom">
   <button class="zoom-btn" onclick="map.zoomIn()">+</button>
   <button class="zoom-btn" onclick="map.zoomOut()">−</button>
-  <button class="zoom-btn" title="Home" onclick="resetView()" style="font-size:13px">⌂</button>
+  <button class="zoom-btn" title="Home" onclick="resetView()" style="font-size:12px">⌂</button>
 </div>
 
 <!-- ══ RIGHT DETAIL PANEL ══ -->
@@ -400,37 +412,6 @@
     <button class="detail-close" id="detailClose">✕</button>
   </div>
   <div class="detail-body" id="detailBody"></div>
-</div>
-
-<!-- ══ FILTER DRAWER ══ -->
-<div class="filter-drawer" id="filterDrawer">
-  <div class="filter-drawer-title">Filter Data</div>
-
-  <div>
-    <div class="filter-label">Date Range</div>
-    <div class="filter-date-row">
-      <input type="date" class="filter-input" id="startDate" placeholder="From">
-      <input type="date" class="filter-input" id="endDate" placeholder="To">
-    </div>
-  </div>
-
-  <div>
-    <div class="filter-label">Officer</div>
-    <select class="filter-input" id="filterOfficer"><option value="">All Officers</option></select>
-  </div>
-
-  <div>
-    <div class="filter-label">Category</div>
-    <select class="filter-input" id="filterCategory"><option value="">All Categories</option></select>
-  </div>
-
-  <div>
-    <div class="filter-label">Finding</div>
-    <select class="filter-input" id="filterFinding"><option value="">All Findings</option></select>
-  </div>
-
-  <button class="btn-apply" id="applyFilters">Apply Filters</button>
-  <button class="btn-clear-f" id="clearFilters">Clear All</button>
 </div>
 
 <!-- ══ BOTTOM BAR ══ -->
@@ -443,368 +424,490 @@
 </div>
 
 <script>
-  /* ══ CAT COLOR MAP ══ */
-  const catColorMap = {};
-  const PALETTE = ['#3b82f6','#22c55e','#ef4444','#f59e0b','#a855f7','#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6'];
-  function catColor(cat){
-    if(!catColorMap[cat]) catColorMap[cat] = PALETTE[Object.keys(catColorMap).length % PALETTE.length];
-    return catColorMap[cat];
+/* ════════════════════════════════════════════════════
+   PALETTE & COLOR
+════════════════════════════════════════════════════ */
+const PALETTE = ['#3b82f6','#22c55e','#ef4444','#f59e0b','#a855f7','#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6'];
+const catColorMap = {};
+function catColor(cat){
+  if(!catColorMap[cat]) catColorMap[cat] = PALETTE[Object.keys(catColorMap).length % PALETTE.length];
+  return catColorMap[cat];
+}
+
+/* ════════════════════════════════════════════════════
+   MAP
+════════════════════════════════════════════════════ */
+const map = L.map('map', {center:[0.8,110.325], zoom:13, zoomControl:false, attributionControl:false});
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {opacity:0.85}).addTo(map);
+
+const lulc        = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png',        {opacity:1}).addTo(map);
+const lulc2025    = L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',   {opacity:1});
+const landsat2024 = L.tileLayer('./data/landsat-2024/{z}/{x}/{y}.png', {opacity:1});
+const landsat2025 = L.tileLayer('./data/landsat-2025/{z}/{x}/{y}.png', {opacity:1});
+
+let boundaryLayer, mapBounds;
+const pointLayer = L.layerGroup().addTo(map);
+
+fetch('data/CMI.json').then(r=>r.json()).then(j=>{
+  boundaryLayer = L.geoJSON(j, {style:{color:"#7c3aed", weight:2.5, fillOpacity:0, dashArray:'8 4'}}).addTo(map);
+  mapBounds = boundaryLayer.getBounds();
+  map.fitBounds(mapBounds, {paddingTopLeft:[268,0]});
+});
+
+function resetView(){
+  if(mapBounds) map.fitBounds(mapBounds, {paddingTopLeft:[268,0]});
+}
+
+/* ════════════════════════════════════════════════════
+   DATA LOAD
+════════════════════════════════════════════════════ */
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
+let rawData = [];
+let highlightCat = null;
+
+Papa.parse(SHEET_URL, {
+  download:true, header:true,
+  complete:(res)=>{
+    rawData = res.data.filter(r => r['data-coordinate'] && r['data-coordinate'].trim());
+    // Pre-populate catColorMap in insertion order
+    rawData.forEach(r => { if(r['data-survey-categ']) catColor(r['data-survey-categ']); });
+    initDropdowns();
+    updateMap();
   }
+});
 
-  /* ══ MAP ══ */
-  const map = L.map('map', {center:[0.8,110.325], zoom:13, zoomControl:false, attributionControl:false});
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {opacity:0.85}).addTo(map);
+/* ════════════════════════════════════════════════════
+   DATE HELPERS
+   Semua normalisasi ke midnight lokal agar
+   perbandingan kalender tidak terpengaruh timezone.
+════════════════════════════════════════════════════ */
+function toMidnight(y,m,d){ return new Date(y, m, d); }
 
-  const lulc        = L.tileLayer('./data/Tiles/{z}/{x}/{y}.png',        {opacity:1}).addTo(map);
-  const lulc2025    = L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',   {opacity:1});
-  const landsat2024 = L.tileLayer('./data/landsat-2024/{z}/{x}/{y}.png', {opacity:1});
-  const landsat2025 = L.tileLayer('./data/landsat-2025/{z}/{x}/{y}.png', {opacity:1});
+function parseRecordDate(s){
+  if(!s || !s.trim()) return null;
+  s = s.trim();
+  const MON = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
 
-  let boundaryLayer, mapBounds;
-  const pointLayer = L.layerGroup().addTo(map);
+  // dd-Mon-yyyy   → "24-Oct-2025"
+  let m = s.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
+  if(m && MON[m[2]] !== undefined)
+    return toMidnight(+m[3], MON[m[2]], +m[1]);
 
-  fetch('data/CMI.json').then(r => r.json()).then(j => {
-    boundaryLayer = L.geoJSON(j, {style:{color:"#7c3aed", weight:2.5, fillOpacity:0, dashArray:'8 4'}}).addTo(map);
-    mapBounds = boundaryLayer.getBounds();
-    map.fitBounds(mapBounds, {paddingTopLeft:[268,0]});
+  // yyyy-mm-dd    → "2025-10-24"
+  m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(m) return toMidnight(+m[1], +m[2]-1, +m[3]);
+
+  // dd/mm/yyyy    → "24/10/2025"
+  m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m) return toMidnight(+m[3], +m[2]-1, +m[1]);
+
+  // mm/dd/yyyy fallback via Date()
+  const d = new Date(s);
+  if(!isNaN(d)) return toMidnight(d.getFullYear(), d.getMonth(), d.getDate());
+  return null;
+}
+
+function parseInputDate(s){
+  // <input type="date"> → "yyyy-mm-dd"
+  if(!s) return null;
+  const p = s.split('-');
+  if(p.length !== 3) return null;
+  return toMidnight(+p[0], +p[1]-1, +p[2]);
+}
+
+/* ════════════════════════════════════════════════════
+   UTILS
+════════════════════════════════════════════════════ */
+function fmtLabel(s){ return (s||'').replace(/_/g,' '); }
+function convert(url){
+  if(!url) return null;
+  const id = url.match(/[-\w]{25,}/);
+  return id ? `https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000` : null;
+}
+
+/* ════════════════════════════════════════════════════
+   FILTER STATE — satu sumber kebenaran
+════════════════════════════════════════════════════ */
+const F = { start:null, end:null, officer:'', category:'', finding:'' };
+
+function getActiveFiltered(){
+  /* Kembalikan array record yang lolos SEMUA filter (AND) */
+  return rawData.filter(r => {
+    // coordinate wajib ada
+    if(!r['data-coordinate'] || !r['data-coordinate'].trim()) return false;
+
+    // --- tanggal ---
+    if(F.start !== null || F.end !== null){
+      const rd = parseRecordDate(r['data-start_date']);
+      if(rd === null) return false;            // tidak bisa di-parse → buang
+      if(F.start !== null && rd < F.start) return false;
+      if(F.end   !== null && rd > F.end)   return false;
+    }
+
+    // --- dropdown (AND) ---
+    if(F.officer  && r['data-base_info-nama'] !== F.officer)  return false;
+    if(F.category && r['data-survey-categ']   !== F.category) return false;
+    if(F.finding  && r['data-survey-finding'] !== F.finding)  return false;
+
+    return true;
+  });
+}
+
+/* ════════════════════════════════════════════════════
+   DROPDOWN — cascade berdasarkan data yang lolos filter
+   saat ini KECUALI untuk field yang sedang di-cascade.
+════════════════════════════════════════════════════ */
+let allOfficers=[], allCategories=[], allFindings=[];
+
+function initDropdowns(){
+  const o=new Set(), c=new Set(), f=new Set();
+  rawData.forEach(r=>{
+    if(r['data-base_info-nama']) o.add(r['data-base_info-nama']);
+    if(r['data-survey-categ'])   c.add(r['data-survey-categ']);
+    if(r['data-survey-finding']) f.add(r['data-survey-finding']);
+  });
+  allOfficers   = [...o].sort();
+  allCategories = [...c].sort();
+  allFindings   = [...f].sort();
+  rebuildAllSelects();
+}
+
+/**
+ * Rebuild setiap <select> dengan opsi yang tersisa
+ * berdasarkan filter aktif dari field LAIN (bukan dirinya sendiri).
+ */
+function rebuildAllSelects(){
+  // Untuk officer: filter tanggal + category + finding aktif
+  const forOfficer = rawData.filter(r=>{
+    if(!r['data-coordinate']||!r['data-coordinate'].trim()) return false;
+    if(F.start!==null||F.end!==null){
+      const rd=parseRecordDate(r['data-start_date']);
+      if(rd===null) return false;
+      if(F.start!==null&&rd<F.start) return false;
+      if(F.end!==null&&rd>F.end)     return false;
+    }
+    if(F.category && r['data-survey-categ']   !== F.category) return false;
+    if(F.finding  && r['data-survey-finding'] !== F.finding)  return false;
+    return true;
   });
 
-  function resetView(){
-    if(mapBounds) map.fitBounds(mapBounds, {paddingTopLeft:[268,0]});
-  }
-
-  /* ══ DATA ══ */
-  const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
-  let rawData = [], highlightCat = null;
-
-  Papa.parse(SHEET_URL, {
-    download: true, header: true,
-    complete: (res) => {
-      rawData = res.data.filter(r => r['data-coordinate'] && r['data-coordinate'].trim());
-      initDropdowns();
-      updateMap();
-      buildBottomBar();
+  // Untuk category: filter tanggal + officer + finding aktif
+  const forCategory = rawData.filter(r=>{
+    if(!r['data-coordinate']||!r['data-coordinate'].trim()) return false;
+    if(F.start!==null||F.end!==null){
+      const rd=parseRecordDate(r['data-start_date']);
+      if(rd===null) return false;
+      if(F.start!==null&&rd<F.start) return false;
+      if(F.end!==null&&rd>F.end)     return false;
     }
+    if(F.officer  && r['data-base_info-nama'] !== F.officer)  return false;
+    if(F.finding  && r['data-survey-finding'] !== F.finding)  return false;
+    return true;
   });
 
-  /* ══ DATE HELPERS ══
-     Semua tanggal dinormalisasi ke midnight lokal agar perbandingan
-     murni berbasis kalender, tidak terpengaruh offset timezone.
-  ══════════════════════════════════════════════════════════════════ */
-  function toMidnight(d){
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  }
-
-  /**
-   * Parsing tanggal dari spreadsheet.
-   * Format yang didukung:
-   *   "dd-Mon-yyyy"  → "24-Oct-2025"
-   *   "yyyy-mm-dd"   → "2025-10-24"
-   *   "dd/mm/yyyy"   → "24/10/2025"
-   *   "mm/dd/yyyy"   → dicoba sebagai fallback via Date()
-   */
-  function parseRecordDate(s){
-    if(!s || !s.trim()) return null;
-    const MON = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-    s = s.trim();
-
-    // dd-Mon-yyyy  (e.g. "24-Oct-2025")
-    const dashParts = s.split('-');
-    if(dashParts.length === 3){
-      if(!isNaN(dashParts[0]) && MON[dashParts[1]] !== undefined){
-        const d = new Date(parseInt(dashParts[2]), MON[dashParts[1]], parseInt(dashParts[0]));
-        return isNaN(d) ? null : toMidnight(d);
-      }
-      // yyyy-mm-dd  (e.g. "2025-10-24")
-      if(dashParts[0].length === 4 && !isNaN(dashParts[1]) && !isNaN(dashParts[2])){
-        const d = new Date(parseInt(dashParts[0]), parseInt(dashParts[1])-1, parseInt(dashParts[2]));
-        return isNaN(d) ? null : toMidnight(d);
-      }
+  // Untuk finding: filter tanggal + officer + category aktif
+  const forFinding = rawData.filter(r=>{
+    if(!r['data-coordinate']||!r['data-coordinate'].trim()) return false;
+    if(F.start!==null||F.end!==null){
+      const rd=parseRecordDate(r['data-start_date']);
+      if(rd===null) return false;
+      if(F.start!==null&&rd<F.start) return false;
+      if(F.end!==null&&rd>F.end)     return false;
     }
+    if(F.officer  && r['data-base_info-nama'] !== F.officer)  return false;
+    if(F.category && r['data-survey-categ']   !== F.category) return false;
+    return true;
+  });
 
-    // dd/mm/yyyy  (e.g. "24/10/2025")
-    const slashParts = s.split('/');
-    if(slashParts.length === 3){
-      // Coba dd/mm/yyyy dulu (lebih umum di Indonesia)
-      const d1 = new Date(parseInt(slashParts[2]), parseInt(slashParts[1])-1, parseInt(slashParts[0]));
-      if(!isNaN(d1) && d1.getFullYear() > 1970) return toMidnight(d1);
-    }
+  const availO = new Set(forOfficer.map(r=>r['data-base_info-nama']).filter(Boolean));
+  const availC = new Set(forCategory.map(r=>r['data-survey-categ']).filter(Boolean));
+  const availF = new Set(forFinding.map(r=>r['data-survey-finding']).filter(Boolean));
 
-    // Fallback: biarkan browser parse
-    const d = new Date(s);
-    return isNaN(d) ? null : toMidnight(d);
+  fillSelect('filterOfficer',   allOfficers,   availO, F.officer,   'All Officers');
+  fillSelect('filterCategory',  allCategories, availC, F.category,  'All Categories');
+  fillSelect('filterFinding',   allFindings,   availF, F.finding,   'All Findings');
+}
+
+function fillSelect(id, allVals, availSet, curVal, placeholder){
+  const el = document.getElementById(id);
+  el.innerHTML = `<option value="">${placeholder}</option>`;
+  allVals.forEach(v=>{
+    const o = document.createElement('option');
+    o.value = v;
+    o.textContent = fmtLabel(v);
+    if(!availSet.has(v)) o.disabled = true;   // greyout jika tidak tersedia
+    if(v === curVal)     o.selected = true;
+    el.appendChild(o);
+  });
+}
+
+/* ════════════════════════════════════════════════════
+   APPLY — dipanggil setiap kali ada perubahan filter
+════════════════════════════════════════════════════ */
+function applyFilters(){
+  rebuildAllSelects();
+  updateMap();
+  updateFilterSummary();
+  updateFilterBadge();
+}
+
+/* ════════════════════════════════════════════════════
+   FILTER SUMMARY & BADGE
+════════════════════════════════════════════════════ */
+function updateFilterSummary(){
+  const parts = [];
+  if(F.start || F.end){
+    const from = F.start ? F.start.toLocaleDateString('id-ID') : '…';
+    const to   = F.end   ? F.end.toLocaleDateString('id-ID')   : '…';
+    parts.push(`📅 ${from} – ${to}`);
   }
+  if(F.officer)  parts.push(`👤 ${fmtLabel(F.officer)}`);
+  if(F.category) parts.push(`📂 ${fmtLabel(F.category)}`);
+  if(F.finding)  parts.push(`🔍 ${fmtLabel(F.finding)}`);
 
-  /**
-   * Parsing tanggal dari <input type="date">.
-   * Browser selalu mengembalikan "yyyy-mm-dd".
-   */
-  function parseInputDate(s){
-    if(!s) return null;
-    const p = s.split('-');
-    if(p.length !== 3) return null;
-    return toMidnight(new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2])));
+  const el = document.getElementById('filterSummary');
+  if(parts.length){
+    el.style.display = 'block';
+    el.innerHTML = `<strong>Active filters:</strong><br>${parts.join('<br>')}`;
+  } else {
+    el.style.display = 'none';
   }
+}
 
-  /* ══ UTILS ══ */
-  function fmtLabel(s){ return (s||'').replace(/_/g,' '); }
-  function convert(url){
-    if(!url) return null;
-    const id = url.match(/[-\w]{25,}/);
-    return id ? `https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000` : null;
-  }
+function updateFilterBadge(){
+  const active = !!(F.start||F.end||F.officer||F.category||F.finding);
+  const badge = document.getElementById('filterBadge');
+  badge.style.display = active ? 'flex' : 'none';
+  document.getElementById('filterToggleBtn').classList.toggle('active', active);
+}
 
-  /* ══ MARKER ICON per category ══ */
-  function makeIcon(color, faded=false){
-    return L.divIcon({
-      html:`<div style="width:12px;height:12px;border-radius:50%;background:${color};border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);opacity:${faded?0.2:1}"></div>`,
-      className:'', iconSize:[12,12], iconAnchor:[6,6],
+/* ════════════════════════════════════════════════════
+   MARKER
+════════════════════════════════════════════════════ */
+function makeIcon(color, faded=false){
+  return L.divIcon({
+    html:`<div style="width:12px;height:12px;border-radius:50%;background:${color};border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);opacity:${faded?0.18:1}"></div>`,
+    className:'', iconSize:[12,12], iconAnchor:[6,6],
+  });
+}
+
+/* ════════════════════════════════════════════════════
+   UPDATE MAP
+════════════════════════════════════════════════════ */
+function updateMap(){
+  pointLayer.clearLayers();
+  const filtered = getActiveFiltered();
+  const allMarkers = [];
+  const catCounts = {};
+
+  filtered.forEach(r=>{
+    const parts = r['data-coordinate'].split(',');
+    if(parts.length < 2) return;
+    const lat = parseFloat(parts[0]), lon = parseFloat(parts[1]);
+    if(isNaN(lat)||isNaN(lon)) return;
+
+    const cat = r['data-survey-categ'] || 'Unknown';
+    catCounts[cat] = (catCounts[cat]||0) + 1;
+    const col = catColor(cat);
+
+    const m = L.marker([lat,lon], {icon: makeIcon(col)});
+    m.category = cat;
+    m.on('click', ()=>openDetail(r));
+    allMarkers.push(m);
+    pointLayer.addLayer(m);
+  });
+
+  // highlight
+  if(highlightCat){
+    allMarkers.forEach(m=>{
+      m.setIcon(makeIcon(catColor(m.category), m.category !== highlightCat));
     });
   }
 
-  /* ══ DROPDOWNS ══ */
-  let allOfficers=[], allCategories=[], allFindings=[];
+  buildBottomBar(catCounts);
+  buildFindingsLegend(catCounts);
+}
 
-  function initDropdowns(){
-    const o=new Set(), c=new Set(), f=new Set();
-    rawData.forEach(r => {
-      if(r['data-base_info-nama']) o.add(r['data-base_info-nama']);
-      if(r['data-survey-categ'])   c.add(r['data-survey-categ']);
-      if(r['data-survey-finding']) f.add(r['data-survey-finding']);
-    });
-    allOfficers   = [...o].sort();
-    allCategories = [...c].sort();
-    allFindings   = [...f].sort();
-    populateSelect('filterOfficer',   allOfficers,   'All Officers');
-    populateSelect('filterCategory',  allCategories, 'All Categories');
-    populateSelect('filterFinding',   allFindings,   'All Findings');
-  }
+/* ════════════════════════════════════════════════════
+   BOTTOM BAR
+════════════════════════════════════════════════════ */
+function buildBottomBar(catCounts){
+  const bar = document.getElementById('bottomBar');
+  const subLabels = {};
+  rawData.forEach(r=>{
+    const c=r['data-survey-categ'], f=r['data-survey-finding'];
+    if(c&&f){ if(!subLabels[c]) subLabels[c]=new Set(); subLabels[c].add(fmtLabel(f)); }
+  });
 
-  function populateSelect(id, values, ph){
-    const el = document.getElementById(id);
-    const cur = el.value;
-    el.innerHTML = `<option value="">${ph}</option>`;
-    values.forEach(v => {
-      const o = document.createElement('option');
-      o.value = v; o.textContent = fmtLabel(v);
-      if(v === cur) o.selected = true;
-      el.appendChild(o);
-    });
-  }
-
-  /* ══ SLIDER for detail panel ══ */
-  const dsIndex = {};
-  function buildDetailSlider(imgs, uid){
-    if(!imgs.length) return `<div style="height:80px;background:#f9fafb;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:28px;margin-top:12px">📷</div>`;
-    if(imgs.length === 1) return `<div class="detail-slider"><div class="slides"><div class="slide"><img src="${imgs[0]}" onclick="openModal('${imgs[0]}')"></div></div></div>`;
-    const slides = imgs.map(s => `<div class="slide"><img src="${s}" onclick="openModal('${s}')"></div>`).join('');
-    const dots   = imgs.map((_,i) => `<span class="${i===0?'active':''}"></span>`).join('');
-    return `<div class="detail-slider" id="${uid}">
-      <div class="slides">${slides}</div>
-      <button class="ds-btn prev" onclick="dsMv('${uid}',-1)">‹</button>
-      <button class="ds-btn next" onclick="dsMv('${uid}',1)">›</button>
-      <div class="ds-dots">${dots}</div>
-    </div>`;
-  }
-  function dsMv(uid, dir){
-    const c = document.getElementById(uid); if(!c) return;
-    const sl = c.querySelectorAll('.slide'), dots = c.querySelectorAll('.ds-dots span'), n = sl.length;
-    let idx = ((dsIndex[uid]||0) + dir + n) % n;
-    dsIndex[uid] = idx;
-    c.querySelector('.slides').style.transform = `translateX(-${idx*100}%)`;
-    dots.forEach((d,i) => d.classList.toggle('active', i===idx));
-  }
-
-  /* ══ DETAIL PANEL ══ */
-  function openDetail(r){
-    const cat    = r['data-survey-categ']   || 'Unknown';
-    const finding= r['data-survey-finding'] || '-';
-    const col    = catColor(cat);
-    const imgs   = [convert(r['data-documentation-image_1']), convert(r['data-documentation-image_2'])].filter(Boolean);
-    const uid    = 'ds_' + Math.random().toString(36).slice(2,7);
-
-    const parts  = (r['data-coordinate']||'').split(',');
-    const lat    = parts[0]?.trim() || '';
-    const lon    = parts[1]?.trim() || '';
-    const coord  = (lat&&lon) ? `${parseFloat(lat).toFixed(5)}, ${parseFloat(lon).toFixed(5)}` : '-';
-
-    document.getElementById('detailBody').innerHTML = `
-      <div class="detail-cat">
-        <div class="detail-cat-dot" style="background:${col}"></div>
-        <span class="detail-cat-name">${fmtLabel(cat)}</span>
+  bar.innerHTML = Object.keys(catColorMap).map(cat=>{
+    const col = catColor(cat);
+    const count = catCounts[cat] || 0;
+    const subs = [...(subLabels[cat]||[])].slice(0,2).join(', ');
+    const subTrim = subs.length>30 ? subs.slice(0,30)+'…' : subs;
+    const isActive = highlightCat === cat;
+    return `<div class="bottom-cat${isActive?' active':''}" onclick="filterByCat('${cat}')">
+      <div class="bottom-cat-top">
+        <div class="bottom-cat-dot" style="background:${col}"></div>
+        <span class="bottom-cat-name">${fmtLabel(cat)}</span>
+        ${count ? `<span class="bottom-cat-count">${count}</span>` : ''}
       </div>
-      ${buildDetailSlider(imgs, uid)}
-      <div style="height:8px"></div>
-      <div class="detail-row"><span class="detail-key">Type</span><span class="detail-val">${fmtLabel(finding)}</span></div>
-      <div class="detail-row"><span class="detail-key">Date</span><span class="detail-val">${r['data-start_date']||'-'}</span></div>
-      <div class="detail-row"><span class="detail-key">Patrol ID</span><span class="detail-val">${r['_id']||r['id']||'-'}</span></div>
-      <div class="detail-row"><span class="detail-key">Patrol Team</span><span class="detail-val">${r['data-base_info-nama']||'-'}</span></div>
-      ${r['data-survey-description'] ? `<div class="detail-row"><span class="detail-key">Notes</span><span class="detail-val">${r['data-survey-description']}</span></div>` : ''}
-      <div class="detail-row"><span class="detail-key">Location</span><span class="detail-val" style="font-family:monospace;font-size:10px">${coord}</span></div>
-      ${imgs.length ? `
-      <div class="detail-photos-section">
-        <div class="detail-photos-title">Photos <span class="detail-photos-count">${imgs.length}</span></div>
-        <div class="detail-photos-grid">
-          ${imgs.map(s=>`<img class="detail-thumb" src="${s}" onclick="openModal('${s}')">`).join('')}
-        </div>
-      </div>` : ''}
-    `;
-    document.getElementById('detailPanel').classList.add('open');
-  }
+      ${subTrim?`<div class="bottom-cat-sub">${subTrim}</div>`:''}
+    </div>`;
+  }).join('');
+}
 
-  document.getElementById('detailClose').onclick = () => {
-    document.getElementById('detailPanel').classList.remove('open');
-  };
+/* ════════════════════════════════════════════════════
+   FINDINGS LEGEND (sidebar)
+════════════════════════════════════════════════════ */
+function buildFindingsLegend(catCounts){
+  const fl = document.getElementById('findingsLegend');
+  fl.innerHTML = Object.keys(catColorMap).map(cat=>{
+    const count = catCounts[cat] || 0;
+    const isActive = highlightCat === cat;
+    return `<div class="finding-row${isActive?' active-cat':''}" onclick="filterByCat('${cat}')">
+      <div class="finding-dot" style="background:${catColor(cat)}"></div>
+      <span>${fmtLabel(cat)}</span>
+      <span class="finding-count">${count}</span>
+    </div>`;
+  }).join('');
+}
 
-  /* ══ UPDATE MAP ══ */
-  function updateMap(){
-    pointLayer.clearLayers();
+/* ════════════════════════════════════════════════════
+   HIGHLIGHT BY CATEGORY
+════════════════════════════════════════════════════ */
+function filterByCat(cat){
+  highlightCat = (highlightCat === cat) ? null : cat;
+  updateMap();
+}
 
-    const start = parseInputDate(document.getElementById('startDate').value);
-    const end   = parseInputDate(document.getElementById('endDate').value);
-    const selO  = document.getElementById('filterOfficer').value;
-    const selC  = document.getElementById('filterCategory').value;
-    const selF  = document.getElementById('filterFinding').value;
+/* ════════════════════════════════════════════════════
+   DETAIL PANEL
+════════════════════════════════════════════════════ */
+const dsIndex = {};
+function buildDetailSlider(imgs, uid){
+  if(!imgs.length) return `<div style="height:70px;background:#f9fafb;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:26px;margin-top:10px">📷</div>`;
+  if(imgs.length===1) return `<div class="detail-slider"><div class="slides"><div class="slide"><img src="${imgs[0]}" onclick="openModal('${imgs[0]}')"></div></div></div>`;
+  const slides = imgs.map(s=>`<div class="slide"><img src="${s}" onclick="openModal('${s}')"></div>`).join('');
+  const dots   = imgs.map((_,i)=>`<span class="${i===0?'active':''}"></span>`).join('');
+  return `<div class="detail-slider" id="${uid}">
+    <div class="slides">${slides}</div>
+    <button class="ds-btn prev" onclick="dsMv('${uid}',-1)">‹</button>
+    <button class="ds-btn next" onclick="dsMv('${uid}',1)">›</button>
+    <div class="ds-dots">${dots}</div>
+  </div>`;
+}
+function dsMv(uid,dir){
+  const c=document.getElementById(uid); if(!c) return;
+  const sl=c.querySelectorAll('.slide'), dots=c.querySelectorAll('.ds-dots span'), n=sl.length;
+  let idx=((dsIndex[uid]||0)+dir+n)%n;
+  dsIndex[uid]=idx;
+  c.querySelector('.slides').style.transform=`translateX(-${idx*100}%)`;
+  dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
+}
 
-    const allMarkers = [];
+function openDetail(r){
+  const cat    = r['data-survey-categ']   || 'Unknown';
+  const finding= r['data-survey-finding'] || '-';
+  const col    = catColor(cat);
+  const imgs   = [convert(r['data-documentation-image_1']), convert(r['data-documentation-image_2'])].filter(Boolean);
+  const uid    = 'ds_'+Math.random().toString(36).slice(2,7);
+  const pts    = (r['data-coordinate']||'').split(',');
+  const coord  = (pts[0]&&pts[1]) ? `${parseFloat(pts[0]).toFixed(5)}, ${parseFloat(pts[1]).toFixed(5)}` : '-';
 
-    rawData.forEach(r => {
-      const coord = r['data-coordinate'];
-      if(!coord || !coord.trim()) return;
+  document.getElementById('detailBody').innerHTML = `
+    <div class="detail-cat-row">
+      <div class="detail-cat-dot" style="background:${col}"></div>
+      <span class="detail-cat-name">${fmtLabel(cat)}</span>
+    </div>
+    ${buildDetailSlider(imgs, uid)}
+    <div style="height:6px"></div>
+    <div class="detail-row"><span class="detail-key">Type</span><span class="detail-val">${fmtLabel(finding)}</span></div>
+    <div class="detail-row"><span class="detail-key">Date</span><span class="detail-val">${r['data-start_date']||'-'}</span></div>
+    <div class="detail-row"><span class="detail-key">Patrol ID</span><span class="detail-val">${r['_id']||r['id']||'-'}</span></div>
+    <div class="detail-row"><span class="detail-key">Patrol Team</span><span class="detail-val">${r['data-base_info-nama']||'-'}</span></div>
+    ${r['data-survey-description']?`<div class="detail-row"><span class="detail-key">Notes</span><span class="detail-val">${r['data-survey-description']}</span></div>`:''}
+    <div class="detail-row"><span class="detail-key">Location</span><span class="detail-val" style="font-family:monospace;font-size:9px">${coord}</span></div>
+    ${imgs.length?`
+    <div class="detail-photos-section">
+      <div class="detail-photos-title">Photos <span class="detail-photos-count">${imgs.length}</span></div>
+      <div class="detail-photos-grid">${imgs.map(s=>`<img class="detail-thumb" src="${s}" onclick="openModal('${s}')">`).join('')}</div>
+    </div>`:''}
+    <div style="height:10px"></div>
+  `;
+  document.getElementById('detailPanel').classList.add('open');
+}
 
-      /* ── filter tanggal ── */
-      if(start !== null || end !== null){
-        const recDate = parseRecordDate(r['data-start_date']);
-        // Jika tanggal record tidak bisa di-parse, skip jika ada filter tanggal aktif
-        if(recDate === null) return;
-        if(start !== null && recDate < start) return;
-        if(end   !== null && recDate > end)   return;
-      }
+document.getElementById('detailClose').onclick = ()=>document.getElementById('detailPanel').classList.remove('open');
 
-      /* ── filter dropdown ── */
-      if(selO && r['data-base_info-nama'] !== selO) return;
-      if(selC && r['data-survey-categ']   !== selC) return;
-      if(selF && r['data-survey-finding'] !== selF) return;
+/* ════════════════════════════════════════════════════
+   FILTER EVENTS — auto-apply on change
+════════════════════════════════════════════════════ */
+document.getElementById('startDate').addEventListener('change', e=>{
+  F.start = parseInputDate(e.target.value);
+  applyFilters();
+});
+document.getElementById('endDate').addEventListener('change', e=>{
+  F.end = parseInputDate(e.target.value);
+  applyFilters();
+});
+document.getElementById('filterOfficer').addEventListener('change', e=>{
+  F.officer = e.target.value;
+  applyFilters();
+});
+document.getElementById('filterCategory').addEventListener('change', e=>{
+  F.category = e.target.value;
+  applyFilters();
+});
+document.getElementById('filterFinding').addEventListener('change', e=>{
+  F.finding = e.target.value;
+  applyFilters();
+});
 
-      const parts = coord.split(',');
-      if(parts.length < 2) return;
-      const lat = parseFloat(parts[0]), lon = parseFloat(parts[1]);
-      if(isNaN(lat) || isNaN(lon)) return;
+document.getElementById('clearFilters').onclick = ()=>{
+  F.start=null; F.end=null; F.officer=''; F.category=''; F.finding='';
+  document.getElementById('startDate').value='';
+  document.getElementById('endDate').value='';
+  highlightCat=null;
+  applyFilters();
+};
 
-      const cat = r['data-survey-categ'] || 'Unknown';
-      const col = catColor(cat);
-      const m = L.marker([lat,lon], {icon: makeIcon(col)});
-      m.category = cat;
-      m.on('click', () => openDetail(r));
-      allMarkers.push(m);
-      pointLayer.addLayer(m);
-    });
+/* ════════════════════════════════════════════════════
+   FILTER DRAWER TOGGLE
+════════════════════════════════════════════════════ */
+document.getElementById('filterToggleBtn').onclick = ()=>{
+  document.getElementById('filterDrawer').classList.toggle('open');
+};
+document.getElementById('filterClose').onclick = ()=>{
+  document.getElementById('filterDrawer').classList.remove('open');
+};
 
-    /* terapkan highlight jika aktif */
-    if(highlightCat){
-      allMarkers.forEach(m => {
-        m.setIcon(makeIcon(catColor(m.category), m.category !== highlightCat));
-      });
-    }
-  }
+/* ════════════════════════════════════════════════════
+   SECTION TOGGLE (sidebar collapsible)
+════════════════════════════════════════════════════ */
+function toggleSection(id, chevId){
+  const el=document.getElementById(id), ch=document.getElementById(chevId);
+  const hidden = el.style.display==='none';
+  el.style.display = hidden?'':'none';
+  ch.classList.toggle('open', hidden);
+  ch.textContent = hidden?'▲':'▼';
+}
 
-  /* ══ BOTTOM BAR ══ */
-  function buildBottomBar(){
-    // Tunggu data selesai di-parse agar catColorMap terisi
-    const subLabels = {};
-    rawData.forEach(r => {
-      const c = r['data-survey-categ'];
-      const f = r['data-survey-finding'];
-      if(c && f){
-        if(!subLabels[c]) subLabels[c] = new Set();
-        subLabels[c].add(fmtLabel(f));
-      }
-    });
+/* ════════════════════════════════════════════════════
+   LAYER TOGGLES
+════════════════════════════════════════════════════ */
+document.getElementById('toggleLulc').onchange        = e=>e.target.checked?map.addLayer(lulc)       :map.removeLayer(lulc);
+document.getElementById('toggleLulc2025').onchange    = e=>e.target.checked?map.addLayer(lulc2025)   :map.removeLayer(lulc2025);
+document.getElementById('toggleLandsat2024').onchange = e=>e.target.checked?map.addLayer(landsat2024):map.removeLayer(landsat2024);
+document.getElementById('toggleLandsat2025').onchange = e=>e.target.checked?map.addLayer(landsat2025):map.removeLayer(landsat2025);
+document.getElementById('toggleBoundary').onchange    = e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
+document.getElementById('togglePoints').onchange      = e=>e.target.checked?map.addLayer(pointLayer) :map.removeLayer(pointLayer);
 
-    const bar = document.getElementById('bottomBar');
-    bar.innerHTML = Object.keys(catColorMap).map(cat => {
-      const col  = catColor(cat);
-      const subs = [...(subLabels[cat]||[])].slice(0,3).join(', ');
-      const subTrim = subs.length > 32 ? subs.slice(0,32)+'…' : subs;
-      return `<div class="bottom-cat" onclick="filterByCat('${cat}')">
-        <div class="bottom-cat-top">
-          <div class="bottom-cat-dot" style="background:${col}"></div>
-          <span class="bottom-cat-name">${fmtLabel(cat)}</span>
-        </div>
-        ${subTrim ? `<div class="bottom-cat-sub">${subTrim}</div>` : ''}
-      </div>`;
-    }).join('');
-
-    // Update findings legend di sidebar dengan warna dari data aktual
-    const fl = document.getElementById('findingsLegend');
-    if(Object.keys(catColorMap).length > 0){
-      fl.innerHTML = Object.keys(catColorMap).map(cat => `
-        <div class="finding-row">
-          <div class="finding-dot" style="background:${catColor(cat)}"></div>
-          <span>${fmtLabel(cat)}</span>
-        </div>
-      `).join('');
-    }
-  }
-
-  function filterByCat(cat){
-    if(highlightCat === cat){
-      highlightCat = null;
-      pointLayer.eachLayer(m => m.setIcon(makeIcon(catColor(m.category))));
-    } else {
-      highlightCat = cat;
-      pointLayer.eachLayer(m => m.setIcon(makeIcon(catColor(m.category), m.category !== cat)));
-    }
-  }
-
-  /* ══ FILTER DRAWER ══ */
-  document.getElementById('filterToggleBtn').onclick = () => {
-    document.getElementById('filterDrawer').classList.toggle('open');
-  };
-
-  document.getElementById('applyFilters').onclick = () => {
-    updateMap();
-    document.getElementById('filterDrawer').classList.remove('open');
-  };
-
-  document.getElementById('clearFilters').onclick = () => {
-    document.getElementById('startDate').value = '';
-    document.getElementById('endDate').value   = '';
-    populateSelect('filterOfficer',   allOfficers,   'All Officers');
-    populateSelect('filterCategory',  allCategories, 'All Categories');
-    populateSelect('filterFinding',   allFindings,   'All Findings');
-    highlightCat = null;
-    pointLayer.eachLayer(m => m.setIcon(makeIcon(catColor(m.category))));
-    updateMap();
-  };
-
-  /* ══ SECTION TOGGLE ══ */
-  function toggleSection(id, chevronId){
-    const el = document.getElementById(id);
-    const ch = document.getElementById(chevronId);
-    if(el.style.display === 'none'){
-      el.style.display = '';
-      ch.classList.add('open');
-      ch.textContent = '▲';
-    } else {
-      el.style.display = 'none';
-      ch.classList.remove('open');
-      ch.textContent = '▼';
-    }
-  }
-
-  /* ══ LAYER TOGGLES ══ */
-  document.getElementById('toggleLulc').onchange        = e => e.target.checked ? map.addLayer(lulc)        : map.removeLayer(lulc);
-  document.getElementById('toggleLulc2025').onchange    = e => e.target.checked ? map.addLayer(lulc2025)    : map.removeLayer(lulc2025);
-  document.getElementById('toggleLandsat2024').onchange = e => e.target.checked ? map.addLayer(landsat2024) : map.removeLayer(landsat2024);
-  document.getElementById('toggleLandsat2025').onchange = e => e.target.checked ? map.addLayer(landsat2025) : map.removeLayer(landsat2025);
-  document.getElementById('toggleBoundary').onchange    = e => boundaryLayer && (e.target.checked ? map.addLayer(boundaryLayer) : map.removeLayer(boundaryLayer));
-  document.getElementById('togglePoints').onchange      = e => e.target.checked ? map.addLayer(pointLayer)  : map.removeLayer(pointLayer);
-
-  /* ══ MODAL ══ */
-  function openModal(src){ imageModal.style.display='flex'; modalImage.src=src; }
-  document.getElementById('closeModal').onclick = () => imageModal.style.display = 'none';
-  imageModal.onclick = e => { if(e.target === imageModal) imageModal.style.display = 'none'; };
+/* ════════════════════════════════════════════════════
+   MODAL
+════════════════════════════════════════════════════ */
+function openModal(src){ imageModal.style.display='flex'; modalImage.src=src; }
+document.getElementById('closeModal').onclick = ()=>imageModal.style.display='none';
+imageModal.onclick = e=>{ if(e.target===imageModal) imageModal.style.display='none'; };
 </script>
 </body>
 </html>
