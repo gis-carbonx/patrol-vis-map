@@ -14,7 +14,6 @@
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%;overflow:hidden;font-family:'Inter',sans-serif;background:#f4f6f8}
 
-    /* ══ TOP HEADER ══ */
     .top-bar{
       position:absolute;top:0;left:0;right:0;z-index:1200;
       height:56px;background:#111;border-bottom:1px solid #222;
@@ -36,10 +35,8 @@
     .icon-btn.active{background:#2d6a2d;border-color:#2d6a2d;color:#fff}
     .icon-btn svg{width:16px;height:16px}
 
-    /* ══ LAYOUT ══ */
     #map{position:absolute;top:56px;left:0;right:0;bottom:0}
-
-    /* ══ LEFT SIDEBAR ══ */
+    
     .sidebar{
       position:absolute;top:56px;left:0;bottom:0;z-index:1000;
       width:268px;background:#fff;border-right:1px solid #e8eaed;
@@ -58,7 +55,6 @@
     .sidebar-chevron{color:#9ca3af;font-size:10px;transition:transform .2s}
     .sidebar-chevron.open{transform:rotate(180deg)}
 
-    /* layer items */
     .layer-item{
       display:flex;align-items:center;justify-content:space-between;
       padding:7px 16px;
@@ -68,7 +64,6 @@
     .layer-icon-bd{width:14px;height:14px;border-radius:3px;flex-shrink:0;background:transparent;border:2px dashed #7c3aed}
     .layer-label{font-size:11px;font-weight:500;color:#374151}
 
-    /* checkbox */
     .cb-wrap{position:relative;width:18px;height:18px;cursor:pointer}
     .cb-wrap input{position:absolute;opacity:0;width:0;height:0}
     .cb-box{
@@ -78,7 +73,6 @@
     .cb-wrap input:checked + .cb-box{background:#2d6a2d;border-color:#2d6a2d}
     .cb-wrap input:checked + .cb-box::after{content:'✓';color:#fff;font-size:10px;font-weight:700}
 
-    /* switch */
     .switch{position:relative;width:34px;height:20px;flex-shrink:0}
     .switch input{opacity:0;width:0;height:0}
     .sw-track{position:absolute;inset:0;background:#e5e7eb;border-radius:20px;cursor:pointer;transition:background .2s}
@@ -86,22 +80,18 @@
     .switch input:checked + .sw-track{background:#2d6a2d}
     .switch input:checked + .sw-track:before{transform:translateX(14px)}
 
-    /* legend */
     .legend-title{font-size:9px;font-weight:700;color:#9ca3af;letter-spacing:0.6px;text-transform:uppercase;padding:10px 16px 5px}
     .legend-item{display:flex;align-items:center;gap:8px;padding:3px 16px;font-size:11px;color:#4b5563}
     .legend-swatch{width:14px;height:14px;border-radius:2px;flex-shrink:0}
 
-    /* findings */
     .finding-row{display:flex;align-items:center;gap:8px;padding:4px 16px;font-size:11px;color:#374151;font-weight:500;cursor:pointer;transition:background .1s;border-radius:0}
     .finding-row:hover{background:#f9fafb}
     .finding-row.active-cat{background:#f0fdf4}
     .finding-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
     .finding-count{margin-left:auto;font-size:10px;color:#9ca3af;font-weight:400}
 
-    /* divider */
     .divider{height:1px;background:#f3f4f6;margin:6px 0}
 
-    /* info hint */
     .info-hint{
       display:flex;align-items:flex-start;gap:8px;background:#f8fafc;
       border-radius:8px;margin:10px 12px;padding:9px 11px;
@@ -110,7 +100,6 @@
     .info-hint-icon{flex-shrink:0;width:15px;height:15px;border-radius:50%;background:#e5e7eb;
       display:flex;align-items:center;justify-content:center;font-size:8px;color:#6b7280;margin-top:1px}
 
-    /* ══ FILTER DRAWER ══ */
     .filter-drawer{
       position:absolute;top:56px;right:0;bottom:0;z-index:1100;
       width:272px;background:#fff;border-left:1px solid #e8eaed;
@@ -143,7 +132,6 @@
     .f-input.date-input{background-image:none;padding-right:11px}
     .f-input:focus{border-color:#2d6a2d;background:#fff}
 
-    /* active filter badge */
     .filter-badge{
       display:none;position:absolute;top:-4px;right:-4px;
       width:14px;height:14px;border-radius:50%;background:#ef4444;
@@ -165,7 +153,6 @@
     }
     .btn-clear-f:hover{border-color:#ef4444;color:#ef4444}
 
-    /* ══ ZOOM CONTROLS ══ */
     .map-zoom{
       position:absolute;bottom:72px;right:16px;z-index:900;
       display:flex;flex-direction:column;gap:2px;
@@ -178,7 +165,6 @@
     }
     .zoom-btn:hover{background:#f9fafb}
 
-    /* ══ BOTTOM BAR ══ */
     .bottom-bar{
       position:absolute;bottom:0;left:268px;right:0;z-index:900;
       background:#fff;border-top:1px solid #e8eaed;
@@ -198,7 +184,6 @@
     .bottom-cat-sub{font-size:9px;color:#9ca3af;text-align:center;line-height:1.3}
     .bottom-cat-count{font-size:9px;font-weight:700;color:#6b7280;background:#f3f4f6;border-radius:10px;padding:0 5px}
 
-    /* ══ RIGHT DETAIL PANEL ══ */
     .detail-panel{
       position:absolute;top:68px;right:16px;bottom:64px;z-index:1000;
       width:296px;background:#fff;border-radius:14px;
@@ -230,7 +215,6 @@
     .detail-key{font-size:10px;color:#9ca3af;font-weight:500;flex-shrink:0;min-width:76px;padding-top:1px}
     .detail-val{font-size:11px;color:#374151;font-weight:500;text-align:right;word-break:break-word}
 
-    /* slider */
     .detail-slider{position:relative;overflow:hidden;background:#f3f4f6;margin-top:10px;flex-shrink:0}
     .detail-slider .slides{display:flex;transition:transform .3s ease}
     .detail-slider .slide{min-width:100%}
@@ -253,7 +237,6 @@
     .detail-thumb{width:76px;height:56px;border-radius:7px;object-fit:cover;cursor:pointer;transition:opacity .15s}
     .detail-thumb:hover{opacity:.82}
 
-    /* ══ MODAL ══ */
     .img-modal{display:none;position:fixed;z-index:9999;inset:0;background:rgba(0,0,0,0.9);justify-content:center;align-items:center}
     .img-modal img{max-width:90%;max-height:88%;border-radius:12px}
     .modal-close{position:absolute;top:18px;right:26px;color:#fff;font-size:28px;cursor:pointer;opacity:.7;transition:opacity .15s;line-height:1}
@@ -263,7 +246,6 @@
 <body>
 <div id="map"></div>
 
-<!-- ══ TOP HEADER ══ -->
 <div class="top-bar">
   <div class="top-bar-left">
     <img src="./data/CMI-Brandmark-FullColor-BlackBG.png" alt="CMI" class="logo-img">
@@ -286,11 +268,9 @@
   </div>
 </div>
 
-<!-- ══ LEFT SIDEBAR ══ -->
 <div class="sidebar">
   <div class="sidebar-body">
 
-    <!-- Map Layers -->
     <div class="sidebar-section-header" onclick="toggleSection('secLayers','chev1')">
       <span class="sidebar-section-title">Map Layers</span>
       <span class="sidebar-chevron open" id="chev1">▲</span>
@@ -328,7 +308,6 @@
 
     <div class="divider"></div>
 
-    <!-- LULC Legend -->
     <div class="sidebar-section-header" onclick="toggleSection('secLulcLeg','chev2')">
       <span class="sidebar-section-title">LULC Classification</span>
       <span class="sidebar-chevron open" id="chev2">▲</span>
@@ -348,7 +327,6 @@
 
     <div class="divider"></div>
 
-    <!-- Patrol Findings -->
     <div class="sidebar-section-header" onclick="toggleSection('secFindings','chev3')">
       <span class="sidebar-section-title">Patrol Findings</span>
       <span class="sidebar-chevron open" id="chev3">▲</span>
@@ -363,8 +341,7 @@
     </div>
   </div>
 </div>
-
-<!-- ══ FILTER DRAWER ══ -->
+  
 <div class="filter-drawer" id="filterDrawer">
   <div class="filter-drawer-head">
     <span class="filter-drawer-title">Filter Data</span>
@@ -391,21 +368,18 @@
       <select class="f-input" id="filterFinding"><option value="">All Findings</option></select>
     </div>
 
-    <!-- Active filter summary -->
     <div class="f-summary" id="filterSummary" style="display:none"></div>
 
     <button class="btn-clear-f" id="clearFilters">✕ Clear All Filters</button>
   </div>
 </div>
 
-<!-- ══ ZOOM CONTROLS ══ -->
 <div class="map-zoom">
   <button class="zoom-btn" onclick="map.zoomIn()">+</button>
   <button class="zoom-btn" onclick="map.zoomOut()">−</button>
   <button class="zoom-btn" title="Home" onclick="resetView()" style="font-size:12px">⌂</button>
 </div>
 
-<!-- ══ RIGHT DETAIL PANEL ══ -->
 <div class="detail-panel" id="detailPanel">
   <div class="detail-header">
     <span class="detail-header-title">Patrol Finding</span>
@@ -414,19 +388,15 @@
   <div class="detail-body" id="detailBody"></div>
 </div>
 
-<!-- ══ BOTTOM BAR ══ -->
 <div class="bottom-bar" id="bottomBar"></div>
 
-<!-- ══ MODAL ══ -->
 <div id="imageModal" class="img-modal">
   <span class="modal-close" id="closeModal">&times;</span>
   <img id="modalImage">
 </div>
 
 <script>
-/* ════════════════════════════════════════════════════
-   PALETTE & COLOR
-════════════════════════════════════════════════════ */
+  
 const PALETTE = ['#3b82f6','#22c55e','#ef4444','#f59e0b','#a855f7','#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6'];
 const catColorMap = {};
 function catColor(cat){
@@ -434,9 +404,6 @@ function catColor(cat){
   return catColorMap[cat];
 }
 
-/* ════════════════════════════════════════════════════
-   MAP
-════════════════════════════════════════════════════ */
 const map = L.map('map', {center:[0.8,110.325], zoom:13, zoomControl:false, attributionControl:false});
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {opacity:0.85}).addTo(map);
 
@@ -458,9 +425,6 @@ function resetView(){
   if(mapBounds) map.fitBounds(mapBounds, {paddingTopLeft:[268,0]});
 }
 
-/* ════════════════════════════════════════════════════
-   DATA LOAD
-════════════════════════════════════════════════════ */
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 let rawData = [];
 let highlightCat = null;
@@ -469,18 +433,13 @@ Papa.parse(SHEET_URL, {
   download:true, header:true,
   complete:(res)=>{
     rawData = res.data.filter(r => r['data-coordinate'] && r['data-coordinate'].trim());
-    // Pre-populate catColorMap in insertion order
+
     rawData.forEach(r => { if(r['data-survey-categ']) catColor(r['data-survey-categ']); });
     initDropdowns();
     updateMap();
   }
 });
 
-/* ════════════════════════════════════════════════════
-   DATE HELPERS
-   Semua normalisasi ke midnight lokal agar
-   perbandingan kalender tidak terpengaruh timezone.
-════════════════════════════════════════════════════ */
 function toMidnight(y,m,d){ return new Date(y, m, d); }
 
 function parseRecordDate(s){
@@ -488,36 +447,29 @@ function parseRecordDate(s){
   s = s.trim();
   const MON = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
 
-  // dd-Mon-yyyy   → "24-Oct-2025"
   let m = s.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
   if(m && MON[m[2]] !== undefined)
     return toMidnight(+m[3], MON[m[2]], +m[1]);
 
-  // yyyy-mm-dd    → "2025-10-24"
   m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if(m) return toMidnight(+m[1], +m[2]-1, +m[3]);
 
-  // dd/mm/yyyy    → "24/10/2025"
   m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if(m) return toMidnight(+m[3], +m[2]-1, +m[1]);
 
-  // mm/dd/yyyy fallback via Date()
   const d = new Date(s);
   if(!isNaN(d)) return toMidnight(d.getFullYear(), d.getMonth(), d.getDate());
   return null;
 }
 
 function parseInputDate(s){
-  // <input type="date"> → "yyyy-mm-dd"
+
   if(!s) return null;
   const p = s.split('-');
   if(p.length !== 3) return null;
   return toMidnight(+p[0], +p[1]-1, +p[2]);
 }
 
-/* ════════════════════════════════════════════════════
-   UTILS
-════════════════════════════════════════════════════ */
 function fmtLabel(s){ return (s||'').replace(/_/g,' '); }
 function convert(url){
   if(!url) return null;
@@ -525,26 +477,22 @@ function convert(url){
   return id ? `https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000` : null;
 }
 
-/* ════════════════════════════════════════════════════
-   FILTER STATE — satu sumber kebenaran
-════════════════════════════════════════════════════ */
 const F = { start:null, end:null, officer:'', category:'', finding:'' };
 
 function getActiveFiltered(){
-  /* Kembalikan array record yang lolos SEMUA filter (AND) */
+
   return rawData.filter(r => {
-    // coordinate wajib ada
+
     if(!r['data-coordinate'] || !r['data-coordinate'].trim()) return false;
 
-    // --- tanggal ---
     if(F.start !== null || F.end !== null){
       const rd = parseRecordDate(r['data-start_date']);
-      if(rd === null) return false;            // tidak bisa di-parse → buang
+      if(rd === null) return false;
       if(F.start !== null && rd < F.start) return false;
       if(F.end   !== null && rd > F.end)   return false;
     }
 
-    // --- dropdown (AND) ---
+
     if(F.officer  && r['data-base_info-nama'] !== F.officer)  return false;
     if(F.category && r['data-survey-categ']   !== F.category) return false;
     if(F.finding  && r['data-survey-finding'] !== F.finding)  return false;
@@ -553,10 +501,6 @@ function getActiveFiltered(){
   });
 }
 
-/* ════════════════════════════════════════════════════
-   DROPDOWN — cascade berdasarkan data yang lolos filter
-   saat ini KECUALI untuk field yang sedang di-cascade.
-════════════════════════════════════════════════════ */
 let allOfficers=[], allCategories=[], allFindings=[];
 
 function initDropdowns(){
@@ -572,12 +516,8 @@ function initDropdowns(){
   rebuildAllSelects();
 }
 
-/**
- * Rebuild setiap <select> dengan opsi yang tersisa
- * berdasarkan filter aktif dari field LAIN (bukan dirinya sendiri).
- */
 function rebuildAllSelects(){
-  // Untuk officer: filter tanggal + category + finding aktif
+
   const forOfficer = rawData.filter(r=>{
     if(!r['data-coordinate']||!r['data-coordinate'].trim()) return false;
     if(F.start!==null||F.end!==null){
@@ -591,7 +531,6 @@ function rebuildAllSelects(){
     return true;
   });
 
-  // Untuk category: filter tanggal + officer + finding aktif
   const forCategory = rawData.filter(r=>{
     if(!r['data-coordinate']||!r['data-coordinate'].trim()) return false;
     if(F.start!==null||F.end!==null){
@@ -605,7 +544,7 @@ function rebuildAllSelects(){
     return true;
   });
 
-  // Untuk finding: filter tanggal + officer + category aktif
+
   const forFinding = rawData.filter(r=>{
     if(!r['data-coordinate']||!r['data-coordinate'].trim()) return false;
     if(F.start!==null||F.end!==null){
@@ -635,15 +574,12 @@ function fillSelect(id, allVals, availSet, curVal, placeholder){
     const o = document.createElement('option');
     o.value = v;
     o.textContent = fmtLabel(v);
-    if(!availSet.has(v)) o.disabled = true;   // greyout jika tidak tersedia
+    if(!availSet.has(v)) o.disabled = true;  
     if(v === curVal)     o.selected = true;
     el.appendChild(o);
   });
 }
 
-/* ════════════════════════════════════════════════════
-   APPLY — dipanggil setiap kali ada perubahan filter
-════════════════════════════════════════════════════ */
 function applyFilters(){
   rebuildAllSelects();
   updateMap();
@@ -651,9 +587,6 @@ function applyFilters(){
   updateFilterBadge();
 }
 
-/* ════════════════════════════════════════════════════
-   FILTER SUMMARY & BADGE
-════════════════════════════════════════════════════ */
 function updateFilterSummary(){
   const parts = [];
   if(F.start || F.end){
@@ -681,9 +614,6 @@ function updateFilterBadge(){
   document.getElementById('filterToggleBtn').classList.toggle('active', active);
 }
 
-/* ════════════════════════════════════════════════════
-   MARKER
-════════════════════════════════════════════════════ */
 function makeIcon(color, faded=false){
   return L.divIcon({
     html:`<div style="width:12px;height:12px;border-radius:50%;background:${color};border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);opacity:${faded?0.18:1}"></div>`,
@@ -691,9 +621,6 @@ function makeIcon(color, faded=false){
   });
 }
 
-/* ════════════════════════════════════════════════════
-   UPDATE MAP
-════════════════════════════════════════════════════ */
 function updateMap(){
   pointLayer.clearLayers();
   const filtered = getActiveFiltered();
@@ -728,9 +655,6 @@ function updateMap(){
   buildFindingsLegend(catCounts);
 }
 
-/* ════════════════════════════════════════════════════
-   BOTTOM BAR
-════════════════════════════════════════════════════ */
 function buildBottomBar(catCounts){
   const bar = document.getElementById('bottomBar');
   const subLabels = {};
@@ -756,9 +680,6 @@ function buildBottomBar(catCounts){
   }).join('');
 }
 
-/* ════════════════════════════════════════════════════
-   FINDINGS LEGEND (sidebar)
-════════════════════════════════════════════════════ */
 function buildFindingsLegend(catCounts){
   const fl = document.getElementById('findingsLegend');
   fl.innerHTML = Object.keys(catColorMap).map(cat=>{
@@ -772,17 +693,11 @@ function buildFindingsLegend(catCounts){
   }).join('');
 }
 
-/* ════════════════════════════════════════════════════
-   HIGHLIGHT BY CATEGORY
-════════════════════════════════════════════════════ */
 function filterByCat(cat){
   highlightCat = (highlightCat === cat) ? null : cat;
   updateMap();
 }
 
-/* ════════════════════════════════════════════════════
-   DETAIL PANEL
-════════════════════════════════════════════════════ */
 const dsIndex = {};
 function buildDetailSlider(imgs, uid){
   if(!imgs.length) return `<div style="height:70px;background:#f9fafb;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:26px;margin-top:10px">📷</div>`;
@@ -839,9 +754,6 @@ function openDetail(r){
 
 document.getElementById('detailClose').onclick = ()=>document.getElementById('detailPanel').classList.remove('open');
 
-/* ════════════════════════════════════════════════════
-   FILTER EVENTS — auto-apply on change
-════════════════════════════════════════════════════ */
 document.getElementById('startDate').addEventListener('change', e=>{
   F.start = parseInputDate(e.target.value);
   applyFilters();
@@ -871,9 +783,6 @@ document.getElementById('clearFilters').onclick = ()=>{
   applyFilters();
 };
 
-/* ════════════════════════════════════════════════════
-   FILTER DRAWER TOGGLE
-════════════════════════════════════════════════════ */
 document.getElementById('filterToggleBtn').onclick = ()=>{
   document.getElementById('filterDrawer').classList.toggle('open');
 };
@@ -881,9 +790,6 @@ document.getElementById('filterClose').onclick = ()=>{
   document.getElementById('filterDrawer').classList.remove('open');
 };
 
-/* ════════════════════════════════════════════════════
-   SECTION TOGGLE (sidebar collapsible)
-════════════════════════════════════════════════════ */
 function toggleSection(id, chevId){
   const el=document.getElementById(id), ch=document.getElementById(chevId);
   const hidden = el.style.display==='none';
@@ -892,9 +798,6 @@ function toggleSection(id, chevId){
   ch.textContent = hidden?'▲':'▼';
 }
 
-/* ════════════════════════════════════════════════════
-   LAYER TOGGLES
-════════════════════════════════════════════════════ */
 document.getElementById('toggleLulc').onchange        = e=>e.target.checked?map.addLayer(lulc)       :map.removeLayer(lulc);
 document.getElementById('toggleLulc2025').onchange    = e=>e.target.checked?map.addLayer(lulc2025)   :map.removeLayer(lulc2025);
 document.getElementById('toggleLandsat2024').onchange = e=>e.target.checked?map.addLayer(landsat2024):map.removeLayer(landsat2024);
@@ -902,9 +805,6 @@ document.getElementById('toggleLandsat2025').onchange = e=>e.target.checked?map.
 document.getElementById('toggleBoundary').onchange    = e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
 document.getElementById('togglePoints').onchange      = e=>e.target.checked?map.addLayer(pointLayer) :map.removeLayer(pointLayer);
 
-/* ════════════════════════════════════════════════════
-   MODAL
-════════════════════════════════════════════════════ */
 function openModal(src){ imageModal.style.display='flex'; modalImage.src=src; }
 document.getElementById('closeModal').onclick = ()=>imageModal.style.display='none';
 imageModal.onclick = e=>{ if(e.target===imageModal) imageModal.style.display='none'; };
