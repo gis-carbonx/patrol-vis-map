@@ -503,8 +503,10 @@ function gridStyle(n){
 }
 
 const IUCN_COLORS={LC:'#22c55e',NT:'#84cc16',VU:'#f59e0b',EN:'#f97316',CR:'#ef4444',EW:'#7c3aed',EX:'#000',DD:'#94a3b8'};
-const CLASS_ICONS={Aves:'🐦',Mammalia:'🐾',Mammals:'🐾',Birds:'🐦',Reptilia:'🦎',Reptiles:'🦎',Amphibia:'🐸',Others:'🔍'};
-function classIcon(k){ return CLASS_ICONS[k]||'🔍'; }
+function classIcon(k){
+  if(!k) return '?';
+  return k.trim().charAt(0).toUpperCase();
+}
 
 function fmtLabel(s){ return (s||'').replace(/_/g,' '); }
 function convert(url){ if(!url||!url.trim()) return null; const id=url.match(/[-\w]{25,}/); return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null; }
@@ -917,8 +919,8 @@ function openGridDetail(fi,totalCount,klassCounts,speciesCounts,camsInCell,dates
     </div>
     <div class="gdp-meta">
       <div class="gdp-meta-item"><div class="gdp-meta-key">Grid ID</div><div class="gdp-meta-val">${gridId}</div></div>
-      <div class="gdp-meta-item"><div class="gdp-meta-key">Grid Size</div><div class="gdp-meta-val">1 km × 1 km</div></div>
-      <div class="gdp-meta-item"><div class="gdp-meta-key">Active Cameras</div><div class="gdp-meta-val">${camsInCell.size}</div></div>
+      <div class="gdp-meta-item"><div class="gdp-meta-key">Grid Size</div><div class="gdp-meta-val">2 km × 2 km</div></div>
+      <div class="gdp-meta-item"><div class="gdp-meta-key">Camera deployed</div><div class="gdp-meta-val">${camsInCell.size}</div></div>
       <div class="gdp-meta-item"><div class="gdp-meta-key">Total Detections</div><div class="gdp-meta-val">${totalCount}</div></div>
       <div class="gdp-meta-item"><div class="gdp-meta-key">Last Detection</div><div class="gdp-meta-val" style="font-size:10px">${sorted.length?fmtDate(sorted[sorted.length-1]):'-'}</div></div>
       <div class="gdp-meta-item"><div class="gdp-meta-key">Date Range</div><div class="gdp-meta-val" style="font-size:9px">${dateRangeStr}</div></div>
