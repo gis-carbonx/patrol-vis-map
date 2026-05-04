@@ -351,7 +351,7 @@
         <div class="grid-legend-item"><div class="grid-legend-swatch" style="background:#7B0000;opacity:.9"></div><span>&gt; 60</span></div>
         <div style="display:flex;align-items:center;gap:6px;padding:6px 16px 2px">
           <div style="width:10px;height:10px;border-radius:50%;background:#00BFFF;flex-shrink:0"></div>
-          <span style="font-size:11px;color:#374151">Active Camera Trap</span>
+          <span style="font-size:11px;color:#374151">Camera Trap Location</span>
         </div>
         <div style="padding:2px 16px 8px;font-size:9px;color:#9ca3af">Grid 2 km × 2 km · Click grid to view details</div>
       </div>
@@ -944,7 +944,7 @@ function updateCtStats(){
   document.getElementById('ctSummaryBody').innerHTML=`
     <div class="ct-stat-inline"><span>Total Detections</span><span class="ct-stat-inline-val">${totalDet}</span></div>
     <div class="ct-stat-inline"><span>Species Recorded</span><span class="ct-stat-inline-val">${totalSp}</span></div>
-    <div class="ct-stat-inline"><span>Active Cameras</span><span class="ct-stat-inline-val">${totalCam}</span></div>
+    <div class="ct-stat-inline"><span>Cameras deployed</span><span class="ct-stat-inline-val">${totalCam}</span></div>
     <div class="ct-stat-inline"><span>Monitoring Locations</span><span class="ct-stat-inline-val">${totalLok}</span></div>
     <div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">By Class</div>
     ${Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
