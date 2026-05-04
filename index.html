@@ -6,13 +6,13 @@
   <title>CMI Field Patrol & Camera Trap</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%;overflow:hidden;font-family:'Inter',sans-serif;background:#f4f6f8}
+    html,body{height:100%;overflow:hidden;font-family:'Montserrat',sans-serif;background:#f4f6f8}
 
     .top-bar{
       position:absolute;top:0;left:0;right:0;z-index:1200;
@@ -32,7 +32,7 @@
     .icon-btn svg{width:16px;height:16px}
 
     .tab-switcher{display:flex;align-items:center;background:#1a1a1a;border:1.5px solid #333;border-radius:10px;padding:3px;gap:2px}
-    .tab-btn{display:flex;align-items:center;gap:6px;padding:5px 14px;border-radius:7px;border:none;background:transparent;color:#888;cursor:pointer;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;transition:all .18s;white-space:nowrap}
+    .tab-btn{display:flex;align-items:center;gap:6px;padding:5px 14px;border-radius:7px;border:none;background:transparent;color:#888;cursor:pointer;font-size:11px;font-weight:600;font-family:'Montserrat',sans-serif;transition:all .18s;white-space:nowrap}
     .tab-btn svg{width:13px;height:13px}
     .tab-btn.active{background:#2d6a2d;color:#fff}
     .tab-btn:not(.active):hover{background:#252525;color:#ccc}
@@ -95,7 +95,7 @@
     .f-group{}
     .f-label{font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
     .f-date-row{display:flex;gap:6px}
-    .f-input{width:100%;padding:8px 11px;border:1.5px solid #e8eaed;border-radius:9px;font-size:11px;font-family:'Inter',sans-serif;color:#374151;background:#fafafa;outline:none;transition:border .15s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
+    .f-input{width:100%;padding:8px 11px;border:1.5px solid #e8eaed;border-radius:9px;font-size:11px;font-family:'Montserrat',sans-serif;color:#374151;background:#fafafa;outline:none;transition:border .15s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
     .f-input.date-input{background-image:none;padding-right:11px}
     .f-input:focus{border-color:#2d6a2d;background:#fff}
 
@@ -103,7 +103,7 @@
     .icon-btn-wrap{position:relative}
     .f-summary{background:#f0fdf4;border-radius:9px;padding:10px 12px;font-size:10px;color:#166534;line-height:1.6}
     .f-summary strong{font-weight:700}
-    .btn-clear-f{width:100%;padding:9px;border:1.5px solid #e8eaed;border-radius:9px;background:#fff;color:#6b7280;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s;margin-top:4px}
+    .btn-clear-f{width:100%;padding:9px;border:1.5px solid #e8eaed;border-radius:9px;background:#fff;color:#6b7280;font-size:11px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all .15s;margin-top:4px}
     .btn-clear-f:hover{border-color:#ef4444;color:#ef4444}
 
     .map-zoom{position:absolute;bottom:72px;right:16px;z-index:900;display:flex;flex-direction:column;gap:2px}
@@ -694,7 +694,7 @@ function openDetail(r){
     <div class="detail-row"><span class="detail-key">Patrol ID</span><span class="detail-val">${r['_id']||r['id']||'-'}</span></div>
     <div class="detail-row"><span class="detail-key">Patrol Team</span><span class="detail-val">${r['data-base_info-nama']||'-'}</span></div>
     ${r['data-survey-description']?`<div class="detail-row"><span class="detail-key">Notes</span><span class="detail-val">${r['data-survey-description']}</span></div>`:''}
-    <div class="detail-row"><span class="detail-key">Location</span><span class="detail-val" style="font-family:monospace;font-size:9px">${coord}</span></div>
+    <div class="detail-row"><span class="detail-key">Location</span><span class="detail-val" style="font-family:Montserrat;font-size:9px">${coord}</span></div>
     ${imgs.length?`<div class="detail-photos-section"><div class="detail-photos-title">Photos <span class="detail-photos-count">${imgs.length}</span></div><div class="detail-photos-grid">${imgs.map(s=>`<img class="detail-thumb" src="${s}" onclick="openModal('${s}')">`).join('')}</div></div>`:''}
     <div style="height:10px"></div>`;
   document.getElementById('detailPanel').classList.add('open');
@@ -856,7 +856,7 @@ function buildCtPoints(){
       <td style="padding:4px 7px;text-align:center;font-weight:700;color:#0ea5e9">${d.count}</td></tr>`).join('');
 
     const uid='ct_'+Math.random().toString(36).slice(2,6);
-    const popup=`<div style="font-family:Inter,Arial;font-size:12px;width:380px;max-width:380px">
+    const popup=`<div style="font-family:Montserrat,Arial;font-size:12px;width:380px;max-width:380px">
       <b style="font-size:14px">${sites||'Camera Location'}</b>
       <hr style="margin:5px 0;border-color:#e5e7eb">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px">
