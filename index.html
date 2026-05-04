@@ -948,7 +948,7 @@ function updateCtStats(){
     <div class="ct-stat-inline"><span>Monitoring Locations</span><span class="ct-stat-inline-val">${totalLok}</span></div>
     <div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">By Class</div>
     ${Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
-      <div class="ct-stat-inline"><span>${classIcon(k)} ${k}</span><span class="ct-stat-inline-val">${v} (${totalDet?Math.round(v/totalDet*100):0}%)</span></div>`).join('')}
+      <div class="ct-stat-inline"><span>${k}</span><span class="ct-stat-inline-val">${v} (${totalDet?Math.round(v/totalDet*100):0}%)</span></div>`).join('')}
   `;
 
   document.getElementById('ctStatCameras').textContent=totalCam;
