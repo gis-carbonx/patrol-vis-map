@@ -99,6 +99,12 @@
     .f-input.date-input{background-image:none;padding-right:11px}
     .f-input:focus{border-color:#2d6a2d;background:#fff}
 
+    /* Quick date filter buttons */
+    .quick-date-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+    .qd-btn{padding:4px 8px;border-radius:6px;border:1.5px solid #e8eaed;background:#fafafa;color:#374151;font-size:10px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap}
+    .qd-btn:hover{border-color:#2d6a2d;color:#2d6a2d}
+    .qd-btn.active{background:#2d6a2d;border-color:#2d6a2d;color:#fff}
+
     .filter-badge{display:none;position:absolute;top:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#ef4444;font-size:8px;font-weight:700;color:#fff;align-items:center;justify-content:center}
     .icon-btn-wrap{position:relative}
     .f-summary{background:#f0fdf4;border-radius:9px;padding:10px 12px;font-size:10px;color:#166534;line-height:1.6}
@@ -379,7 +385,20 @@
   <div class="filter-drawer-body">
     <div id="patrolFilters">
       <div class="f-group">
-        <div class="f-label">Date Range</div>
+        <div class="f-label">Quick Date Filter</div>
+        <div class="quick-date-row" id="patrolQuickDates">
+          <button class="qd-btn" data-preset="today" onclick="applyPatrolQuickDate(this)">Today</button>
+          <button class="qd-btn" data-preset="1w" onclick="applyPatrolQuickDate(this)">1W</button>
+          <button class="qd-btn" data-preset="1m" onclick="applyPatrolQuickDate(this)">1M</button>
+          <button class="qd-btn" data-preset="3m" onclick="applyPatrolQuickDate(this)">3M</button>
+          <button class="qd-btn" data-preset="6m" onclick="applyPatrolQuickDate(this)">6M</button>
+          <button class="qd-btn" data-preset="ytd" onclick="applyPatrolQuickDate(this)">YTD</button>
+          <button class="qd-btn" data-preset="1y" onclick="applyPatrolQuickDate(this)">1Y</button>
+          <button class="qd-btn active" data-preset="all" onclick="applyPatrolQuickDate(this)">All</button>
+        </div>
+      </div>
+      <div class="f-group">
+        <div class="f-label">Custom Date Range</div>
         <div class="f-date-row">
           <input type="date" class="f-input date-input" id="startDate" title="From">
           <input type="date" class="f-input date-input" id="endDate" title="To">
@@ -403,7 +422,20 @@
     <!-- Camera trap filters -->
     <div id="cameraFilters" style="display:none">
       <div class="f-group">
-        <div class="f-label">Date Range</div>
+        <div class="f-label">Quick Date Filter</div>
+        <div class="quick-date-row" id="ctQuickDates">
+          <button class="qd-btn" data-preset="today" onclick="applyCtQuickDate(this)">Today</button>
+          <button class="qd-btn" data-preset="1w" onclick="applyCtQuickDate(this)">1W</button>
+          <button class="qd-btn" data-preset="1m" onclick="applyCtQuickDate(this)">1M</button>
+          <button class="qd-btn" data-preset="3m" onclick="applyCtQuickDate(this)">3M</button>
+          <button class="qd-btn" data-preset="6m" onclick="applyCtQuickDate(this)">6M</button>
+          <button class="qd-btn" data-preset="ytd" onclick="applyCtQuickDate(this)">YTD</button>
+          <button class="qd-btn" data-preset="1y" onclick="applyCtQuickDate(this)">1Y</button>
+          <button class="qd-btn active" data-preset="all" onclick="applyCtQuickDate(this)">All</button>
+        </div>
+      </div>
+      <div class="f-group">
+        <div class="f-label">Custom Date Range</div>
         <div class="f-date-row">
           <input type="date" class="f-input date-input" id="ctStartDate">
           <input type="date" class="f-input date-input" id="ctEndDate">
@@ -522,6 +554,46 @@ function parseDateStr(s){
 }
 function parseInputDate(s){ if(!s) return null; const p=s.split('-'); return p.length===3?toMidnight(+p[0],+p[1]-1,+p[2]):null; }
 function fmtDate(d){ return d?d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}):'-'; }
+function toInputStr(d){ if(!d) return ''; const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${dd}`; }
+
+/* ── Quick date preset helper ── */
+function getPresetRange(preset){
+  const now=new Date();
+  const today=toMidnight(now.getFullYear(),now.getMonth(),now.getDate());
+  if(preset==='all') return {start:null,end:null};
+  if(preset==='today') return {start:today,end:today};
+  if(preset==='1w'){ const s=new Date(today);s.setDate(s.getDate()-6);return {start:s,end:today}; }
+  if(preset==='1m'){ const s=new Date(today);s.setMonth(s.getMonth()-1);return {start:s,end:today}; }
+  if(preset==='3m'){ const s=new Date(today);s.setMonth(s.getMonth()-3);return {start:s,end:today}; }
+  if(preset==='6m'){ const s=new Date(today);s.setMonth(s.getMonth()-6);return {start:s,end:today}; }
+  if(preset==='ytd'){ const s=toMidnight(today.getFullYear(),0,1);return {start:s,end:today}; }
+  if(preset==='1y'){ const s=new Date(today);s.setFullYear(s.getFullYear()-1);return {start:s,end:today}; }
+  return {start:null,end:null};
+}
+
+function setActiveQuickBtn(container,preset){
+  container.querySelectorAll('.qd-btn').forEach(b=>b.classList.toggle('active',b.dataset.preset===preset));
+}
+
+function applyPatrolQuickDate(btn){
+  const preset=btn.dataset.preset;
+  const {start,end}=getPresetRange(preset);
+  PF.start=start; PF.end=end;
+  document.getElementById('startDate').value=start?toInputStr(start):'';
+  document.getElementById('endDate').value=end?toInputStr(end):'';
+  setActiveQuickBtn(document.getElementById('patrolQuickDates'),preset);
+  applyPatrolFilters();
+}
+
+function applyCtQuickDate(btn){
+  const preset=btn.dataset.preset;
+  const {start,end}=getPresetRange(preset);
+  CTF.start=start; CTF.end=end;
+  document.getElementById('ctStartDate').value=start?toInputStr(start):'';
+  document.getElementById('ctEndDate').value=end?toInputStr(end):'';
+  setActiveQuickBtn(document.getElementById('ctQuickDates'),preset);
+  applyCtFilters();
+}
 
 const map=L.map('map',{center:[0.8,110.325],zoom:13,zoomControl:false,attributionControl:false});
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{opacity:0.85}).addTo(map);
@@ -823,7 +895,13 @@ function buildCtGrid(){
 
     if(totalCount>0){
       const center=layer.getBounds().getCenter();
-      L.marker(center,{icon:L.divIcon({html:`<div style="font-size:9px;font-weight:800;color:#fff;text-shadow:0 0 4px rgba(0,0,0,1),0 0 4px rgba(0,0,0,1);pointer-events:none;white-space:nowrap;text-align:center">${totalCount}</div>`,className:'',iconSize:[40,14],iconAnchor:[20,7]}),interactive:false}).addTo(ctGridLayer);
+      const numCams=camsInCell.size;
+      /* Build label: total count + avg per camera (if >1 camera) */
+      const avgPerCam=numCams>1?Math.round(totalCount/numCams):null;
+      const labelHtml=avgPerCam!==null
+        ?`<div style="font-size:10px;font-weight:800;color:#fff;text-shadow:0 0 4px rgba(0,0,0,1),0 0 4px rgba(0,0,0,1);pointer-events:none;white-space:nowrap;text-align:center;line-height:1.3">${totalCount}<br><span style="font-size:8px;font-weight:600;opacity:.9">${avgPerCam}/cam</span></div>`
+        :`<div style="font-size:10px;font-weight:800;color:#fff;text-shadow:0 0 4px rgba(0,0,0,1),0 0 4px rgba(0,0,0,1);pointer-events:none;white-space:nowrap;text-align:center">${totalCount}</div>`;
+      L.marker(center,{icon:L.divIcon({html:labelHtml,className:'',iconSize:[44,avgPerCam?22:14],iconAnchor:[22,avgPerCam?11:7]}),interactive:false}).addTo(ctGridLayer);
     }
 
     layer.on('click',()=>openGridDetail(fi,totalCount,klassCounts,speciesCounts,camsInCell,datesInCell));
@@ -856,12 +934,14 @@ function buildCtPoints(){
       <td style="padding:4px 7px;text-align:center;font-weight:700;color:#0ea5e9">${d.count}</td></tr>`).join('');
 
     const uid='ct_'+Math.random().toString(36).slice(2,6);
+    const avgLine=cameras.length>1?`<div><span style="color:#9ca3af">Avg / Camera</span><br><b style="color:#0ea5e9;font-size:15px">${Math.round(totalCount/cameras.length)}</b></div>`:'';
     const popup=`<div style="font-family:Montserrat,Arial;font-size:12px;width:380px;max-width:380px">
       <b style="font-size:14px">${sites||'Camera Location'}</b>
       <hr style="margin:5px 0;border-color:#e5e7eb">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px">
+      <div style="display:grid;grid-template-columns:1fr 1fr${cameras.length>1?' 1fr':''};gap:4px;margin-bottom:6px">
         <div><span style="color:#9ca3af">Total Detections</span><br><b style="color:#0ea5e9;font-size:15px">${totalCount}</b></div>
         <div><span style="color:#9ca3af">Cameras (${cameras.length})</span><br><b>${cameras.slice(0,4).join(', ')}${cameras.length>4?'…':''}</b></div>
+        ${avgLine}
       </div>
       <b>Species List</b>
       <a href="#" onclick="var e=document.getElementById('${uid}');var l=document.getElementById('l${uid}');if(e.style.display==='none'){e.style.display='block';l.textContent='Show less ▲';}else{e.style.display='none';l.textContent='Show more ▼';}return false;" id="l${uid}" style="margin-left:8px;font-size:11px;color:#0ea5e9;text-decoration:none">Show more ▼</a>
@@ -891,6 +971,8 @@ function openGridDetail(fi,totalCount,klassCounts,speciesCounts,camsInCell,dates
   const level=totalCount>60?'Very High':totalCount>30?'High':totalCount>15?'Medium':totalCount>5?'Low':'Minimal';
   const levelCol=totalCount>60?'#7B0000':totalCount>30?'#CC0000':totalCount>15?'#FF4500':totalCount>5?'#FFA500':'#94a3b8';
   const totalInCell=Object.values(klassCounts).reduce((s,v)=>s+v,0);
+  const numCams=camsInCell.size;
+  const avgPerCam=numCams>0?Math.round(totalCount/numCams):0;
 
   const classRows=Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
     <div class="gdp-class-row">
@@ -915,13 +997,14 @@ function openGridDetail(fi,totalCount,klassCounts,speciesCounts,camsInCell,dates
       <div class="gdp-count-right">
         <span class="gdp-count-label">Detections (per grid)</span>
         <span class="gdp-count-badge" style="background:${levelCol}">${level}</span>
+        ${numCams>0?`<span style="font-size:10px;color:#6b7280;margin-top:2px">${avgPerCam} avg/camera (${numCams} cam)</span>`:''}
       </div>
     </div>
     <div class="gdp-meta">
       <div class="gdp-meta-item"><div class="gdp-meta-key">Grid ID</div><div class="gdp-meta-val">${gridId}</div></div>
       <div class="gdp-meta-item"><div class="gdp-meta-key">Grid Size</div><div class="gdp-meta-val">2 km × 2 km</div></div>
-      <div class="gdp-meta-item"><div class="gdp-meta-key">Camera deployed</div><div class="gdp-meta-val">${camsInCell.size}</div></div>
-      <div class="gdp-meta-item"><div class="gdp-meta-key">Total Detections</div><div class="gdp-meta-val">${totalCount}</div></div>
+      <div class="gdp-meta-item"><div class="gdp-meta-key">Camera deployed</div><div class="gdp-meta-val">${numCams}</div></div>
+      <div class="gdp-meta-item"><div class="gdp-meta-key">Avg / Camera</div><div class="gdp-meta-val" style="color:#0ea5e9">${avgPerCam}</div></div>
       <div class="gdp-meta-item"><div class="gdp-meta-key">Last Detection</div><div class="gdp-meta-val" style="font-size:10px">${sorted.length?fmtDate(sorted[sorted.length-1]):'-'}</div></div>
       <div class="gdp-meta-item"><div class="gdp-meta-key">Date Range</div><div class="gdp-meta-val" style="font-size:9px">${dateRangeStr}</div></div>
     </div>
@@ -946,6 +1029,7 @@ function updateCtStats(){
     <div class="ct-stat-inline"><span>Total Detections</span><span class="ct-stat-inline-val">${totalDet}</span></div>
     <div class="ct-stat-inline"><span>Species Recorded</span><span class="ct-stat-inline-val">${totalSp}</span></div>
     <div class="ct-stat-inline"><span>Cameras deployed</span><span class="ct-stat-inline-val">${totalCam}</span></div>
+    <div class="ct-stat-inline"><span>Avg Detections / Camera</span><span class="ct-stat-inline-val">${totalCam?Math.round(totalDet/totalCam):0}</span></div>
     <div class="ct-stat-inline"><span>Monitoring Locations</span><span class="ct-stat-inline-val">${totalLok}</span></div>
     <div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">By Class</div>
     ${Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
@@ -979,8 +1063,17 @@ function updateCtStats(){
 
 function applyCtFilters(){ buildCtGrid(); buildCtPoints(); updateCtStats(); }
 
-document.getElementById('ctStartDate').addEventListener('change',e=>{CTF.start=parseInputDate(e.target.value);applyCtFilters();});
-document.getElementById('ctEndDate').addEventListener('change',e=>{CTF.end=parseInputDate(e.target.value);applyCtFilters();});
+/* Sync custom date inputs with quick button deselection */
+document.getElementById('ctStartDate').addEventListener('change',e=>{
+  CTF.start=parseInputDate(e.target.value);
+  setActiveQuickBtn(document.getElementById('ctQuickDates'),'');
+  applyCtFilters();
+});
+document.getElementById('ctEndDate').addEventListener('change',e=>{
+  CTF.end=parseInputDate(e.target.value);
+  setActiveQuickBtn(document.getElementById('ctQuickDates'),'');
+  applyCtFilters();
+});
 document.getElementById('ctFilterSite').addEventListener('change',e=>{CTF.site=e.target.value;applyCtFilters();});
 document.getElementById('ctFilterClass').addEventListener('change',e=>{CTF.kelas=e.target.value;applyCtFilters();});
 document.getElementById('ctFilterSpecies').addEventListener('change',e=>{CTF.spesies=e.target.value;applyCtFilters();});
@@ -989,15 +1082,30 @@ document.getElementById('ctClearFilters').onclick=()=>{
   CTF.start=null;CTF.end=null;CTF.site='';CTF.kelas='';CTF.spesies='';CTF.iucn='';
   ['ctStartDate','ctEndDate'].forEach(id=>document.getElementById(id).value='');
   ['ctFilterSite','ctFilterClass','ctFilterSpecies','ctFilterIucn'].forEach(id=>document.getElementById(id).value='');
+  setActiveQuickBtn(document.getElementById('ctQuickDates'),'all');
   applyCtFilters();
 };
 
-document.getElementById('startDate').addEventListener('change',e=>{PF.start=parseInputDate(e.target.value);applyPatrolFilters();});
-document.getElementById('endDate').addEventListener('change',e=>{PF.end=parseInputDate(e.target.value);applyPatrolFilters();});
+document.getElementById('startDate').addEventListener('change',e=>{
+  PF.start=parseInputDate(e.target.value);
+  setActiveQuickBtn(document.getElementById('patrolQuickDates'),'');
+  applyPatrolFilters();
+});
+document.getElementById('endDate').addEventListener('change',e=>{
+  PF.end=parseInputDate(e.target.value);
+  setActiveQuickBtn(document.getElementById('patrolQuickDates'),'');
+  applyPatrolFilters();
+});
 document.getElementById('filterOfficer').addEventListener('change',e=>{PF.officer=e.target.value;applyPatrolFilters();});
 document.getElementById('filterCategory').addEventListener('change',e=>{PF.category=e.target.value;applyPatrolFilters();});
 document.getElementById('filterFinding').addEventListener('change',e=>{PF.finding=e.target.value;applyPatrolFilters();});
-document.getElementById('clearFilters').onclick=()=>{PF.start=null;PF.end=null;PF.officer='';PF.category='';PF.finding='';document.getElementById('startDate').value='';document.getElementById('endDate').value='';highlightCat=null;applyPatrolFilters();};
+document.getElementById('clearFilters').onclick=()=>{
+  PF.start=null;PF.end=null;PF.officer='';PF.category='';PF.finding='';
+  document.getElementById('startDate').value='';document.getElementById('endDate').value='';
+  highlightCat=null;
+  setActiveQuickBtn(document.getElementById('patrolQuickDates'),'all');
+  applyPatrolFilters();
+};
 
 document.getElementById('toggleLulc').onchange        =e=>e.target.checked?map.addLayer(lulc)       :map.removeLayer(lulc);
 document.getElementById('toggleLulc2025').onchange    =e=>e.target.checked?map.addLayer(lulc2025)   :map.removeLayer(lulc2025);
