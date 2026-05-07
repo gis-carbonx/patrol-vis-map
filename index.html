@@ -13,12 +13,7 @@
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%;overflow:hidden;font-family:'Montserrat',sans-serif;background:#f4f6f8}
-
-    .top-bar{
-      position:absolute;top:0;left:0;right:0;z-index:1200;
-      height:56px;background:#111;border-bottom:1px solid #222;
-      display:flex;align-items:center;justify-content:space-between;padding:0 20px;
-    }
+    .top-bar{position:absolute;top:0;left:0;right:0;z-index:1200;height:56px;background:#111;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;padding:0 20px;}
     .top-bar-left{display:flex;align-items:center;gap:14px}
     .logo-img{height:30px;width:auto;display:block}
     .top-bar-divider{width:1px;height:28px;background:#333}
@@ -30,60 +25,48 @@
     .icon-btn:hover{background:#2a2a2a;border-color:#444;color:#fff}
     .icon-btn.active{background:#2d6a2d;border-color:#2d6a2d;color:#fff}
     .icon-btn svg{width:16px;height:16px}
-
     .tab-switcher{display:flex;align-items:center;background:#1a1a1a;border:1.5px solid #333;border-radius:10px;padding:3px;gap:2px}
     .tab-btn{display:flex;align-items:center;gap:6px;padding:5px 14px;border-radius:7px;border:none;background:transparent;color:#888;cursor:pointer;font-size:11px;font-weight:600;font-family:'Montserrat',sans-serif;transition:all .18s;white-space:nowrap}
     .tab-btn svg{width:13px;height:13px}
     .tab-btn.active{background:#2d6a2d;color:#fff}
     .tab-btn:not(.active):hover{background:#252525;color:#ccc}
-
     #map{position:absolute;top:56px;left:0;right:0;bottom:0}
-
     .sidebar{position:absolute;top:56px;left:0;bottom:0;z-index:1000;width:268px;background:#fff;border-right:1px solid #e8eaed;display:flex;flex-direction:column;overflow:hidden}
     .sidebar-body{flex:1;overflow-y:auto;padding-bottom:16px;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
     .sidebar-body::-webkit-scrollbar{width:3px}
     .sidebar-body::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
-
     .sidebar-section-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 10px;cursor:pointer;border-bottom:1px solid #f3f4f6}
     .sidebar-section-title{font-size:11px;font-weight:700;color:#374151;letter-spacing:0.4px;text-transform:uppercase}
     .sidebar-chevron{color:#9ca3af;font-size:10px;transition:transform .2s}
     .sidebar-chevron.open{transform:rotate(180deg)}
-
     .layer-item{display:flex;align-items:center;justify-content:space-between;padding:7px 16px}
     .layer-item-left{display:flex;align-items:center;gap:10px}
     .layer-icon-sq{width:14px;height:14px;border-radius:3px;flex-shrink:0}
     .layer-icon-bd{width:14px;height:14px;border-radius:3px;flex-shrink:0;background:transparent;border:2px dashed #7c3aed}
     .layer-label{font-size:11px;font-weight:500;color:#374151}
-
     .cb-wrap{position:relative;width:18px;height:18px;cursor:pointer}
     .cb-wrap input{position:absolute;opacity:0;width:0;height:0}
     .cb-box{width:18px;height:18px;border-radius:4px;border:1.5px solid #d1d5db;background:#fff;display:flex;align-items:center;justify-content:center;transition:all .15s}
     .cb-wrap input:checked + .cb-box{background:#2d6a2d;border-color:#2d6a2d}
     .cb-wrap input:checked + .cb-box::after{content:'✓';color:#fff;font-size:10px;font-weight:700}
-
     .switch{position:relative;width:34px;height:20px;flex-shrink:0}
     .switch input{opacity:0;width:0;height:0}
     .sw-track{position:absolute;inset:0;background:#e5e7eb;border-radius:20px;cursor:pointer;transition:background .2s}
     .sw-track:before{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;left:3px;top:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
     .switch input:checked + .sw-track{background:#2d6a2d}
     .switch input:checked + .sw-track:before{transform:translateX(14px)}
-
     .legend-item{display:flex;align-items:center;gap:8px;padding:3px 16px;font-size:11px;color:#4b5563}
     .legend-swatch{width:14px;height:14px;border-radius:2px;flex-shrink:0}
-
     .finding-row{display:flex;align-items:center;gap:8px;padding:4px 16px;font-size:11px;color:#374151;font-weight:500;cursor:pointer;transition:background .1s}
     .finding-row:hover{background:#f9fafb}
     .finding-row.active-cat{background:#f0fdf4}
     .finding-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
     .finding-count{margin-left:auto;font-size:10px;color:#9ca3af;font-weight:400}
     .divider{height:1px;background:#f3f4f6;margin:6px 0}
-
     .info-hint{display:flex;align-items:flex-start;gap:8px;background:#f8fafc;border-radius:8px;margin:10px 12px;padding:9px 11px;font-size:10px;color:#6b7280;line-height:1.5}
     .info-hint-icon{flex-shrink:0;width:15px;height:15px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:8px;color:#6b7280;margin-top:1px}
-
     .grid-legend-item{display:flex;align-items:center;gap:8px;padding:3px 16px;font-size:11px;color:#4b5563;cursor:pointer}
     .grid-legend-swatch{width:18px;height:14px;border-radius:2px;flex-shrink:0;border:1px solid rgba(0,0,0,0.1)}
-
     .filter-drawer{position:absolute;top:56px;right:0;bottom:0;z-index:1100;width:272px;background:#fff;border-left:1px solid #e8eaed;display:none;flex-direction:column;overflow:hidden;box-shadow:-4px 0 20px rgba(0,0,0,0.08)}
     .filter-drawer.open{display:flex}
     .filter-drawer-head{padding:16px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between}
@@ -91,30 +74,25 @@
     .filter-drawer-close{width:26px;height:26px;border-radius:6px;border:none;background:#f3f4f6;cursor:pointer;font-size:14px;color:#6b7280;display:flex;align-items:center;justify-content:center}
     .filter-drawer-close:hover{background:#e5e7eb}
     .filter-drawer-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:14px}
-
     .f-group{}
     .f-label{font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
     .f-date-row{display:flex;gap:6px}
     .f-input{width:100%;padding:8px 11px;border:1.5px solid #e8eaed;border-radius:9px;font-size:11px;font-family:'Montserrat',sans-serif;color:#374151;background:#fafafa;outline:none;transition:border .15s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
     .f-input.date-input{background-image:none;padding-right:11px}
     .f-input:focus{border-color:#2d6a2d;background:#fff}
-
     .quick-date-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
     .qd-btn{padding:4px 8px;border-radius:6px;border:1.5px solid #e8eaed;background:#fafafa;color:#374151;font-size:10px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap}
     .qd-btn:hover{border-color:#2d6a2d;color:#2d6a2d}
     .qd-btn.active{background:#2d6a2d;border-color:#2d6a2d;color:#fff}
-
     .filter-badge{display:none;position:absolute;top:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#ef4444;font-size:8px;font-weight:700;color:#fff;align-items:center;justify-content:center}
     .icon-btn-wrap{position:relative}
     .f-summary{background:#f0fdf4;border-radius:9px;padding:10px 12px;font-size:10px;color:#166534;line-height:1.6}
     .f-summary strong{font-weight:700}
     .btn-clear-f{width:100%;padding:9px;border:1.5px solid #e8eaed;border-radius:9px;background:#fff;color:#6b7280;font-size:11px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all .15s;margin-top:4px}
     .btn-clear-f:hover{border-color:#ef4444;color:#ef4444}
-
     .map-zoom{position:absolute;bottom:72px;right:16px;z-index:900;display:flex;flex-direction:column;gap:2px}
     .zoom-btn{width:32px;height:32px;background:#fff;border:1.5px solid #e8eaed;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:#374151;box-shadow:0 1px 4px rgba(0,0,0,0.08);transition:background .15s;font-weight:300;line-height:1}
     .zoom-btn:hover{background:#f9fafb}
-
     .bottom-bar{position:absolute;bottom:0;left:268px;right:0;z-index:900;background:#fff;border-top:1px solid #e8eaed;display:flex;align-items:center;height:52px;overflow:hidden}
     .bottom-cat{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 6px;border-right:1px solid #f3f4f6;cursor:pointer;transition:background .15s;height:100%}
     .bottom-cat:last-child{border-right:none}
@@ -125,14 +103,12 @@
     .bottom-cat-name{font-size:10px;font-weight:600;color:#374151}
     .bottom-cat-sub{font-size:9px;color:#9ca3af;text-align:center;line-height:1.3}
     .bottom-cat-count{font-size:9px;font-weight:700;color:#6b7280;background:#f3f4f6;border-radius:10px;padding:0 5px}
-
     .ct-bottom-bar{position:absolute;bottom:0;left:268px;right:0;z-index:900;background:#111;border-top:1px solid #222;display:none;align-items:stretch;height:72px;overflow:hidden}
     .ct-stat{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 8px;border-right:1px solid #222}
     .ct-stat:last-child{border-right:none}
     .ct-stat-val{font-size:17px;font-weight:700;color:#fff;line-height:1}
     .ct-stat-label{font-size:9px;color:#6b7280;text-align:center;line-height:1.3}
     .ct-stat-sub{font-size:8px;color:#4b5563;text-align:center}
-
     .detail-panel{position:absolute;top:68px;right:16px;bottom:64px;z-index:1000;width:296px;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.14);display:none;flex-direction:column;overflow:hidden}
     .detail-panel.open{display:flex}
     .detail-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid #f3f4f6;flex-shrink:0}
@@ -148,7 +124,6 @@
     .detail-row{display:flex;align-items:flex-start;justify-content:space-between;padding:8px 16px;border-bottom:1px solid #f9fafb;gap:12px}
     .detail-key{font-size:10px;color:#9ca3af;font-weight:500;flex-shrink:0;min-width:76px;padding-top:1px}
     .detail-val{font-size:11px;color:#374151;font-weight:500;text-align:right;word-break:break-word}
-
     .detail-slider{position:relative;overflow:hidden;background:#f3f4f6;margin-top:10px;flex-shrink:0}
     .detail-slider .slides{display:flex;transition:transform .3s ease}
     .detail-slider .slide{min-width:100%}
@@ -164,7 +139,6 @@
     .detail-photos-grid{display:flex;gap:5px;flex-wrap:wrap}
     .detail-thumb{width:76px;height:56px;border-radius:7px;object-fit:cover;cursor:pointer;transition:opacity .15s}
     .detail-thumb:hover{opacity:.82}
-
     .grid-detail-panel{position:absolute;top:68px;right:16px;bottom:84px;z-index:1000;width:320px;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.18);display:none;flex-direction:column;overflow:hidden}
     .grid-detail-panel.open{display:flex}
     .gdp-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid #f3f4f6;flex-shrink:0;background:#0f172a}
@@ -174,43 +148,36 @@
     .gdp-body{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
     .gdp-body::-webkit-scrollbar{width:3px}
     .gdp-body::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
-
     .gdp-big-count{display:flex;align-items:flex-end;gap:10px;padding:16px 16px 12px;border-bottom:1px solid #f3f4f6}
     .gdp-count-num{font-size:44px;font-weight:800;color:#0ea5e9;line-height:1}
     .gdp-count-right{display:flex;flex-direction:column;gap:3px;padding-bottom:6px}
     .gdp-count-label{font-size:11px;color:#6b7280;font-weight:500}
     .gdp-count-badge{display:inline-block;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px}
-
     .gdp-meta{display:grid;grid-template-columns:1fr 1fr;gap:0}
     .gdp-meta-item{padding:10px 16px;border-right:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6}
     .gdp-meta-item:nth-child(even){border-right:none}
     .gdp-meta-key{font-size:9px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
     .gdp-meta-val{font-size:12px;color:#374151;font-weight:600}
-
     .gdp-section-title{font-size:10px;font-weight:700;color:#374151;padding:12px 16px 6px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #f9fafb}
     .gdp-class-row{display:flex;align-items:center;gap:8px;padding:7px 16px;border-bottom:1px solid #f9fafb}
-    .gdp-class-icon{width:26px;height:26px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#374151;}
+    .gdp-class-icon{width:26px;height:26px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#374151}
     .gdp-class-name{font-size:11px;color:#374151;font-weight:500;min-width:60px}
     .gdp-class-bar-wrap{flex:1;background:#f3f4f6;border-radius:4px;height:6px;overflow:hidden}
     .gdp-class-bar{height:100%;border-radius:4px;background:#0ea5e9}
     .gdp-class-count{font-size:11px;font-weight:700;color:#374151;min-width:24px;text-align:right}
     .gdp-class-pct{font-size:10px;color:#9ca3af;min-width:34px;text-align:right}
-
     .gdp-species-section{padding:0 16px 8px}
     .gdp-sp-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f9fafb;font-size:11px}
     .gdp-sp-name{color:#374151;font-style:italic;flex:1}
     .gdp-sp-local{color:#9ca3af;font-size:10px;flex:1;text-align:center}
     .gdp-sp-count{font-weight:700;color:#0ea5e9;min-width:24px;text-align:right}
     .gdp-sp-iucn{font-size:9px;padding:1px 5px;border-radius:4px;font-weight:600;margin-left:4px}
-
     .ct-stat-inline{display:flex;align-items:center;justify-content:space-between;padding:5px 16px;font-size:11px;color:#374151}
     .ct-stat-inline-val{font-weight:700;color:#0ea5e9}
-
     .img-modal{display:none;position:fixed;z-index:9999;inset:0;background:rgba(0,0,0,0.9);justify-content:center;align-items:center}
     .img-modal img{max-width:90%;max-height:88%;border-radius:12px}
     .modal-close{position:absolute;top:18px;right:26px;color:#fff;font-size:28px;cursor:pointer;opacity:.7;transition:opacity .15s;line-height:1}
     .modal-close:hover{opacity:1}
-
     .loading-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.75);color:#fff;padding:12px 22px;border-radius:10px;font-size:12px;z-index:2000;display:none}
   </style>
 </head>
@@ -535,11 +502,16 @@ function fmtLabel(s){ return (s||'').replace(/_/g,' '); }
 function convert(url){ if(!url||!url.trim()) return null; const id=url.match(/[-\w]{25,}/); return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null; }
 function toMidnight(y,m,d){ return new Date(y,m,d); }
 
-/* ── parseDateStr: handles all known formats including "DD/MM/YY HH:MM" ── */
-function parseDateStr(s){
+/* ── parseDateStr ──────────────────────────────────────────────────────────
+   fmt: 'mdy' = MM/DD/YY(YY)  → camera trap Google Sheet
+        'dmy' = DD/MM/YY(YY)  → patrol data
+        omit  = auto-detect
+   Strips time component before parsing.
+──────────────────────────────────────────────────────────────────────────── */
+function parseDateStr(s, fmt){
   if(!s||!s.trim()) return null;
   s=s.trim();
-  // Strip time component: "06/05/26 11:13" → "06/05/26", ISO "2026-05-06T11:13" → "2026-05-06"
+  // Strip time: "9/18/25 10:13:05 AM", "06/05/26 11:13", ISO "2026-05-06T11:13"
   s=s.split('T')[0].split(' ')[0];
 
   const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
@@ -548,23 +520,32 @@ function parseDateStr(s){
   let m=s.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
   if(m&&MON[m[2]]!==undefined) return toMidnight(+m[3],MON[m[2]],+m[1]);
 
-  // YYYY-MM-DD  e.g. "2026-05-06"
+  // YYYY-MM-DD  e.g. "2025-09-18"
   m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if(m) return toMidnight(+m[1],+m[2]-1,+m[3]);
 
-  // DD/MM/YYYY  e.g. "06/05/2026"
+  // N/N/YYYY (4-digit year)
   m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if(m) return toMidnight(+m[3],+m[2]-1,+m[1]);
-
-  // DD/MM/YY  e.g. "06/05/26"  (2-digit year: 00-50 → 2000s, 51-99 → 1900s)
-  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/);
   if(m){
-    const yy=+m[3];
-    const yyyy=yy<=50?2000+yy:1900+yy;
-    return toMidnight(yyyy,+m[2]-1,+m[1]);
+    if(fmt==='mdy') return toMidnight(+m[3],+m[1]-1,+m[2]);
+    if(fmt==='dmy') return toMidnight(+m[3],+m[2]-1,+m[1]);
+    if(+m[1]>12)    return toMidnight(+m[3],+m[2]-1,+m[1]); // part1>12 → DD/MM
+    if(+m[2]>12)    return toMidnight(+m[3],+m[1]-1,+m[2]); // part2>12 → MM/DD
+    return toMidnight(+m[3],+m[2]-1,+m[1]); // ambiguous → assume DD/MM
   }
 
-  // MM/DD/YY or other — fallback via native Date
+  // N/N/YY (2-digit year)
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/);
+  if(m){
+    const yyyy=+m[3]<=50?2000+ +m[3]:1900+ +m[3];
+    if(fmt==='mdy') return toMidnight(yyyy,+m[1]-1,+m[2]); // MM/DD/YY
+    if(fmt==='dmy') return toMidnight(yyyy,+m[2]-1,+m[1]); // DD/MM/YY
+    if(+m[1]>12)    return toMidnight(yyyy,+m[2]-1,+m[1]); // part1>12 → DD/MM
+    if(+m[2]>12)    return toMidnight(yyyy,+m[1]-1,+m[2]); // part2>12 → MM/DD
+    // Both ≤12 and no fmt hint → default MM/DD (camera trap style is MM/DD)
+    return toMidnight(yyyy,+m[1]-1,+m[2]);
+  }
+
   const d=new Date(s);
   if(!isNaN(d)) return toMidnight(d.getFullYear(),d.getMonth(),d.getDate());
   return null;
@@ -574,55 +555,51 @@ function parseInputDate(s){ if(!s) return null; const p=s.split('-'); return p.l
 function fmtDate(d){ return d?d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}):'-'; }
 function toInputStr(d){ if(!d) return ''; const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0'); return `${y}-${mo}-${dd}`; }
 
-/* ── Quick date preset helper ── */
+/* ── Quick date presets ── */
 function getPresetRange(preset){
   const now=new Date();
   const today=toMidnight(now.getFullYear(),now.getMonth(),now.getDate());
-  if(preset==='all') return {start:null,end:null};
+  if(preset==='all')   return {start:null,end:null};
   if(preset==='today') return {start:today,end:today};
-  if(preset==='1w'){ const s=new Date(today);s.setDate(s.getDate()-6);return {start:s,end:today}; }
-  if(preset==='1m'){ const s=new Date(today);s.setMonth(s.getMonth()-1);return {start:s,end:today}; }
-  if(preset==='3m'){ const s=new Date(today);s.setMonth(s.getMonth()-3);return {start:s,end:today}; }
-  if(preset==='6m'){ const s=new Date(today);s.setMonth(s.getMonth()-6);return {start:s,end:today}; }
-  if(preset==='ytd'){ const s=toMidnight(today.getFullYear(),0,1);return {start:s,end:today}; }
-  if(preset==='1y'){ const s=new Date(today);s.setFullYear(s.getFullYear()-1);return {start:s,end:today}; }
+  if(preset==='1w'){  const s=new Date(today);s.setDate(s.getDate()-6);   return {start:s,end:today};}
+  if(preset==='1m'){  const s=new Date(today);s.setMonth(s.getMonth()-1); return {start:s,end:today};}
+  if(preset==='3m'){  const s=new Date(today);s.setMonth(s.getMonth()-3); return {start:s,end:today};}
+  if(preset==='6m'){  const s=new Date(today);s.setMonth(s.getMonth()-6); return {start:s,end:today};}
+  if(preset==='ytd'){ const s=toMidnight(today.getFullYear(),0,1);        return {start:s,end:today};}
+  if(preset==='1y'){  const s=new Date(today);s.setFullYear(s.getFullYear()-1); return {start:s,end:today};}
   return {start:null,end:null};
 }
 function setActiveQuickBtn(container,preset){
   container.querySelectorAll('.qd-btn').forEach(b=>b.classList.toggle('active',b.dataset.preset===preset));
 }
 function applyPatrolQuickDate(btn){
-  const preset=btn.dataset.preset;
-  const {start,end}=getPresetRange(preset);
+  const {start,end}=getPresetRange(btn.dataset.preset);
   PF.start=start;PF.end=end;
   document.getElementById('startDate').value=start?toInputStr(start):'';
   document.getElementById('endDate').value=end?toInputStr(end):'';
-  setActiveQuickBtn(document.getElementById('patrolQuickDates'),preset);
+  setActiveQuickBtn(document.getElementById('patrolQuickDates'),btn.dataset.preset);
   applyPatrolFilters();
 }
 function applyCtQuickDate(btn){
-  const preset=btn.dataset.preset;
-  const {start,end}=getPresetRange(preset);
+  const {start,end}=getPresetRange(btn.dataset.preset);
   CTF.start=start;CTF.end=end;
   document.getElementById('ctStartDate').value=start?toInputStr(start):'';
   document.getElementById('ctEndDate').value=end?toInputStr(end):'';
-  setActiveQuickBtn(document.getElementById('ctQuickDates'),preset);
+  setActiveQuickBtn(document.getElementById('ctQuickDates'),btn.dataset.preset);
   applyCtFilters();
 }
 
+/* ── Map setup ── */
 const map=L.map('map',{center:[0.8,110.325],zoom:13,zoomControl:false,attributionControl:false});
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{opacity:0.85}).addTo(map);
-
 const lulc        =L.tileLayer('./data/Tiles/{z}/{x}/{y}.png',{opacity:1}).addTo(map);
 const lulc2025    =L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',{opacity:1});
 const landsat2024 =L.tileLayer('./data/landsat-2024/{z}/{x}/{y}.png',{opacity:1});
 const landsat2025 =L.tileLayer('./data/landsat-2025/{z}/{x}/{y}.png',{opacity:1});
-
 let boundaryLayer,mapBounds;
 const pointLayer  =L.layerGroup().addTo(map);
 const ctGridLayer =L.layerGroup();
 const ctPointLayer=L.layerGroup();
-
 let currentTab='patrol';
 
 fetch('data/CMI.json').then(r=>r.json()).then(j=>{
@@ -630,7 +607,6 @@ fetch('data/CMI.json').then(r=>r.json()).then(j=>{
   mapBounds=boundaryLayer.getBounds();
   map.fitBounds(mapBounds,{paddingTopLeft:[268,0]});
 });
-
 function resetView(){ if(mapBounds) map.fitBounds(mapBounds,{paddingTopLeft:[268,0]}); }
 
 function switchTab(tab){
@@ -646,9 +622,7 @@ function switchTab(tab){
   document.getElementById('detailPanel').classList.remove('open');
   document.getElementById('gridDetailPanel').classList.remove('open');
   if(tab==='patrol'){
-    map.addLayer(pointLayer);
-    map.removeLayer(ctGridLayer);
-    map.removeLayer(ctPointLayer);
+    map.addLayer(pointLayer); map.removeLayer(ctGridLayer); map.removeLayer(ctPointLayer);
   } else {
     map.removeLayer(pointLayer);
     if(document.getElementById('ctToggleGrid').checked)   map.addLayer(ctGridLayer);
@@ -657,9 +631,9 @@ function switchTab(tab){
   }
 }
 
+/* ── Patrol data ── */
 const PATROL_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 let rawData=[],highlightCat=null;
-
 Papa.parse(PATROL_URL,{download:true,header:true,complete:(res)=>{
   rawData=res.data.filter(r=>r['data-coordinate']&&r['data-coordinate'].trim());
   rawData.forEach(r=>{if(r['data-survey-categ']) catColor(r['data-survey-categ']);});
@@ -667,19 +641,19 @@ Papa.parse(PATROL_URL,{download:true,header:true,complete:(res)=>{
 }});
 
 const PF={start:null,end:null,officer:'',category:'',finding:''};
-
 function getActiveFiltered(){
   return rawData.filter(r=>{
     if(!r['data-coordinate']||!r['data-coordinate'].trim()) return false;
     if(PF.start!==null||PF.end!==null){
-      const rd=parseDateStr(r['data-start_date']);
-      if(rd===null) return false;
+      // patrol dates use dmy format
+      const rd=parseDateStr(r['data-start_date'],'dmy');
+      if(!rd) return false;
       if(PF.start!==null&&rd<PF.start) return false;
-      if(PF.end!==null&&rd>PF.end) return false;
+      if(PF.end!==null  &&rd>PF.end)   return false;
     }
-    if(PF.officer   &&r['data-base_info-nama']!==PF.officer)  return false;
-    if(PF.category  &&r['data-survey-categ']  !==PF.category) return false;
-    if(PF.finding   &&r['data-survey-finding']!==PF.finding)  return false;
+    if(PF.officer  &&r['data-base_info-nama']!==PF.officer)  return false;
+    if(PF.category &&r['data-survey-categ']  !==PF.category) return false;
+    if(PF.finding  &&r['data-survey-finding']!==PF.finding)  return false;
     return true;
   });
 }
@@ -699,10 +673,10 @@ function rebuildPatrolSelects(){
   const subset=(excl)=>rawData.filter(r=>{
     if(!r['data-coordinate']||!r['data-coordinate'].trim()) return false;
     if(PF.start!==null||PF.end!==null){
-      const rd=parseDateStr(r['data-start_date']);
+      const rd=parseDateStr(r['data-start_date'],'dmy');
       if(!rd) return false;
       if(PF.start&&rd<PF.start) return false;
-      if(PF.end&&rd>PF.end) return false;
+      if(PF.end  &&rd>PF.end)   return false;
     }
     if(excl!=='officer'  &&PF.officer  &&r['data-base_info-nama']!==PF.officer)  return false;
     if(excl!=='category' &&PF.category &&r['data-survey-categ']  !==PF.category) return false;
@@ -716,13 +690,7 @@ function rebuildPatrolSelects(){
 function fillSelect(id,allVals,availSet,cur,placeholder){
   const el=document.getElementById(id);
   el.innerHTML=`<option value="">${placeholder}</option>`;
-  allVals.forEach(v=>{
-    const o=document.createElement('option');
-    o.value=v;o.textContent=fmtLabel(v);
-    if(!availSet.has(v)) o.disabled=true;
-    if(v===cur) o.selected=true;
-    el.appendChild(o);
-  });
+  allVals.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=fmtLabel(v);if(!availSet.has(v)) o.disabled=true;if(v===cur) o.selected=true;el.appendChild(o);});
 }
 function applyPatrolFilters(){ rebuildPatrolSelects(); updateMap(); updatePatrolFilterUI(); }
 function updatePatrolFilterUI(){
@@ -750,8 +718,7 @@ function updateMap(){
     const lat=parseFloat(parts[0]),lon=parseFloat(parts[1]);if(isNaN(lat)||isNaN(lon)) return;
     const cat=r['data-survey-categ']||'Unknown';
     catCounts[cat]=(catCounts[cat]||0)+1;
-    const col=catColor(cat);
-    const mk=L.marker([lat,lon],{icon:makeIcon(col)});
+    const mk=L.marker([lat,lon],{icon:makeIcon(catColor(cat))});
     mk.category=cat;mk.on('click',()=>openDetail(r));allMarkers.push(mk);pointLayer.addLayer(mk);
   });
   if(highlightCat) allMarkers.forEach(mk=>mk.setIcon(makeIcon(catColor(mk.category),mk.category!==highlightCat)));
@@ -787,12 +754,10 @@ function buildDetailSlider(imgs,uid){
 function dsMv(uid,dir){
   const c=document.getElementById(uid);if(!c) return;
   const n=c.querySelectorAll('.slide').length;
-  let idx=((dsIndex[uid]||0)+dir+n)%n;
-  dsIndex[uid]=idx;
+  let idx=((dsIndex[uid]||0)+dir+n)%n;dsIndex[uid]=idx;
   c.querySelector('.slides').style.transform=`translateX(-${idx*100}%)`;
   c.querySelectorAll('.ds-dots span').forEach((d,i)=>d.classList.toggle('active',i===idx));
 }
-
 function openDetail(r){
   const cat=r['data-survey-categ']||'Unknown',finding=r['data-survey-finding']||'-',col=catColor(cat);
   const imgs=[convert(r['data-documentation-image_1']),convert(r['data-documentation-image_2'])].filter(Boolean);
@@ -814,33 +779,30 @@ function openDetail(r){
 }
 document.getElementById('detailClose').onclick=()=>document.getElementById('detailPanel').classList.remove('open');
 
-const CT_SHEET_ID  = '1aSlHTdSJOm4CIDbe9VV7eOfRfxfUgyBWZl0EKMDXzXA';
-const CT_SHEET_URL = `https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
-const CT_GRID_URL  = './data/grid.geojson';
-
+/* ── Camera trap data ── */
+const CT_SHEET_ID  ='1aSlHTdSJOm4CIDbe9VV7eOfRfxfUgyBWZl0EKMDXzXA';
+const CT_SHEET_URL =`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
+const CT_GRID_URL  ='./data/grid.geojson';
 let ctData=[],ctGridGeo=null,ctLoaded=false;
 const CTF={start:null,end:null,site:'',kelas:'',spesies:'',iucn:''};
 
 function loadCameraData(){
   if(ctLoaded) return;
   document.getElementById('loadingOverlay').style.display='block';
-  const p1=fetch(CT_GRID_URL).then(r=>r.json()).then(j=>{ ctGridGeo=j; }).catch(e=>console.warn('Grid GeoJSON fail:',e));
+  const p1=fetch(CT_GRID_URL).then(r=>r.json()).then(j=>{ctGridGeo=j;}).catch(e=>console.warn('Grid GeoJSON fail:',e));
   const p2=new Promise(resolve=>{
-    Papa.parse(CT_SHEET_URL,{
-      download:true,header:false,skipEmptyLines:true,
-      complete:(res)=>{
-        const rows=res.data;
-        ctData=rows.slice(1).map(r=>({
-          RecordID: r[0]||'', Batch:r[1]||'', StartDate:r[2]||'', EndDate:r[3]||'',
-          Site:r[4]||'', Latitude:parseFloat(r[5]), Longitude:parseFloat(r[6]),
-          CameraID:r[7]||'', Date:r[8]||'', Time:r[9]||'', DateTime:r[10]||'',
-          Class:r[11]||'', Species:r[12]||'', LocalName:r[13]||'', IUCN:r[14]||'',
-          Indep:r[15]||'', Count:Math.max(0,parseInt(r[16])||0),
-          FileType:r[17]||'', FileName:r[18]||'', Link:r[19]||'',
-        })).filter(r=>!isNaN(r.Latitude)&&!isNaN(r.Longitude)&&r.Latitude!==0);
-        resolve();
-      }
-    });
+    Papa.parse(CT_SHEET_URL,{download:true,header:false,skipEmptyLines:true,complete:(res)=>{
+      const rows=res.data;
+      ctData=rows.slice(1).map(r=>({
+        RecordID:r[0]||'',Batch:r[1]||'',StartDate:r[2]||'',EndDate:r[3]||'',
+        Site:r[4]||'',Latitude:parseFloat(r[5]),Longitude:parseFloat(r[6]),
+        CameraID:r[7]||'',Date:r[8]||'',Time:r[9]||'',DateTime:r[10]||'',
+        Class:r[11]||'',Species:r[12]||'',LocalName:r[13]||'',IUCN:r[14]||'',
+        Indep:r[15]||'',Count:Math.max(0,parseInt(r[16])||0),
+        FileType:r[17]||'',FileName:r[18]||'',Link:r[19]||'',
+      })).filter(r=>!isNaN(r.Latitude)&&!isNaN(r.Longitude)&&r.Latitude!==0);
+      resolve();
+    }});
   });
   Promise.all([p1,p2]).then(()=>{
     ctLoaded=true;
@@ -849,10 +811,11 @@ function loadCameraData(){
   });
 }
 
+/* Camera trap dates are MM/DD/YY(YY) — always pass fmt='mdy' */
 function getCtFiltered(){
   return ctData.filter(r=>{
     if(CTF.start||CTF.end){
-      const d=parseDateStr(r.Date);
+      const d=parseDateStr(r.Date,'mdy');
       if(!d) return false;
       if(CTF.start&&d<CTF.start) return false;
       if(CTF.end  &&d>CTF.end)   return false;
@@ -867,10 +830,9 @@ function getCtFiltered(){
 
 function initCtDropdowns(){
   const sites=new Set(),classes=new Set(),species=new Set(),iucns=new Set();
-  ctData.forEach(r=>{ if(r.Site) sites.add(r.Site); if(r.Class) classes.add(r.Class); if(r.Species) species.add(r.Species); if(r.IUCN) iucns.add(r.IUCN); });
-  [[...sites].sort(),'ctFilterSite'],[[...classes].sort(),'ctFilterClass'],[[...species].sort(),'ctFilterSpecies'],[[...iucns].sort(),'ctFilterIucn'];
-  const fill=(arr,id)=>{ const el=document.getElementById(id); arr.sort().forEach(v=>{ const o=document.createElement('option');o.value=v;o.textContent=v;el.appendChild(o); }); };
-  fill([...sites],'ctFilterSite');fill([...classes],'ctFilterClass');fill([...species],'ctFilterSpecies');fill([...iucns],'ctFilterIucn');
+  ctData.forEach(r=>{if(r.Site) sites.add(r.Site);if(r.Class) classes.add(r.Class);if(r.Species) species.add(r.Species);if(r.IUCN) iucns.add(r.IUCN);});
+  const fill=(arr,id)=>{const el=document.getElementById(id);[...arr].sort().forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;el.appendChild(o);});};
+  fill(sites,'ctFilterSite');fill(classes,'ctFilterClass');fill(species,'ctFilterSpecies');fill(iucns,'ctFilterIucn');
 }
 
 function pip(lat,lon,ring){
@@ -897,22 +859,18 @@ function buildCtGrid(){
     const klassCounts={},speciesCounts={};
     const camsInCell=new Set();
     const datesInCell=[];
-
     filtered.forEach(r=>{
       if(inFeature(r.Latitude,r.Longitude,feat)){
         totalCount+=r.Count;
-        if(r.Class)    klassCounts[r.Class]=(klassCounts[r.Class]||0)+r.Count;
-        if(r.Species){ if(!speciesCounts[r.Species]) speciesCounts[r.Species]={local:r.LocalName,iucn:r.IUCN,count:0}; speciesCounts[r.Species].count+=r.Count; }
+        if(r.Class){klassCounts[r.Class]=(klassCounts[r.Class]||0)+r.Count;}
+        if(r.Species){if(!speciesCounts[r.Species]) speciesCounts[r.Species]={local:r.LocalName,iucn:r.IUCN,count:0};speciesCounts[r.Species].count+=r.Count;}
         if(r.CameraID) camsInCell.add(r.CameraID);
-        const d=parseDateStr(r.Date); if(d) datesInCell.push(d);
+        // ← mdy format for camera trap dates
+        const d=parseDateStr(r.Date,'mdy'); if(d) datesInCell.push(d);
       }
     });
-
     const {color,opacity}=gridStyle(totalCount);
-    const layer=L.geoJSON(feat,{
-      style:{fillColor:totalCount>0?color:'transparent',fillOpacity:opacity,color:totalCount>0?color:'#444',weight:totalCount>0?1.5:0.8,opacity:0.9}
-    });
-
+    const layer=L.geoJSON(feat,{style:{fillColor:totalCount>0?color:'transparent',fillOpacity:opacity,color:totalCount>0?color:'#444',weight:totalCount>0?1.5:0.8,opacity:0.9}});
     if(totalCount>0){
       const center=layer.getBounds().getCenter();
       const numCams=camsInCell.size;
@@ -922,7 +880,6 @@ function buildCtGrid(){
         :`<div style="font-size:10px;font-weight:800;color:#fff;text-shadow:0 0 4px rgba(0,0,0,1),0 0 4px rgba(0,0,0,1);pointer-events:none;white-space:nowrap;text-align:center">${totalCount}</div>`;
       L.marker(center,{icon:L.divIcon({html:labelHtml,className:'',iconSize:[44,avgPerCam?22:14],iconAnchor:[22,avgPerCam?11:7]}),interactive:false}).addTo(ctGridLayer);
     }
-
     layer.on('click',()=>openGridDetail(fi,totalCount,klassCounts,speciesCounts,camsInCell,datesInCell));
     layer.addTo(ctGridLayer);
   });
@@ -987,7 +944,6 @@ function openGridDetail(fi,totalCount,klassCounts,speciesCounts,camsInCell,dates
   const totalInCell=Object.values(klassCounts).reduce((s,v)=>s+v,0);
   const numCams=camsInCell.size;
   const avgPerCam=numCams>0?Math.round(totalCount/numCams):0;
-
   const classRows=Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
     <div class="gdp-class-row">
       <div class="gdp-class-icon">${classIcon(k)}</div>
@@ -996,7 +952,6 @@ function openGridDetail(fi,totalCount,klassCounts,speciesCounts,camsInCell,dates
       <span class="gdp-class-count">${v}</span>
       <span class="gdp-class-pct">${totalInCell?Math.round(v/totalInCell*100):0}%</span>
     </div>`).join('');
-
   const spRows=Object.entries(speciesCounts).sort((a,b)=>b[1].count-a[1].count).slice(0,10).map(([sp,d])=>`
     <div class="gdp-sp-row">
       <span class="gdp-sp-name">${sp}</span>
@@ -1004,7 +959,6 @@ function openGridDetail(fi,totalCount,klassCounts,speciesCounts,camsInCell,dates
       <span class="gdp-sp-iucn" style="background:${IUCN_COLORS[d.iucn]||'#94a3b8'};color:#fff">${d.iucn||'-'}</span>
       <span class="gdp-sp-count">${d.count}</span>
     </div>`).join('');
-
   document.getElementById('gridDetailBody').innerHTML=`
     <div class="gdp-big-count">
       <span class="gdp-count-num">${totalCount}</span>
@@ -1037,8 +991,8 @@ function updateCtStats(){
   const totalLok=new Set(filtered.map(r=>`${r.Latitude.toFixed(4)}_${r.Longitude.toFixed(4)}`)).size;
   const klassCounts={};
   filtered.forEach(r=>{if(r.Class) klassCounts[r.Class]=(klassCounts[r.Class]||0)+r.Count;});
-  const dates=filtered.map(r=>parseDateStr(r.Date)).filter(Boolean).sort((a,b)=>a-b);
-
+  // ← mdy format for camera trap dates
+  const dates=filtered.map(r=>parseDateStr(r.Date,'mdy')).filter(Boolean).sort((a,b)=>a-b);
   document.getElementById('ctSummaryBody').innerHTML=`
     <div class="ct-stat-inline"><span>Total Detections</span><span class="ct-stat-inline-val">${totalDet}</span></div>
     <div class="ct-stat-inline"><span>Species Recorded</span><span class="ct-stat-inline-val">${totalSp}</span></div>
@@ -1047,17 +1001,14 @@ function updateCtStats(){
     <div class="ct-stat-inline"><span>Monitoring Locations</span><span class="ct-stat-inline-val">${totalLok}</span></div>
     <div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">By Class</div>
     ${Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
-      <div class="ct-stat-inline"><span>${k}</span><span class="ct-stat-inline-val">${v} (${totalDet?Math.round(v/totalDet*100):0}%)</span></div>`).join('')}
-  `;
-
+      <div class="ct-stat-inline"><span>${k}</span><span class="ct-stat-inline-val">${v} (${totalDet?Math.round(v/totalDet*100):0}%)</span></div>`).join('')}`;
   document.getElementById('ctStatCameras').textContent=totalCam;
   document.getElementById('ctStatDetections').textContent=totalDet;
   document.getElementById('ctStatDetSub').textContent=`${totalSp} species recorded`;
-
   if(ctGridGeo){
     let gridsWithDet=0,topGrid='–',topCount=0;
     ctGridGeo.features.forEach((feat,fi)=>{
-      let det=0; filtered.forEach(r=>{ if(inFeature(r.Latitude,r.Longitude,feat)) det+=r.Count; });
+      let det=0;filtered.forEach(r=>{if(inFeature(r.Latitude,r.Longitude,feat)) det+=r.Count;});
       if(det>0) gridsWithDet++;
       if(det>topCount){topCount=det;topGrid=`G-${String(fi).padStart(3,'0')}`;}
     });
@@ -1067,7 +1018,6 @@ function updateCtStats(){
     document.getElementById('ctStatTopGrid').textContent=topGrid;
     document.getElementById('ctStatTopSub').textContent=`${topCount} Detections`;
   }
-
   if(dates.length){
     const fmt=d=>d.toLocaleDateString('id-ID',{month:'short',year:'numeric'});
     document.getElementById('ctStatDate').textContent=fmt(dates[0]);
@@ -1078,16 +1028,8 @@ function updateCtStats(){
 function applyCtFilters(){ buildCtGrid(); buildCtPoints(); updateCtStats(); }
 
 /* ── Event listeners ── */
-document.getElementById('ctStartDate').addEventListener('change',e=>{
-  CTF.start=parseInputDate(e.target.value);
-  setActiveQuickBtn(document.getElementById('ctQuickDates'),'');
-  applyCtFilters();
-});
-document.getElementById('ctEndDate').addEventListener('change',e=>{
-  CTF.end=parseInputDate(e.target.value);
-  setActiveQuickBtn(document.getElementById('ctQuickDates'),'');
-  applyCtFilters();
-});
+document.getElementById('ctStartDate').addEventListener('change',e=>{CTF.start=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('ctQuickDates'),'');applyCtFilters();});
+document.getElementById('ctEndDate').addEventListener('change',e=>{CTF.end=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('ctQuickDates'),'');applyCtFilters();});
 document.getElementById('ctFilterSite').addEventListener('change',e=>{CTF.site=e.target.value;applyCtFilters();});
 document.getElementById('ctFilterClass').addEventListener('change',e=>{CTF.kelas=e.target.value;applyCtFilters();});
 document.getElementById('ctFilterSpecies').addEventListener('change',e=>{CTF.spesies=e.target.value;applyCtFilters();});
@@ -1099,17 +1041,8 @@ document.getElementById('ctClearFilters').onclick=()=>{
   setActiveQuickBtn(document.getElementById('ctQuickDates'),'all');
   applyCtFilters();
 };
-
-document.getElementById('startDate').addEventListener('change',e=>{
-  PF.start=parseInputDate(e.target.value);
-  setActiveQuickBtn(document.getElementById('patrolQuickDates'),'');
-  applyPatrolFilters();
-});
-document.getElementById('endDate').addEventListener('change',e=>{
-  PF.end=parseInputDate(e.target.value);
-  setActiveQuickBtn(document.getElementById('patrolQuickDates'),'');
-  applyPatrolFilters();
-});
+document.getElementById('startDate').addEventListener('change',e=>{PF.start=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('patrolQuickDates'),'');applyPatrolFilters();});
+document.getElementById('endDate').addEventListener('change',e=>{PF.end=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('patrolQuickDates'),'');applyPatrolFilters();});
 document.getElementById('filterOfficer').addEventListener('change',e=>{PF.officer=e.target.value;applyPatrolFilters();});
 document.getElementById('filterCategory').addEventListener('change',e=>{PF.category=e.target.value;applyPatrolFilters();});
 document.getElementById('filterFinding').addEventListener('change',e=>{PF.finding=e.target.value;applyPatrolFilters();});
@@ -1120,7 +1053,6 @@ document.getElementById('clearFilters').onclick=()=>{
   setActiveQuickBtn(document.getElementById('patrolQuickDates'),'all');
   applyPatrolFilters();
 };
-
 document.getElementById('toggleLulc').onchange        =e=>e.target.checked?map.addLayer(lulc)        :map.removeLayer(lulc);
 document.getElementById('toggleLulc2025').onchange    =e=>e.target.checked?map.addLayer(lulc2025)    :map.removeLayer(lulc2025);
 document.getElementById('toggleLandsat2024').onchange =e=>e.target.checked?map.addLayer(landsat2024) :map.removeLayer(landsat2024);
@@ -1131,7 +1063,6 @@ document.getElementById('ctToggleBoundary').onchange  =e=>boundaryLayer&&(e.targ
 document.getElementById('ctToggleLulc').onchange      =e=>e.target.checked?map.addLayer(lulc)        :map.removeLayer(lulc);
 document.getElementById('ctToggleGrid').onchange      =e=>e.target.checked?map.addLayer(ctGridLayer) :map.removeLayer(ctGridLayer);
 document.getElementById('ctTogglePoints').onchange    =e=>e.target.checked?map.addLayer(ctPointLayer):map.removeLayer(ctPointLayer);
-
 document.getElementById('filterToggleBtn').onclick=()=>document.getElementById('filterDrawer').classList.toggle('open');
 document.getElementById('filterClose').onclick=()=>document.getElementById('filterDrawer').classList.remove('open');
 
