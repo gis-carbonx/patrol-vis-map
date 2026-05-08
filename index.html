@@ -80,6 +80,7 @@
     .f-input{width:100%;padding:8px 11px;border:1.5px solid #e8eaed;border-radius:9px;font-size:11px;font-family:'Montserrat',sans-serif;color:#374151;background:#fafafa;outline:none;transition:border .15s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
     .f-input.date-input{background-image:none;padding-right:11px}
     .f-input:focus{border-color:#2d6a2d;background:#fff}
+    .f-input:disabled{opacity:0.45;cursor:not-allowed}
     .quick-date-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
     .qd-btn{padding:4px 8px;border-radius:6px;border:1.5px solid #e8eaed;background:#fafafa;color:#374151;font-size:10px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap}
     .qd-btn:hover{border-color:#2d6a2d;color:#2d6a2d}
@@ -502,50 +503,32 @@ function fmtLabel(s){ return (s||'').replace(/_/g,' '); }
 function convert(url){ if(!url||!url.trim()) return null; const id=url.match(/[-\w]{25,}/); return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null; }
 function toMidnight(y,m,d){ return new Date(y,m,d); }
 
-/* ── parseDateStr ──────────────────────────────────────────────────────────
-   fmt: 'mdy' = MM/DD/YY(YY)  → camera trap Google Sheet
-        'dmy' = DD/MM/YY(YY)  → patrol data
-        omit  = auto-detect
-   Strips time component before parsing.
-──────────────────────────────────────────────────────────────────────────── */
 function parseDateStr(s, fmt){
   if(!s||!s.trim()) return null;
   s=s.trim();
-  // Strip time: "9/18/25 10:13:05 AM", "06/05/26 11:13", ISO "2026-05-06T11:13"
   s=s.split('T')[0].split(' ')[0];
-
   const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-
-  // DD-Mon-YYYY  e.g. "06-May-2026"
   let m=s.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
   if(m&&MON[m[2]]!==undefined) return toMidnight(+m[3],MON[m[2]],+m[1]);
-
-  // YYYY-MM-DD  e.g. "2025-09-18"
   m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if(m) return toMidnight(+m[1],+m[2]-1,+m[3]);
-
-  // N/N/YYYY (4-digit year)
   m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if(m){
     if(fmt==='mdy') return toMidnight(+m[3],+m[1]-1,+m[2]);
     if(fmt==='dmy') return toMidnight(+m[3],+m[2]-1,+m[1]);
-    if(+m[1]>12)    return toMidnight(+m[3],+m[2]-1,+m[1]); // part1>12 → DD/MM
-    if(+m[2]>12)    return toMidnight(+m[3],+m[1]-1,+m[2]); // part2>12 → MM/DD
-    return toMidnight(+m[3],+m[2]-1,+m[1]); // ambiguous → assume DD/MM
+    if(+m[1]>12)    return toMidnight(+m[3],+m[2]-1,+m[1]);
+    if(+m[2]>12)    return toMidnight(+m[3],+m[1]-1,+m[2]);
+    return toMidnight(+m[3],+m[2]-1,+m[1]);
   }
-
-  // N/N/YY (2-digit year)
   m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/);
   if(m){
     const yyyy=+m[3]<=50?2000+ +m[3]:1900+ +m[3];
-    if(fmt==='mdy') return toMidnight(yyyy,+m[1]-1,+m[2]); // MM/DD/YY
-    if(fmt==='dmy') return toMidnight(yyyy,+m[2]-1,+m[1]); // DD/MM/YY
-    if(+m[1]>12)    return toMidnight(yyyy,+m[2]-1,+m[1]); // part1>12 → DD/MM
-    if(+m[2]>12)    return toMidnight(yyyy,+m[1]-1,+m[2]); // part2>12 → MM/DD
-    // Both ≤12 and no fmt hint → default MM/DD (camera trap style is MM/DD)
+    if(fmt==='mdy') return toMidnight(yyyy,+m[1]-1,+m[2]);
+    if(fmt==='dmy') return toMidnight(yyyy,+m[2]-1,+m[1]);
+    if(+m[1]>12)    return toMidnight(yyyy,+m[2]-1,+m[1]);
+    if(+m[2]>12)    return toMidnight(yyyy,+m[1]-1,+m[2]);
     return toMidnight(yyyy,+m[1]-1,+m[2]);
   }
-
   const d=new Date(s);
   if(!isNaN(d)) return toMidnight(d.getFullYear(),d.getMonth(),d.getDate());
   return null;
@@ -555,7 +538,6 @@ function parseInputDate(s){ if(!s) return null; const p=s.split('-'); return p.l
 function fmtDate(d){ return d?d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}):'-'; }
 function toInputStr(d){ if(!d) return ''; const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0'); return `${y}-${mo}-${dd}`; }
 
-/* ── Quick date presets ── */
 function getPresetRange(preset){
   const now=new Date();
   const today=toMidnight(now.getFullYear(),now.getMonth(),now.getDate());
@@ -631,34 +613,43 @@ function switchTab(tab){
   }
 }
 
-/* ── Patrol data ── */
+/* ══════════════════════════════════════════════════════════════
+   PATROL DATA & CASCADING FILTERS
+   ══════════════════════════════════════════════════════════════ */
 const PATROL_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 let rawData=[],highlightCat=null;
 Papa.parse(PATROL_URL,{download:true,header:true,complete:(res)=>{
   rawData=res.data.filter(r=>r['data-coordinate']&&r['data-coordinate'].trim());
   rawData.forEach(r=>{if(r['data-survey-categ']) catColor(r['data-survey-categ']);});
-  initPatrolDropdowns(); updateMap();
+  initPatrolDropdowns();
+  updateMap();
 }});
 
 const PF={start:null,end:null,officer:'',category:'',finding:''};
-function getActiveFiltered(){
+
+/* Returns rows matching ALL active filters, but optionally skipping one field (for cascade logic) */
+function patrolSubset(excludeField){
   return rawData.filter(r=>{
     if(!r['data-coordinate']||!r['data-coordinate'].trim()) return false;
+    // Date filter always applied
     if(PF.start!==null||PF.end!==null){
-      // patrol dates use dmy format
       const rd=parseDateStr(r['data-start_date'],'dmy');
       if(!rd) return false;
       if(PF.start!==null&&rd<PF.start) return false;
       if(PF.end!==null  &&rd>PF.end)   return false;
     }
-    if(PF.officer  &&r['data-base_info-nama']!==PF.officer)  return false;
-    if(PF.category &&r['data-survey-categ']  !==PF.category) return false;
-    if(PF.finding  &&r['data-survey-finding']!==PF.finding)  return false;
+    if(excludeField!=='officer'  &&PF.officer  &&r['data-base_info-nama']!==PF.officer)  return false;
+    if(excludeField!=='category' &&PF.category &&r['data-survey-categ']  !==PF.category) return false;
+    if(excludeField!=='finding'  &&PF.finding  &&r['data-survey-finding']!==PF.finding)  return false;
     return true;
   });
 }
 
+function getActiveFiltered(){ return patrolSubset(null); }
+
+/* Master list of ALL unique values (for the full population) */
 let allOfficers=[],allCategories=[],allFindings=[];
+
 function initPatrolDropdowns(){
   const o=new Set(),c=new Set(),f=new Set();
   rawData.forEach(r=>{
@@ -666,33 +657,94 @@ function initPatrolDropdowns(){
     if(r['data-survey-categ'])   c.add(r['data-survey-categ']);
     if(r['data-survey-finding']) f.add(r['data-survey-finding']);
   });
-  allOfficers=[...o].sort();allCategories=[...c].sort();allFindings=[...f].sort();
+  allOfficers=[...o].sort();
+  allCategories=[...c].sort();
+  allFindings=[...f].sort();
   rebuildPatrolSelects();
 }
+
+/*
+ * Cascade logic:
+ *   availableFor(field) = values that exist in rows matching all OTHER active filters
+ *   This way:
+ *     - Officer dropdown shows only officers present in rows matching current category+finding+date
+ *     - Category dropdown shows only categories present in rows matching current officer+finding+date
+ *     - Finding dropdown shows only findings present in rows matching current officer+category+date
+ */
 function rebuildPatrolSelects(){
-  const subset=(excl)=>rawData.filter(r=>{
-    if(!r['data-coordinate']||!r['data-coordinate'].trim()) return false;
-    if(PF.start!==null||PF.end!==null){
-      const rd=parseDateStr(r['data-start_date'],'dmy');
-      if(!rd) return false;
-      if(PF.start&&rd<PF.start) return false;
-      if(PF.end  &&rd>PF.end)   return false;
-    }
-    if(excl!=='officer'  &&PF.officer  &&r['data-base_info-nama']!==PF.officer)  return false;
-    if(excl!=='category' &&PF.category &&r['data-survey-categ']  !==PF.category) return false;
-    if(excl!=='finding'  &&PF.finding  &&r['data-survey-finding']!==PF.finding)  return false;
-    return true;
-  });
-  fillSelect('filterOfficer', allOfficers,  new Set(subset('officer').map(r=>r['data-base_info-nama']).filter(Boolean)),  PF.officer,  'All Officers');
-  fillSelect('filterCategory',allCategories,new Set(subset('category').map(r=>r['data-survey-categ']).filter(Boolean)),   PF.category,'All Categories');
-  fillSelect('filterFinding', allFindings,  new Set(subset('finding').map(r=>r['data-survey-finding']).filter(Boolean)),  PF.finding,  'All Findings');
+  const availOfficers  = new Set(patrolSubset('officer').map(r=>r['data-base_info-nama']).filter(Boolean));
+  const availCategories= new Set(patrolSubset('category').map(r=>r['data-survey-categ']).filter(Boolean));
+  const availFindings  = new Set(patrolSubset('finding').map(r=>r['data-survey-finding']).filter(Boolean));
+
+  fillCascadeSelect('filterOfficer',  allOfficers,   availOfficers,   PF.officer,   'All Officers');
+  fillCascadeSelect('filterCategory', allCategories, availCategories, PF.category,  'All Categories');
+  fillCascadeSelect('filterFinding',  allFindings,   availFindings,   PF.finding,   'All Findings');
 }
-function fillSelect(id,allVals,availSet,cur,placeholder){
+
+/*
+ * fillCascadeSelect — renders a <select> with three tiers:
+ *   1. Currently selected value (always shown & selected, even if now 0 results)
+ *   2. Available values (have results given other filters) — shown normally
+ *   3. Unavailable values (no results given other filters) — shown greyed/disabled
+ */
+function fillCascadeSelect(id, allVals, availSet, currentVal, placeholder){
   const el=document.getElementById(id);
+  const scrollTop=el.scrollTop;
   el.innerHTML=`<option value="">${placeholder}</option>`;
-  allVals.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=fmtLabel(v);if(!availSet.has(v)) o.disabled=true;if(v===cur) o.selected=true;el.appendChild(o);});
+
+  const available=[], unavailable=[];
+  allVals.forEach(v=>{
+    if(v===currentVal) return; // handled separately below
+    if(availSet.has(v)) available.push(v);
+    else unavailable.push(v);
+  });
+
+  // If current value is set and not in available set, still show it selected
+  if(currentVal){
+    const opt=document.createElement('option');
+    opt.value=currentVal;
+    opt.textContent=fmtLabel(currentVal);
+    opt.selected=true;
+    // Mark it if it no longer has results (edge case after another filter removes all its data)
+    if(!availSet.has(currentVal)) opt.textContent+=' (0)';
+    el.appendChild(opt);
+  }
+
+  // Available options
+  available.forEach(v=>{
+    const opt=document.createElement('option');
+    opt.value=v;
+    opt.textContent=fmtLabel(v);
+    el.appendChild(opt);
+  });
+
+  // Divider + unavailable options (greyed out, disabled)
+  if(unavailable.length>0){
+    const divOpt=document.createElement('option');
+    divOpt.disabled=true;
+    divOpt.textContent='── not available ──';
+    divOpt.style.color='#ccc';
+    el.appendChild(divOpt);
+
+    unavailable.forEach(v=>{
+      const opt=document.createElement('option');
+      opt.value=v;
+      opt.textContent=fmtLabel(v);
+      opt.disabled=true;
+      opt.style.color='#bbb';
+      el.appendChild(opt);
+    });
+  }
+
+  el.scrollTop=scrollTop;
 }
-function applyPatrolFilters(){ rebuildPatrolSelects(); updateMap(); updatePatrolFilterUI(); }
+
+function applyPatrolFilters(){
+  rebuildPatrolSelects();
+  updateMap();
+  updatePatrolFilterUI();
+}
+
 function updatePatrolFilterUI(){
   const parts=[];
   if(PF.start||PF.end) parts.push(`📅 ${fmtDate(PF.start)} – ${fmtDate(PF.end)}`);
@@ -779,12 +831,17 @@ function openDetail(r){
 }
 document.getElementById('detailClose').onclick=()=>document.getElementById('detailPanel').classList.remove('open');
 
-/* ── Camera trap data ── */
+/* ══════════════════════════════════════════════════════════════
+   CAMERA TRAP DATA & CASCADING FILTERS
+   ══════════════════════════════════════════════════════════════ */
 const CT_SHEET_ID  ='1aSlHTdSJOm4CIDbe9VV7eOfRfxfUgyBWZl0EKMDXzXA';
 const CT_SHEET_URL =`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
 const CT_GRID_URL  ='./data/grid.geojson';
 let ctData=[],ctGridGeo=null,ctLoaded=false;
 const CTF={start:null,end:null,site:'',kelas:'',spesies:'',iucn:''};
+
+/* Master lists for camera trap dropdowns */
+let allCtSites=[],allCtClasses=[],allCtSpecies=[],allCtIucns=[];
 
 function loadCameraData(){
   if(ctLoaded) return;
@@ -807,12 +864,15 @@ function loadCameraData(){
   Promise.all([p1,p2]).then(()=>{
     ctLoaded=true;
     document.getElementById('loadingOverlay').style.display='none';
-    initCtDropdowns();buildCtGrid();buildCtPoints();updateCtStats();
+    initCtDropdowns();
+    buildCtGrid();
+    buildCtPoints();
+    updateCtStats();
   });
 }
 
-/* Camera trap dates are MM/DD/YY(YY) — always pass fmt='mdy' */
-function getCtFiltered(){
+/* Returns rows matching all active CT filters, optionally skipping one field */
+function ctSubset(excludeField){
   return ctData.filter(r=>{
     if(CTF.start||CTF.end){
       const d=parseDateStr(r.Date,'mdy');
@@ -820,19 +880,60 @@ function getCtFiltered(){
       if(CTF.start&&d<CTF.start) return false;
       if(CTF.end  &&d>CTF.end)   return false;
     }
-    if(CTF.site   &&r.Site   !==CTF.site)    return false;
-    if(CTF.kelas  &&r.Class  !==CTF.kelas)   return false;
-    if(CTF.spesies&&r.Species!==CTF.spesies) return false;
-    if(CTF.iucn   &&r.IUCN   !==CTF.iucn)   return false;
+    if(excludeField!=='site'    &&CTF.site    &&r.Site   !==CTF.site)    return false;
+    if(excludeField!=='kelas'   &&CTF.kelas   &&r.Class  !==CTF.kelas)   return false;
+    if(excludeField!=='spesies' &&CTF.spesies &&r.Species!==CTF.spesies) return false;
+    if(excludeField!=='iucn'    &&CTF.iucn    &&r.IUCN   !==CTF.iucn)   return false;
     return true;
   });
 }
 
+function getCtFiltered(){ return ctSubset(null); }
+
 function initCtDropdowns(){
   const sites=new Set(),classes=new Set(),species=new Set(),iucns=new Set();
-  ctData.forEach(r=>{if(r.Site) sites.add(r.Site);if(r.Class) classes.add(r.Class);if(r.Species) species.add(r.Species);if(r.IUCN) iucns.add(r.IUCN);});
-  const fill=(arr,id)=>{const el=document.getElementById(id);[...arr].sort().forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;el.appendChild(o);});};
-  fill(sites,'ctFilterSite');fill(classes,'ctFilterClass');fill(species,'ctFilterSpecies');fill(iucns,'ctFilterIucn');
+  ctData.forEach(r=>{
+    if(r.Site)    sites.add(r.Site);
+    if(r.Class)   classes.add(r.Class);
+    if(r.Species) species.add(r.Species);
+    if(r.IUCN)    iucns.add(r.IUCN);
+  });
+  allCtSites  =[...sites].sort();
+  allCtClasses=[...classes].sort();
+  allCtSpecies=[...species].sort();
+  allCtIucns  =[...iucns].sort();
+  rebuildCtSelects();
+}
+
+/*
+ * Camera trap cascading:
+ *   Each dropdown shows values available given all OTHER active filters.
+ *   Unavailable values (no results) are shown greyed/disabled at the bottom.
+ */
+function rebuildCtSelects(){
+  const availSites  =new Set(ctSubset('site').map(r=>r.Site).filter(Boolean));
+  const availClasses=new Set(ctSubset('kelas').map(r=>r.Class).filter(Boolean));
+  const availSpecies=new Set(ctSubset('spesies').map(r=>r.Species).filter(Boolean));
+  const availIucns  =new Set(ctSubset('iucn').map(r=>r.IUCN).filter(Boolean));
+
+  fillCascadeSelect('ctFilterSite',    allCtSites,   availSites,   CTF.site,    'All Sites');
+  fillCascadeSelect('ctFilterClass',   allCtClasses, availClasses, CTF.kelas,   'All Classes');
+  fillCascadeSelect('ctFilterSpecies', allCtSpecies, availSpecies, CTF.spesies, 'All Species');
+  fillCascadeSelect('ctFilterIucn',    allCtIucns,   availIucns,   CTF.iucn,    'All Statuses');
+}
+
+function updateCtFilterUI(){
+  const parts=[];
+  if(CTF.start||CTF.end) parts.push(`📅 ${fmtDate(CTF.start)} – ${fmtDate(CTF.end)}`);
+  if(CTF.site)    parts.push(`📍 ${CTF.site}`);
+  if(CTF.kelas)   parts.push(`🐾 ${CTF.kelas}`);
+  if(CTF.spesies) parts.push(`🔬 ${CTF.spesies}`);
+  if(CTF.iucn)    parts.push(`🏷️ ${CTF.iucn}`);
+  const el=document.getElementById('ctFilterSummary');
+  if(parts.length){el.style.display='block';el.innerHTML=`<strong>Active filters:</strong><br>${parts.join('<br>')}`;} else el.style.display='none';
+  const active=!!(CTF.start||CTF.end||CTF.site||CTF.kelas||CTF.spesies||CTF.iucn);
+  document.getElementById('filterBadge').style.display=active?'flex':'none';
+  document.getElementById('filterToggleBtn').classList.toggle('active',active);
 }
 
 function pip(lat,lon,ring){
@@ -865,7 +966,6 @@ function buildCtGrid(){
         if(r.Class){klassCounts[r.Class]=(klassCounts[r.Class]||0)+r.Count;}
         if(r.Species){if(!speciesCounts[r.Species]) speciesCounts[r.Species]={local:r.LocalName,iucn:r.IUCN,count:0};speciesCounts[r.Species].count+=r.Count;}
         if(r.CameraID) camsInCell.add(r.CameraID);
-        // ← mdy format for camera trap dates
         const d=parseDateStr(r.Date,'mdy'); if(d) datesInCell.push(d);
       }
     });
@@ -991,7 +1091,6 @@ function updateCtStats(){
   const totalLok=new Set(filtered.map(r=>`${r.Latitude.toFixed(4)}_${r.Longitude.toFixed(4)}`)).size;
   const klassCounts={};
   filtered.forEach(r=>{if(r.Class) klassCounts[r.Class]=(klassCounts[r.Class]||0)+r.Count;});
-  // ← mdy format for camera trap dates
   const dates=filtered.map(r=>parseDateStr(r.Date,'mdy')).filter(Boolean).sort((a,b)=>a-b);
   document.getElementById('ctSummaryBody').innerHTML=`
     <div class="ct-stat-inline"><span>Total Detections</span><span class="ct-stat-inline-val">${totalDet}</span></div>
@@ -1025,7 +1124,13 @@ function updateCtStats(){
   }
 }
 
-function applyCtFilters(){ buildCtGrid(); buildCtPoints(); updateCtStats(); }
+function applyCtFilters(){
+  rebuildCtSelects();
+  buildCtGrid();
+  buildCtPoints();
+  updateCtStats();
+  updateCtFilterUI();
+}
 
 /* ── Event listeners ── */
 document.getElementById('ctStartDate').addEventListener('change',e=>{CTF.start=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('ctQuickDates'),'');applyCtFilters();});
