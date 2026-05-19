@@ -67,34 +67,62 @@
     .info-hint-icon{flex-shrink:0;width:15px;height:15px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:8px;color:#6b7280;margin-top:1px}
     .grid-legend-item{display:flex;align-items:center;gap:8px;padding:3px 16px;font-size:11px;color:#4b5563;cursor:pointer}
     .grid-legend-swatch{width:18px;height:14px;border-radius:2px;flex-shrink:0;border:1px solid rgba(0,0,0,0.1)}
-    .filter-drawer{position:absolute;top:56px;right:0;bottom:0;z-index:1100;width:272px;background:#fff;border-left:1px solid #e8eaed;display:none;flex-direction:column;overflow:hidden;box-shadow:-4px 0 20px rgba(0,0,0,0.08)}
+
+    /* ── Filter drawer: now a proper right panel that doesn't overlap ── */
+    .filter-drawer{
+      position:absolute;
+      top:56px;right:0;bottom:0;
+      z-index:1100;
+      width:300px;
+      background:#fff;
+      border-left:1px solid #e8eaed;
+      display:none;
+      flex-direction:column;
+      overflow:hidden;
+      box-shadow:-2px 0 12px rgba(0,0,0,0.06)
+    }
     .filter-drawer.open{display:flex}
-    .filter-drawer-head{padding:16px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between}
-    .filter-drawer-title{font-size:13px;font-weight:700;color:#111}
+    /* Shift map right edge when drawer opens so it doesn't overlap */
+    body.filter-open #map{right:300px}
+    body.filter-open .bottom-bar{right:300px}
+    body.filter-open .ct-bottom-bar{right:300px}
+    body.filter-open .map-zoom{right:316px}
+
+    .filter-drawer-head{padding:14px 16px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+    .filter-drawer-title{font-size:12px;font-weight:700;color:#111}
     .filter-drawer-close{width:26px;height:26px;border-radius:6px;border:none;background:#f3f4f6;cursor:pointer;font-size:14px;color:#6b7280;display:flex;align-items:center;justify-content:center}
     .filter-drawer-close:hover{background:#e5e7eb}
-    .filter-drawer-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:14px}
+    .filter-drawer-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
+    .filter-drawer-body::-webkit-scrollbar{width:3px}
+    .filter-drawer-body::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
     .f-group{}
     .f-label{font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
     .f-date-row{display:flex;gap:6px}
-    .f-input{width:100%;padding:8px 11px;border:1.5px solid #e8eaed;border-radius:9px;font-size:11px;font-family:'Montserrat',sans-serif;color:#374151;background:#fafafa;outline:none;transition:border .15s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
-    .f-input.date-input{background-image:none;padding-right:11px}
+    .f-input{width:100%;padding:7px 10px;border:1.5px solid #e8eaed;border-radius:9px;font-size:11px;font-family:'Montserrat',sans-serif;color:#374151;background:#fafafa;outline:none;transition:border .15s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
+    .f-input.date-input{background-image:none;padding-right:10px}
     .f-input:focus{border-color:#2d6a2d;background:#fff}
     .f-input:disabled{opacity:0.45;cursor:not-allowed}
-    .quick-date-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+    .quick-date-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px}
     .qd-btn{padding:4px 8px;border-radius:6px;border:1.5px solid #e8eaed;background:#fafafa;color:#374151;font-size:10px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap}
     .qd-btn:hover{border-color:#2d6a2d;color:#2d6a2d}
     .qd-btn.active{background:#2d6a2d;border-color:#2d6a2d;color:#fff}
     .filter-badge{display:none;position:absolute;top:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#ef4444;font-size:8px;font-weight:700;color:#fff;align-items:center;justify-content:center}
     .icon-btn-wrap{position:relative}
-    .f-summary{background:#f0fdf4;border-radius:9px;padding:10px 12px;font-size:10px;color:#166534;line-height:1.6}
-    .f-summary strong{font-weight:700}
-    .btn-clear-f{width:100%;padding:9px;border:1.5px solid #e8eaed;border-radius:9px;background:#fff;color:#6b7280;font-size:11px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all .15s;margin-top:4px}
+
+    /* Active filter pills — no emoji, clean tags */
+    .f-active-pills{display:flex;flex-direction:column;gap:4px;padding:10px 12px;background:#f0fdf4;border-radius:9px;border:1px solid #bbf7d0}
+    .f-active-pills-title{font-size:9px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+    .f-pills-wrap{display:flex;flex-wrap:wrap;gap:4px}
+    .f-pill{display:inline-flex;align-items:center;gap:4px;background:#dcfce7;border:1px solid #86efac;color:#166534;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:600}
+    .f-pill-x{cursor:pointer;font-size:11px;line-height:1;opacity:.7}
+    .f-pill-x:hover{opacity:1}
+
+    .btn-clear-f{width:100%;padding:8px;border:1.5px solid #e8eaed;border-radius:9px;background:#fff;color:#6b7280;font-size:11px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all .15s}
     .btn-clear-f:hover{border-color:#ef4444;color:#ef4444}
-    .map-zoom{position:absolute;bottom:72px;right:16px;z-index:900;display:flex;flex-direction:column;gap:2px}
+    .map-zoom{position:absolute;bottom:72px;right:16px;z-index:900;display:flex;flex-direction:column;gap:2px;transition:right .2s}
     .zoom-btn{width:32px;height:32px;background:#fff;border:1.5px solid #e8eaed;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:#374151;box-shadow:0 1px 4px rgba(0,0,0,0.08);transition:background .15s;font-weight:300;line-height:1}
     .zoom-btn:hover{background:#f9fafb}
-    .bottom-bar{position:absolute;bottom:0;left:268px;right:0;z-index:900;background:#fff;border-top:1px solid #e8eaed;display:flex;align-items:center;height:52px;overflow:hidden}
+    .bottom-bar{position:absolute;bottom:0;left:268px;right:0;z-index:900;background:#fff;border-top:1px solid #e8eaed;display:flex;align-items:center;height:52px;overflow:hidden;transition:right .2s}
     .bottom-cat{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 6px;border-right:1px solid #f3f4f6;cursor:pointer;transition:background .15s;height:100%}
     .bottom-cat:last-child{border-right:none}
     .bottom-cat:hover{background:#f9fafb}
@@ -104,7 +132,7 @@
     .bottom-cat-name{font-size:10px;font-weight:600;color:#374151}
     .bottom-cat-sub{font-size:9px;color:#9ca3af;text-align:center;line-height:1.3}
     .bottom-cat-count{font-size:9px;font-weight:700;color:#6b7280;background:#f3f4f6;border-radius:10px;padding:0 5px}
-    .ct-bottom-bar{position:absolute;bottom:0;left:268px;right:0;z-index:900;background:#111;border-top:1px solid #222;display:none;align-items:stretch;height:72px;overflow:hidden}
+    .ct-bottom-bar{position:absolute;bottom:0;left:268px;right:0;z-index:900;background:#111;border-top:1px solid #222;display:none;align-items:stretch;height:72px;overflow:hidden;transition:right .2s}
     .ct-stat{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 8px;border-right:1px solid #222}
     .ct-stat:last-child{border-right:none}
     .ct-stat-val{font-size:17px;font-weight:700;color:#fff;line-height:1}
@@ -342,15 +370,18 @@
   </div>
 </div>
 
+<!-- Filter Drawer -->
 <div class="filter-drawer" id="filterDrawer">
   <div class="filter-drawer-head">
     <span class="filter-drawer-title">Filter Data</span>
     <button class="filter-drawer-close" id="filterClose">✕</button>
   </div>
   <div class="filter-drawer-body">
+
+    <!-- PATROL FILTERS -->
     <div id="patrolFilters">
       <div class="f-group">
-        <div class="f-label">Quick Date Filter</div>
+        <div class="f-label">Quick Date</div>
         <div class="quick-date-row" id="patrolQuickDates">
           <button class="qd-btn" data-preset="today" onclick="applyPatrolQuickDate(this)">Today</button>
           <button class="qd-btn" data-preset="1w" onclick="applyPatrolQuickDate(this)">1W</button>
@@ -365,8 +396,8 @@
       <div class="f-group">
         <div class="f-label">Custom Date Range</div>
         <div class="f-date-row">
-          <input type="date" class="f-input date-input" id="startDate" title="From">
-          <input type="date" class="f-input date-input" id="endDate" title="To">
+          <input type="date" class="f-input date-input" id="startDate" placeholder="From">
+          <input type="date" class="f-input date-input" id="endDate" placeholder="To">
         </div>
       </div>
       <div class="f-group">
@@ -381,12 +412,18 @@
         <div class="f-label">Finding</div>
         <select class="f-input" id="filterFinding"><option value="">All Findings</option></select>
       </div>
-      <div class="f-summary" id="filterSummary" style="display:none"></div>
-      <button class="btn-clear-f" id="clearFilters">✕ Clear All Filters</button>
+      <!-- Active filter pills (no emoji) -->
+      <div class="f-active-pills" id="patrolActivePills" style="display:none">
+        <div class="f-active-pills-title">Active Filters</div>
+        <div class="f-pills-wrap" id="patrolPillsWrap"></div>
+      </div>
+      <button class="btn-clear-f" id="clearFilters">Clear All Filters</button>
     </div>
+
+    <!-- CAMERA FILTERS -->
     <div id="cameraFilters" style="display:none">
       <div class="f-group">
-        <div class="f-label">Quick Date Filter</div>
+        <div class="f-label">Quick Date</div>
         <div class="quick-date-row" id="ctQuickDates">
           <button class="qd-btn" data-preset="today" onclick="applyCtQuickDate(this)">Today</button>
           <button class="qd-btn" data-preset="1w" onclick="applyCtQuickDate(this)">1W</button>
@@ -421,9 +458,14 @@
         <div class="f-label">IUCN Status</div>
         <select class="f-input" id="ctFilterIucn"><option value="">All Statuses</option></select>
       </div>
-      <div class="f-summary" id="ctFilterSummary" style="display:none"></div>
-      <button class="btn-clear-f" id="ctClearFilters">✕ Clear All Filters</button>
+      <!-- Active filter pills (no emoji) -->
+      <div class="f-active-pills" id="ctActivePills" style="display:none">
+        <div class="f-active-pills-title">Active Filters</div>
+        <div class="f-pills-wrap" id="ctPillsWrap"></div>
+      </div>
+      <button class="btn-clear-f" id="ctClearFilters">Clear All Filters</button>
     </div>
+
   </div>
 </div>
 
@@ -627,11 +669,9 @@ Papa.parse(PATROL_URL,{download:true,header:true,complete:(res)=>{
 
 const PF={start:null,end:null,officer:'',category:'',finding:''};
 
-/* Returns rows matching ALL active filters, but optionally skipping one field (for cascade logic) */
 function patrolSubset(excludeField){
   return rawData.filter(r=>{
     if(!r['data-coordinate']||!r['data-coordinate'].trim()) return false;
-    // Date filter always applied
     if(PF.start!==null||PF.end!==null){
       const rd=parseDateStr(r['data-start_date'],'dmy');
       if(!rd) return false;
@@ -647,7 +687,6 @@ function patrolSubset(excludeField){
 
 function getActiveFiltered(){ return patrolSubset(null); }
 
-/* Master list of ALL unique values (for the full population) */
 let allOfficers=[],allCategories=[],allFindings=[];
 
 function initPatrolDropdowns(){
@@ -663,79 +702,45 @@ function initPatrolDropdowns(){
   rebuildPatrolSelects();
 }
 
-/*
- * Cascade logic:
- *   availableFor(field) = values that exist in rows matching all OTHER active filters
- *   This way:
- *     - Officer dropdown shows only officers present in rows matching current category+finding+date
- *     - Category dropdown shows only categories present in rows matching current officer+finding+date
- *     - Finding dropdown shows only findings present in rows matching current officer+category+date
- */
 function rebuildPatrolSelects(){
   const availOfficers  = new Set(patrolSubset('officer').map(r=>r['data-base_info-nama']).filter(Boolean));
   const availCategories= new Set(patrolSubset('category').map(r=>r['data-survey-categ']).filter(Boolean));
   const availFindings  = new Set(patrolSubset('finding').map(r=>r['data-survey-finding']).filter(Boolean));
-
   fillCascadeSelect('filterOfficer',  allOfficers,   availOfficers,   PF.officer,   'All Officers');
   fillCascadeSelect('filterCategory', allCategories, availCategories, PF.category,  'All Categories');
   fillCascadeSelect('filterFinding',  allFindings,   availFindings,   PF.finding,   'All Findings');
 }
 
-/*
- * fillCascadeSelect — renders a <select> with three tiers:
- *   1. Currently selected value (always shown & selected, even if now 0 results)
- *   2. Available values (have results given other filters) — shown normally
- *   3. Unavailable values (no results given other filters) — shown greyed/disabled
- */
 function fillCascadeSelect(id, allVals, availSet, currentVal, placeholder){
   const el=document.getElementById(id);
   const scrollTop=el.scrollTop;
   el.innerHTML=`<option value="">${placeholder}</option>`;
-
   const available=[], unavailable=[];
   allVals.forEach(v=>{
-    if(v===currentVal) return; // handled separately below
+    if(v===currentVal) return;
     if(availSet.has(v)) available.push(v);
     else unavailable.push(v);
   });
-
-  // If current value is set and not in available set, still show it selected
   if(currentVal){
     const opt=document.createElement('option');
-    opt.value=currentVal;
-    opt.textContent=fmtLabel(currentVal);
-    opt.selected=true;
-    // Mark it if it no longer has results (edge case after another filter removes all its data)
+    opt.value=currentVal; opt.textContent=fmtLabel(currentVal); opt.selected=true;
     if(!availSet.has(currentVal)) opt.textContent+=' (0)';
     el.appendChild(opt);
   }
-
-  // Available options
   available.forEach(v=>{
     const opt=document.createElement('option');
-    opt.value=v;
-    opt.textContent=fmtLabel(v);
-    el.appendChild(opt);
+    opt.value=v; opt.textContent=fmtLabel(v); el.appendChild(opt);
   });
-
-  // Divider + unavailable options (greyed out, disabled)
   if(unavailable.length>0){
     const divOpt=document.createElement('option');
-    divOpt.disabled=true;
-    divOpt.textContent='── not available ──';
-    divOpt.style.color='#ccc';
+    divOpt.disabled=true; divOpt.textContent='── not available ──'; divOpt.style.color='#ccc';
     el.appendChild(divOpt);
-
     unavailable.forEach(v=>{
       const opt=document.createElement('option');
-      opt.value=v;
-      opt.textContent=fmtLabel(v);
-      opt.disabled=true;
-      opt.style.color='#bbb';
+      opt.value=v; opt.textContent=fmtLabel(v); opt.disabled=true; opt.style.color='#bbb';
       el.appendChild(opt);
     });
   }
-
   el.scrollTop=scrollTop;
 }
 
@@ -745,17 +750,39 @@ function applyPatrolFilters(){
   updatePatrolFilterUI();
 }
 
+/* Build pill tags without emoji */
+function buildPills(pills, wrapId, boxId){
+  const wrap=document.getElementById(wrapId);
+  const box=document.getElementById(boxId);
+  if(!pills.length){box.style.display='none';return;}
+  box.style.display='block';
+  wrap.innerHTML=pills.map(p=>`<span class="f-pill">${p.label}<span class="f-pill-x" onclick="${p.clear}">✕</span></span>`).join('');
+}
+
 function updatePatrolFilterUI(){
-  const parts=[];
-  if(PF.start||PF.end) parts.push(`📅 ${fmtDate(PF.start)} – ${fmtDate(PF.end)}`);
-  if(PF.officer)  parts.push(`👤 ${fmtLabel(PF.officer)}`);
-  if(PF.category) parts.push(`📂 ${fmtLabel(PF.category)}`);
-  if(PF.finding)  parts.push(`🔍 ${fmtLabel(PF.finding)}`);
-  const el=document.getElementById('filterSummary');
-  if(parts.length){el.style.display='block';el.innerHTML=`<strong>Active filters:</strong><br>${parts.join('<br>')}`;} else el.style.display='none';
-  const active=!!(PF.start||PF.end||PF.officer||PF.category||PF.finding);
+  const pills=[];
+  if(PF.start||PF.end) pills.push({label:`${fmtDate(PF.start)} – ${fmtDate(PF.end)}`,clear:`clearPatrolDateFilter()`});
+  if(PF.officer)  pills.push({label:fmtLabel(PF.officer),  clear:`clearPatrolField('officer')`});
+  if(PF.category) pills.push({label:fmtLabel(PF.category), clear:`clearPatrolField('category')`});
+  if(PF.finding)  pills.push({label:fmtLabel(PF.finding),  clear:`clearPatrolField('finding')`});
+  buildPills(pills,'patrolPillsWrap','patrolActivePills');
+  const active=pills.length>0;
   document.getElementById('filterBadge').style.display=active?'flex':'none';
   document.getElementById('filterToggleBtn').classList.toggle('active',active);
+}
+
+function clearPatrolDateFilter(){
+  PF.start=null;PF.end=null;
+  document.getElementById('startDate').value='';
+  document.getElementById('endDate').value='';
+  setActiveQuickBtn(document.getElementById('patrolQuickDates'),'all');
+  applyPatrolFilters();
+}
+function clearPatrolField(field){
+  if(field==='officer')  {PF.officer='';  document.getElementById('filterOfficer').value='';}
+  if(field==='category') {PF.category=''; document.getElementById('filterCategory').value='';}
+  if(field==='finding')  {PF.finding='';  document.getElementById('filterFinding').value='';}
+  applyPatrolFilters();
 }
 
 function makeIcon(color,faded=false){
@@ -839,8 +866,6 @@ const CT_SHEET_URL =`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/expor
 const CT_GRID_URL  ='./data/grid.geojson';
 let ctData=[],ctGridGeo=null,ctLoaded=false;
 const CTF={start:null,end:null,site:'',kelas:'',spesies:'',iucn:''};
-
-/* Master lists for camera trap dropdowns */
 let allCtSites=[],allCtClasses=[],allCtSpecies=[],allCtIucns=[];
 
 function loadCameraData(){
@@ -871,7 +896,6 @@ function loadCameraData(){
   });
 }
 
-/* Returns rows matching all active CT filters, optionally skipping one field */
 function ctSubset(excludeField){
   return ctData.filter(r=>{
     if(CTF.start||CTF.end){
@@ -905,17 +929,11 @@ function initCtDropdowns(){
   rebuildCtSelects();
 }
 
-/*
- * Camera trap cascading:
- *   Each dropdown shows values available given all OTHER active filters.
- *   Unavailable values (no results) are shown greyed/disabled at the bottom.
- */
 function rebuildCtSelects(){
   const availSites  =new Set(ctSubset('site').map(r=>r.Site).filter(Boolean));
   const availClasses=new Set(ctSubset('kelas').map(r=>r.Class).filter(Boolean));
   const availSpecies=new Set(ctSubset('spesies').map(r=>r.Species).filter(Boolean));
   const availIucns  =new Set(ctSubset('iucn').map(r=>r.IUCN).filter(Boolean));
-
   fillCascadeSelect('ctFilterSite',    allCtSites,   availSites,   CTF.site,    'All Sites');
   fillCascadeSelect('ctFilterClass',   allCtClasses, availClasses, CTF.kelas,   'All Classes');
   fillCascadeSelect('ctFilterSpecies', allCtSpecies, availSpecies, CTF.spesies, 'All Species');
@@ -923,17 +941,31 @@ function rebuildCtSelects(){
 }
 
 function updateCtFilterUI(){
-  const parts=[];
-  if(CTF.start||CTF.end) parts.push(`📅 ${fmtDate(CTF.start)} – ${fmtDate(CTF.end)}`);
-  if(CTF.site)    parts.push(`📍 ${CTF.site}`);
-  if(CTF.kelas)   parts.push(`🐾 ${CTF.kelas}`);
-  if(CTF.spesies) parts.push(`🔬 ${CTF.spesies}`);
-  if(CTF.iucn)    parts.push(`🏷️ ${CTF.iucn}`);
-  const el=document.getElementById('ctFilterSummary');
-  if(parts.length){el.style.display='block';el.innerHTML=`<strong>Active filters:</strong><br>${parts.join('<br>')}`;} else el.style.display='none';
-  const active=!!(CTF.start||CTF.end||CTF.site||CTF.kelas||CTF.spesies||CTF.iucn);
+  const pills=[];
+  if(CTF.start||CTF.end) pills.push({label:`${fmtDate(CTF.start)} – ${fmtDate(CTF.end)}`,clear:`clearCtDateFilter()`});
+  if(CTF.site)    pills.push({label:CTF.site,    clear:`clearCtField('site')`});
+  if(CTF.kelas)   pills.push({label:CTF.kelas,   clear:`clearCtField('kelas')`});
+  if(CTF.spesies) pills.push({label:CTF.spesies, clear:`clearCtField('spesies')`});
+  if(CTF.iucn)    pills.push({label:CTF.iucn,    clear:`clearCtField('iucn')`});
+  buildPills(pills,'ctPillsWrap','ctActivePills');
+  const active=pills.length>0;
   document.getElementById('filterBadge').style.display=active?'flex':'none';
   document.getElementById('filterToggleBtn').classList.toggle('active',active);
+}
+
+function clearCtDateFilter(){
+  CTF.start=null;CTF.end=null;
+  document.getElementById('ctStartDate').value='';
+  document.getElementById('ctEndDate').value='';
+  setActiveQuickBtn(document.getElementById('ctQuickDates'),'all');
+  applyCtFilters();
+}
+function clearCtField(field){
+  if(field==='site')    {CTF.site='';    document.getElementById('ctFilterSite').value='';}
+  if(field==='kelas')   {CTF.kelas='';   document.getElementById('ctFilterClass').value='';}
+  if(field==='spesies') {CTF.spesies=''; document.getElementById('ctFilterSpecies').value='';}
+  if(field==='iucn')    {CTF.iucn='';    document.getElementById('ctFilterIucn').value='';}
+  applyCtFilters();
 }
 
 function pip(lat,lon,ring){
@@ -1158,6 +1190,7 @@ document.getElementById('clearFilters').onclick=()=>{
   setActiveQuickBtn(document.getElementById('patrolQuickDates'),'all');
   applyPatrolFilters();
 };
+
 document.getElementById('toggleLulc').onchange        =e=>e.target.checked?map.addLayer(lulc)        :map.removeLayer(lulc);
 document.getElementById('toggleLulc2025').onchange    =e=>e.target.checked?map.addLayer(lulc2025)    :map.removeLayer(lulc2025);
 document.getElementById('toggleLandsat2024').onchange =e=>e.target.checked?map.addLayer(landsat2024) :map.removeLayer(landsat2024);
@@ -1168,8 +1201,19 @@ document.getElementById('ctToggleBoundary').onchange  =e=>boundaryLayer&&(e.targ
 document.getElementById('ctToggleLulc').onchange      =e=>e.target.checked?map.addLayer(lulc)        :map.removeLayer(lulc);
 document.getElementById('ctToggleGrid').onchange      =e=>e.target.checked?map.addLayer(ctGridLayer) :map.removeLayer(ctGridLayer);
 document.getElementById('ctTogglePoints').onchange    =e=>e.target.checked?map.addLayer(ctPointLayer):map.removeLayer(ctPointLayer);
-document.getElementById('filterToggleBtn').onclick=()=>document.getElementById('filterDrawer').classList.toggle('open');
-document.getElementById('filterClose').onclick=()=>document.getElementById('filterDrawer').classList.remove('open');
+
+/* Filter drawer toggle — adds body class to push map inward */
+document.getElementById('filterToggleBtn').onclick=()=>{
+  const drawer=document.getElementById('filterDrawer');
+  const isOpen=drawer.classList.toggle('open');
+  document.body.classList.toggle('filter-open',isOpen);
+  setTimeout(()=>map.invalidateSize(),210);
+};
+document.getElementById('filterClose').onclick=()=>{
+  document.getElementById('filterDrawer').classList.remove('open');
+  document.body.classList.remove('filter-open');
+  setTimeout(()=>map.invalidateSize(),210);
+};
 
 function toggleSection(id,chevId){
   const el=document.getElementById(id),ch=document.getElementById(chevId);
