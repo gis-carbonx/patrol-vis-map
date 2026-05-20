@@ -718,8 +718,6 @@ function openDetail(r){
 }
 document.getElementById('detailClose').onclick=()=>document.getElementById('detailPanel').classList.remove('open');
 
-/* ══ CAMERA TRAP DATA & CASCADING FILTERS ══ */
-// ── CHANGED: new source spreadsheet, published as CSV from gid=0 ──
 const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
 const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
 const CT_GRID_URL='./data/grid.geojson';
@@ -734,12 +732,6 @@ function loadCameraData(){
   const p2=new Promise(resolve=>{
     Papa.parse(CT_SHEET_URL,{download:true,header:false,skipEmptyLines:true,complete:(res)=>{
       const rows=res.data;
-      // Column mapping (0-based):
-      // 0:RecordID, 1:Batch, 2:StartDate, 3:EndDate, 4:Site,
-      // 5:Latitude, 6:Longitude, 7:CameraID, 8:Date, 9:Time,
-      // 10:DateTime, 11:Class, 12:Species, 13:LocalName, 14:IUCN,
-      // 15:Independency, 16:Count, 17:FileType, 18:FileName, 19:Link
-      // ── CHANGED: Indep now read from column index 15 (Independency) ──
       ctData=rows.slice(1).map(r=>({
         RecordID:r[0]||'',
         Batch:r[1]||'',
@@ -812,7 +804,6 @@ function buildCtGrid(){
   ctGridLayer.clearLayers();if(!ctGridGeo)return;
   const filtered=getCtFiltered();
   ctGridGeo.features.forEach((feat,fi)=>{
-    // ── CHANGED: all totals use r.Indep instead of r.Count ──
     let totalIndep=0;
     const klassCounts={},speciesCounts={},camsInCell=new Set(),datesInCell=[];
     filtered.forEach(r=>{
@@ -952,7 +943,7 @@ document.getElementById('gridDetailClose').onclick=()=>document.getElementById('
 
 function updateCtStats(){
   const filtered=getCtFiltered();
-  // ── CHANGED: all totals use r.Indep ──
+
   const totalDet=filtered.reduce((s,r)=>s+r.Indep,0);
   const totalSp=new Set(filtered.filter(r=>r.Indep>0).map(r=>r.Species).filter(Boolean)).size;
   const totalCam=new Set(filtered.map(r=>r.CameraID).filter(Boolean)).size;
@@ -992,8 +983,6 @@ function updateCtStats(){
   }
 }
 function applyCtFilters(){rebuildCtSelects();buildCtGrid();buildCtPoints();updateCtStats();updateCtFilterUI();}
-
-/* ── Event listeners ── */
 document.getElementById('ctStartDate').addEventListener('change',e=>{CTF.start=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('ctQuickDates'),'');applyCtFilters();});
 document.getElementById('ctEndDate').addEventListener('change',e=>{CTF.end=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('ctQuickDates'),'');applyCtFilters();});
 document.getElementById('ctFilterSite').addEventListener('change',e=>{CTF.site=e.target.value;applyCtFilters();});
