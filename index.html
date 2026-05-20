@@ -226,6 +226,7 @@
   </div>
 </div>
 
+<!-- Sidebar -->
 <div class="sidebar">
   <div class="sidebar-body">
     <div id="patrolSidebar">
@@ -318,7 +319,7 @@
         <span class="sidebar-chevron open" id="chevCt2">▲</span>
       </div>
       <div id="secGridLeg">
-        <div style="padding:6px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">Independency (per grid cell)</div>
+        <div style="padding:6px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">Total (per grid cell)</div>
         <div class="grid-legend-item"><div class="grid-legend-swatch" style="background:transparent;border:1px solid #555"></div><span>0 — no detections</span></div>
         <div class="grid-legend-item"><div class="grid-legend-swatch" style="background:#FFFF00;opacity:.6"></div><span>1 – 5</span></div>
         <div class="grid-legend-item"><div class="grid-legend-swatch" style="background:#FFA500;opacity:.72"></div><span>6 – 15</span></div>
@@ -440,12 +441,14 @@
   </div>
 </div>
 
+<!-- Zoom controls -->
 <div class="map-zoom">
   <button class="zoom-btn" onclick="map.zoomIn()">+</button>
   <button class="zoom-btn" onclick="map.zoomOut()">−</button>
   <button class="zoom-btn" onclick="resetView()" style="font-size:12px">⌂</button>
 </div>
 
+<!-- Detail panels -->
 <div class="detail-panel" id="detailPanel">
   <div class="detail-header">
     <span class="detail-header-title">Patrol Finding</span>
@@ -462,15 +465,17 @@
   <div class="gdp-body" id="gridDetailBody"></div>
 </div>
 
+<!-- Bottom bars -->
 <div class="bottom-bar" id="bottomBar"></div>
 <div class="ct-bottom-bar" id="ctBottomBar">
   <div class="ct-stat"><div class="ct-stat-val" id="ctStatCameras">–</div><div class="ct-stat-label">Camera trap location</div><div class="ct-stat-sub">Units</div></div>
-  <div class="ct-stat"><div class="ct-stat-val" id="ctStatDetections">–</div><div class="ct-stat-label">Total Independency</div><div class="ct-stat-sub" id="ctStatDetSub">–</div></div>
+  <div class="ct-stat"><div class="ct-stat-val" id="ctStatDetections">–</div><div class="ct-stat-label">Total Detections</div><div class="ct-stat-sub" id="ctStatDetSub">–</div></div>
   <div class="ct-stat"><div class="ct-stat-val" id="ctStatGrids">–</div><div class="ct-stat-label">Grids w/ Detections</div><div class="ct-stat-sub" id="ctStatGridsPct"></div></div>
   <div class="ct-stat"><div class="ct-stat-val" id="ctStatTopGrid">–</div><div class="ct-stat-label">Highest Activity Grid</div><div class="ct-stat-sub" id="ctStatTopSub"></div></div>
   <div class="ct-stat"><div class="ct-stat-val" id="ctStatDate">–</div><div class="ct-stat-label">Date Range</div><div class="ct-stat-sub" id="ctStatDateSub"></div></div>
 </div>
 
+<!-- Image modal -->
 <div id="imageModal" class="img-modal">
   <span class="modal-close" id="closeModal">&times;</span>
   <img id="modalImage">
@@ -588,7 +593,7 @@ filterToggleBtn.addEventListener('click',e=>{e.stopPropagation();filterPanel.cla
 document.getElementById('filterClose').addEventListener('click',()=>{filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');});
 document.addEventListener('click',e=>{if(filterPanel.classList.contains('open')&&!filterPanel.contains(e.target)&&e.target!==filterToggleBtn){filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');}});
 
-/* ══ PATROL DATA ══ */
+/* ══ PATROL DATA & CASCADING FILTERS ══ */
 const PATROL_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 let rawData=[],highlightCat=null;
 Papa.parse(PATROL_URL,{download:true,header:true,complete:(res)=>{
@@ -713,16 +718,8 @@ function openDetail(r){
 }
 document.getElementById('detailClose').onclick=()=>document.getElementById('detailPanel').classList.remove('open');
 
-/* ══ CAMERA TRAP DATA ══
-   Source: https://docs.google.com/spreadsheets/d/1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4
-   Column mapping (0-based index):
-   0=RecordID, 1=Batch, 2=StartDate, 3=EndDate, 4=Site,
-   5=Latitude, 6=Longitude, 7=CameraID, 8=Date, 9=Time,
-   10=DateTime, 11=Class, 12=Species, 13=LocalName,
-   14=IUCN_status, 15=Independency, 16=Count, 17=FileType,
-   18=FileName, 19=Behavior, 20=Note / Link
-   NOTE: Independency (col 15) is used as the detection quantity metric.
-*/
+/* ══ CAMERA TRAP DATA & CASCADING FILTERS ══ */
+// ── CHANGED: new source spreadsheet, published as CSV from gid=0 ──
 const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
 const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
 const CT_GRID_URL='./data/grid.geojson';
@@ -737,43 +734,38 @@ function loadCameraData(){
   const p2=new Promise(resolve=>{
     Papa.parse(CT_SHEET_URL,{download:true,header:false,skipEmptyLines:true,complete:(res)=>{
       const rows=res.data;
-      // Skip header row (index 0)
-      // Columns: 0=RecordID,1=Batch,2=StartDate,3=EndDate,4=Site,
-      //          5=Latitude,6=Longitude,7=CameraID,8=Date,9=Time,
-      //          10=DateTime,11=Class,12=Species,13=LocalName,
-      //          14=IUCN_status,15=Independency,16=Count,17=FileType,
-      //          18=FileName,19=Behavior,20=Note
+      // Column mapping (0-based):
+      // 0:RecordID, 1:Batch, 2:StartDate, 3:EndDate, 4:Site,
+      // 5:Latitude, 6:Longitude, 7:CameraID, 8:Date, 9:Time,
+      // 10:DateTime, 11:Class, 12:Species, 13:LocalName, 14:IUCN,
+      // 15:Independency, 16:Count, 17:FileType, 18:FileName, 19:Link
+      // ── CHANGED: Indep now read from column index 15 (Independency) ──
       ctData=rows.slice(1).map(r=>({
-        RecordID : r[0]||'',
-        Batch    : r[1]||'',
-        StartDate: r[2]||'',
-        EndDate  : r[3]||'',
-        Site     : r[4]||'',
-        Latitude : parseFloat(r[5]),
-        Longitude: parseFloat(r[6]),
-        CameraID : r[7]||'',
-        Date     : r[8]||'',
-        Time     : r[9]||'',
-        DateTime : r[10]||'',
-        Class    : r[11]||'',
-        Species  : r[12]||'',
-        LocalName: r[13]||'',
-        IUCN     : r[14]||'',
-        Indep    : Math.max(0,parseInt(r[15])||0),   // ← Independency column (col 15)
-        Count    : Math.max(0,parseInt(r[16])||0),   // ← Count column (col 16, kept for reference)
-        FileType : r[17]||'',
-        FileName : r[18]||'',
-        Behavior : r[19]||'',
-        Note     : r[20]||''
+        RecordID:r[0]||'',
+        Batch:r[1]||'',
+        StartDate:r[2]||'',
+        EndDate:r[3]||'',
+        Site:r[4]||'',
+        Latitude:parseFloat(r[5]),
+        Longitude:parseFloat(r[6]),
+        CameraID:r[7]||'',
+        Date:r[8]||'',
+        Time:r[9]||'',
+        DateTime:r[10]||'',
+        Class:r[11]||'',
+        Species:r[12]||'',
+        LocalName:r[13]||'',
+        IUCN:r[14]||'',
+        Indep:Math.max(0,parseInt(r[15])||0),   // ← Independency column
+        Count:Math.max(0,parseInt(r[16])||0),    // kept for reference
+        FileType:r[17]||'',
+        FileName:r[18]||'',
+        Link:r[19]||''
       })).filter(r=>!isNaN(r.Latitude)&&!isNaN(r.Longitude)&&r.Latitude!==0);
       resolve();
     }});
   });
-  Promise.all([p1,p2]).then(()=>{
-    ctLoaded=true;
-    document.getElementById('loadingOverlay').style.display='none';
-    initCtDropdowns();buildCtGrid();buildCtPoints();updateCtStats();
-  });
+  Promise.all([p1,p2]).then(()=>{ctLoaded=true;document.getElementById('loadingOverlay').style.display='none';initCtDropdowns();buildCtGrid();buildCtPoints();updateCtStats();});
 }
 
 function ctSubset(excludeField){
@@ -798,7 +790,7 @@ function rebuildCtSelects(){
   fillCascadeSelect('ctFilterSite',   allCtSites,   new Set(ctSubset('site').map(r=>r.Site).filter(Boolean)),    CTF.site,   'All Sites');
   fillCascadeSelect('ctFilterClass',  allCtClasses, new Set(ctSubset('kelas').map(r=>r.Class).filter(Boolean)),  CTF.kelas,  'All Classes');
   fillCascadeSelect('ctFilterSpecies',allCtSpecies, new Set(ctSubset('spesies').map(r=>r.Species).filter(Boolean)),CTF.spesies,'All Species');
-  fillCascadeSelect('ctFilterIucn',   allCtIucns,   new Set(ctSubset('iucn').map(r=>r.IUCN).filter(Boolean)),    CTF.iucn,  'All Statuses');
+  fillCascadeSelect('ctFilterIucn',   allCtIucns,   new Set(ctSubset('iucn').map(r=>r.IUCN).filter(Boolean)),    CTF.iucn,   'All Statuses');
 }
 function updateCtFilterUI(){
   const pills=[];
@@ -820,11 +812,12 @@ function buildCtGrid(){
   ctGridLayer.clearLayers();if(!ctGridGeo)return;
   const filtered=getCtFiltered();
   ctGridGeo.features.forEach((feat,fi)=>{
+    // ── CHANGED: all totals use r.Indep instead of r.Count ──
     let totalIndep=0;
     const klassCounts={},speciesCounts={},camsInCell=new Set(),datesInCell=[];
     filtered.forEach(r=>{
       if(inFeature(r.Latitude,r.Longitude,feat)){
-        totalIndep+=r.Indep;  // ← use Independency
+        totalIndep+=r.Indep;
         if(r.Class)klassCounts[r.Class]=(klassCounts[r.Class]||0)+r.Indep;
         if(r.Species){
           if(!speciesCounts[r.Species])speciesCounts[r.Species]={local:r.LocalName,iucn:r.IUCN,count:0};
@@ -861,7 +854,8 @@ function buildCtPoints(){
   });
   Object.values(locMap).forEach(loc=>{
     const rows=loc.rows;
-    const totalIndep=rows.reduce((s,r)=>s+r.Indep,0);  // ← Independency
+    // ── CHANGED: totalIndep uses r.Indep ──
+    const totalIndep=rows.reduce((s,r)=>s+r.Indep,0);
     const sites=[...new Set(rows.map(r=>r.Site).filter(Boolean))].join(' / ');
     const cameras=[...new Set(rows.map(r=>r.CameraID).filter(Boolean))];
     const spMap={};
@@ -880,13 +874,13 @@ function buildCtPoints(){
       </tr>`).join('');
     const uid='ct_'+Math.random().toString(36).slice(2,6);
     const avgLine=cameras.length>1
-      ?`<div><span style="color:#9ca3af">Avg Indep / Camera</span><br><b style="color:#0ea5e9;font-size:15px">${Math.round(totalIndep/cameras.length)}</b></div>`
+      ?`<div><span style="color:#9ca3af">Avg / Camera</span><br><b style="color:#0ea5e9;font-size:15px">${Math.round(totalIndep/cameras.length)}</b></div>`
       :'';
     const popup=`<div style="font-family:Montserrat,Arial;font-size:12px;width:380px;max-width:380px">
       <b style="font-size:14px">${sites||'Camera Location'}</b>
       <hr style="margin:5px 0;border-color:#e5e7eb">
       <div style="display:grid;grid-template-columns:1fr 1fr${cameras.length>1?' 1fr':''};gap:4px;margin-bottom:6px">
-        <div><span style="color:#9ca3af">Total Independency</span><br><b style="color:#0ea5e9;font-size:15px">${totalIndep}</b></div>
+        <div><span style="color:#9ca3af">Total Detections</span><br><b style="color:#0ea5e9;font-size:15px">${totalIndep}</b></div>
         <div><span style="color:#9ca3af">Cameras (${cameras.length})</span><br><b>${cameras.slice(0,4).join(', ')}${cameras.length>4?'…':''}</b></div>
         ${avgLine}
       </div>
@@ -898,7 +892,7 @@ function buildCtPoints(){
             <th style="text-align:left;padding:4px 7px;font-size:11px">Species</th>
             <th style="text-align:left;padding:4px 7px;font-size:11px">Local Name</th>
             <th style="text-align:center;padding:4px 7px;font-size:11px">IUCN</th>
-            <th style="text-align:center;padding:4px 7px;font-size:11px">Indep</th>
+            <th style="text-align:center;padding:4px 7px;font-size:11px">Total</th>
           </tr></thead>
           <tbody>${spRows||'<tr><td colspan="4" style="padding:8px;text-align:center;color:#9ca3af">No detections recorded</td></tr>'}</tbody>
         </table>
@@ -917,16 +911,16 @@ function openGridDetail(fi,totalIndep,klassCounts,speciesCounts,camsInCell,dates
   const totalInCell=Object.values(klassCounts).reduce((s,v)=>s+v,0);
   const numCams=camsInCell.size;
   const avgPerCam=numCams>0?Math.round(totalIndep/numCams):0;
-  const classRows=Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
-    <div class="gdp-class-row">
+  const classRows=Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>
+    `<div class="gdp-class-row">
       <div class="gdp-class-icon">${classIcon(k)}</div>
       <span class="gdp-class-name">${k}</span>
       <div class="gdp-class-bar-wrap"><div class="gdp-class-bar" style="width:${totalInCell?Math.round(v/totalInCell*100):0}%"></div></div>
       <span class="gdp-class-count">${v}</span>
       <span class="gdp-class-pct">${totalInCell?Math.round(v/totalInCell*100):0}%</span>
     </div>`).join('');
-  const spRows=Object.entries(speciesCounts).sort((a,b)=>b[1].count-a[1].count).slice(0,10).map(([sp,d])=>`
-    <div class="gdp-sp-row">
+  const spRows=Object.entries(speciesCounts).sort((a,b)=>b[1].count-a[1].count).slice(0,10).map(([sp,d])=>
+    `<div class="gdp-sp-row">
       <span class="gdp-sp-name">${sp}</span>
       <span class="gdp-sp-local">${d.local||'-'}</span>
       <span class="gdp-sp-iucn" style="background:${IUCN_COLORS[d.iucn]||'#94a3b8'};color:#fff">${d.iucn||'-'}</span>
@@ -936,20 +930,20 @@ function openGridDetail(fi,totalIndep,klassCounts,speciesCounts,camsInCell,dates
     <div class="gdp-big-count">
       <span class="gdp-count-num">${totalIndep}</span>
       <div class="gdp-count-right">
-        <span class="gdp-count-label">Independency (per grid)</span>
+        <span class="gdp-count-label">Total Detections (per grid)</span>
         <span class="gdp-count-badge" style="background:${levelCol}">${level}</span>
-        ${numCams>0?`<span style="font-size:10px;color:#6b7280;margin-top:2px">${avgPerCam} avg indep/camera (${numCams} cam)</span>`:''}
+        ${numCams>0?`<span style="font-size:10px;color:#6b7280;margin-top:2px">${avgPerCam} avg/camera (${numCams} cam)</span>`:''}
       </div>
     </div>
     <div class="gdp-meta">
       <div class="gdp-meta-item"><div class="gdp-meta-key">Grid ID</div><div class="gdp-meta-val">${gridId}</div></div>
       <div class="gdp-meta-item"><div class="gdp-meta-key">Grid Size</div><div class="gdp-meta-val">2 km × 2 km</div></div>
-      <div class="gdp-meta-item"><div class="gdp-meta-key">Camera Deployed</div><div class="gdp-meta-val">${numCams}</div></div>
-      <div class="gdp-meta-item"><div class="gdp-meta-key">Avg Indep / Camera</div><div class="gdp-meta-val" style="color:#0ea5e9">${avgPerCam}</div></div>
+      <div class="gdp-meta-item"><div class="gdp-meta-key">Camera deployed</div><div class="gdp-meta-val">${numCams}</div></div>
+      <div class="gdp-meta-item"><div class="gdp-meta-key">Avg / Camera</div><div class="gdp-meta-val" style="color:#0ea5e9">${avgPerCam}</div></div>
       <div class="gdp-meta-item"><div class="gdp-meta-key">Last Detection</div><div class="gdp-meta-val" style="font-size:10px">${sorted.length?fmtDate(sorted[sorted.length-1]):'-'}</div></div>
       <div class="gdp-meta-item"><div class="gdp-meta-key">Date Range</div><div class="gdp-meta-val" style="font-size:9px">${dateRangeStr}</div></div>
     </div>
-    ${classRows?`<div class="gdp-section-title">Independency by Class</div>${classRows}`:''}
+    ${classRows?`<div class="gdp-section-title">Detections by Class</div>${classRows}`:''}
     ${spRows?`<div class="gdp-section-title">Top Species</div><div class="gdp-species-section">${spRows}</div>`:''}
     <div style="height:12px"></div>`;
   document.getElementById('gridDetailPanel').classList.add('open');
@@ -958,27 +952,25 @@ document.getElementById('gridDetailClose').onclick=()=>document.getElementById('
 
 function updateCtStats(){
   const filtered=getCtFiltered();
-  const totalIndep=filtered.reduce((s,r)=>s+r.Indep,0);  // ← Independency
+  // ── CHANGED: all totals use r.Indep ──
+  const totalDet=filtered.reduce((s,r)=>s+r.Indep,0);
   const totalSp=new Set(filtered.filter(r=>r.Indep>0).map(r=>r.Species).filter(Boolean)).size;
   const totalCam=new Set(filtered.map(r=>r.CameraID).filter(Boolean)).size;
   const totalLok=new Set(filtered.map(r=>`${r.Latitude.toFixed(4)}_${r.Longitude.toFixed(4)}`)).size;
   const klassCounts={};
   filtered.forEach(r=>{if(r.Class)klassCounts[r.Class]=(klassCounts[r.Class]||0)+r.Indep;});
   const dates=filtered.map(r=>parseDateStr(r.Date,'mdy')).filter(Boolean).sort((a,b)=>a-b);
-
   document.getElementById('ctSummaryBody').innerHTML=`
-    <div class="ct-stat-inline"><span>Total Independency</span><span class="ct-stat-inline-val">${totalIndep}</span></div>
+    <div class="ct-stat-inline"><span>Total Detections</span><span class="ct-stat-inline-val">${totalDet}</span></div>
     <div class="ct-stat-inline"><span>Species Recorded</span><span class="ct-stat-inline-val">${totalSp}</span></div>
-    <div class="ct-stat-inline"><span>Cameras Deployed</span><span class="ct-stat-inline-val">${totalCam}</span></div>
-    <div class="ct-stat-inline"><span>Avg Indep / Camera</span><span class="ct-stat-inline-val">${totalCam?Math.round(totalIndep/totalCam):0}</span></div>
+    <div class="ct-stat-inline"><span>Cameras deployed</span><span class="ct-stat-inline-val">${totalCam}</span></div>
+    <div class="ct-stat-inline"><span>Avg Detections / Camera</span><span class="ct-stat-inline-val">${totalCam?Math.round(totalDet/totalCam):0}</span></div>
     <div class="ct-stat-inline"><span>Monitoring Locations</span><span class="ct-stat-inline-val">${totalLok}</span></div>
     <div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">By Class</div>
-    ${Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="ct-stat-inline"><span>${k}</span><span class="ct-stat-inline-val">${v} (${totalIndep?Math.round(v/totalIndep*100):0}%)</span></div>`).join('')}`;
-
+    ${Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="ct-stat-inline"><span>${k}</span><span class="ct-stat-inline-val">${v} (${totalDet?Math.round(v/totalDet*100):0}%)</span></div>`).join('')}`;
   document.getElementById('ctStatCameras').textContent=totalCam;
-  document.getElementById('ctStatDetections').textContent=totalIndep;
+  document.getElementById('ctStatDetections').textContent=totalDet;
   document.getElementById('ctStatDetSub').textContent=`${totalSp} species recorded`;
-
   if(ctGridGeo){
     let gridsWithDet=0,topGrid='–',topCount=0;
     ctGridGeo.features.forEach((feat,fi)=>{
@@ -991,7 +983,7 @@ function updateCtStats(){
     document.getElementById('ctStatGrids').textContent=gridsWithDet;
     document.getElementById('ctStatGridsPct').textContent=`${total?Math.round(gridsWithDet/total*100):0}% of ${total} grids`;
     document.getElementById('ctStatTopGrid').textContent=topGrid;
-    document.getElementById('ctStatTopSub').textContent=`${topCount} Independency`;
+    document.getElementById('ctStatTopSub').textContent=`${topCount} Detections`;
   }
   if(dates.length){
     const fmt=d=>d.toLocaleDateString('id-ID',{month:'short',year:'numeric'});
@@ -999,7 +991,6 @@ function updateCtStats(){
     document.getElementById('ctStatDateSub').textContent=`${fmtDate(dates[0])} – ${fmtDate(dates[dates.length-1])}`;
   }
 }
-
 function applyCtFilters(){rebuildCtSelects();buildCtGrid();buildCtPoints();updateCtStats();updateCtFilterUI();}
 
 /* ── Event listeners ── */
@@ -1009,24 +1000,13 @@ document.getElementById('ctFilterSite').addEventListener('change',e=>{CTF.site=e
 document.getElementById('ctFilterClass').addEventListener('change',e=>{CTF.kelas=e.target.value;applyCtFilters();});
 document.getElementById('ctFilterSpecies').addEventListener('change',e=>{CTF.spesies=e.target.value;applyCtFilters();});
 document.getElementById('ctFilterIucn').addEventListener('change',e=>{CTF.iucn=e.target.value;applyCtFilters();});
-document.getElementById('ctClearFilters').onclick=()=>{
-  CTF.start=null;CTF.end=null;CTF.site='';CTF.kelas='';CTF.spesies='';CTF.iucn='';
-  ['ctStartDate','ctEndDate'].forEach(id=>document.getElementById(id).value='');
-  ['ctFilterSite','ctFilterClass','ctFilterSpecies','ctFilterIucn'].forEach(id=>document.getElementById(id).value='');
-  setActiveQuickBtn(document.getElementById('ctQuickDates'),'all');
-  applyCtFilters();
-};
+document.getElementById('ctClearFilters').onclick=()=>{CTF.start=null;CTF.end=null;CTF.site='';CTF.kelas='';CTF.spesies='';CTF.iucn='';['ctStartDate','ctEndDate'].forEach(id=>document.getElementById(id).value='');['ctFilterSite','ctFilterClass','ctFilterSpecies','ctFilterIucn'].forEach(id=>document.getElementById(id).value='');setActiveQuickBtn(document.getElementById('ctQuickDates'),'all');applyCtFilters();};
 document.getElementById('startDate').addEventListener('change',e=>{PF.start=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('patrolQuickDates'),'');applyPatrolFilters();});
 document.getElementById('endDate').addEventListener('change',e=>{PF.end=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('patrolQuickDates'),'');applyPatrolFilters();});
 document.getElementById('filterOfficer').addEventListener('change',e=>{PF.officer=e.target.value;applyPatrolFilters();});
 document.getElementById('filterCategory').addEventListener('change',e=>{PF.category=e.target.value;applyPatrolFilters();});
 document.getElementById('filterFinding').addEventListener('change',e=>{PF.finding=e.target.value;applyPatrolFilters();});
-document.getElementById('clearFilters').onclick=()=>{
-  PF.start=null;PF.end=null;PF.officer='';PF.category='';PF.finding='';
-  document.getElementById('startDate').value='';document.getElementById('endDate').value='';
-  highlightCat=null;setActiveQuickBtn(document.getElementById('patrolQuickDates'),'all');
-  applyPatrolFilters();
-};
+document.getElementById('clearFilters').onclick=()=>{PF.start=null;PF.end=null;PF.officer='';PF.category='';PF.finding='';document.getElementById('startDate').value='';document.getElementById('endDate').value='';highlightCat=null;setActiveQuickBtn(document.getElementById('patrolQuickDates'),'all');applyPatrolFilters();};
 
 document.getElementById('toggleLulc').onchange        =e=>e.target.checked?map.addLayer(lulc)        :map.removeLayer(lulc);
 document.getElementById('toggleLulc2025').onchange    =e=>e.target.checked?map.addLayer(lulc2025)    :map.removeLayer(lulc2025);
