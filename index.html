@@ -354,6 +354,7 @@
     <button class="filter-panel-close" id="filterClose">✕</button>
   </div>
   <div class="filter-panel-body">
+    <!-- PATROL FILTERS -->
     <div id="patrolFilters">
       <div class="f-group">
         <div class="f-label">Quick Date</div>
@@ -394,26 +395,11 @@
       <button class="btn-clear-f" id="clearFilters">Clear All Filters</button>
     </div>
 
+    <!-- CAMERA FILTERS — date replaced with Batch -->
     <div id="cameraFilters" style="display:none">
       <div class="f-group">
-        <div class="f-label">Quick Date</div>
-        <div class="quick-date-row" id="ctQuickDates">
-          <button class="qd-btn" data-preset="today" onclick="applyCtQuickDate(this)">Today</button>
-          <button class="qd-btn" data-preset="1w" onclick="applyCtQuickDate(this)">1W</button>
-          <button class="qd-btn" data-preset="1m" onclick="applyCtQuickDate(this)">1M</button>
-          <button class="qd-btn" data-preset="3m" onclick="applyCtQuickDate(this)">3M</button>
-          <button class="qd-btn" data-preset="6m" onclick="applyCtQuickDate(this)">6M</button>
-          <button class="qd-btn" data-preset="ytd" onclick="applyCtQuickDate(this)">YTD</button>
-          <button class="qd-btn" data-preset="1y" onclick="applyCtQuickDate(this)">1Y</button>
-          <button class="qd-btn active" data-preset="all" onclick="applyCtQuickDate(this)">All</button>
-        </div>
-      </div>
-      <div class="f-group">
-        <div class="f-label">Custom Date Range</div>
-        <div class="f-date-row">
-          <input type="date" class="f-input date-input" id="ctStartDate">
-          <input type="date" class="f-input date-input" id="ctEndDate">
-        </div>
+        <div class="f-label">Batch</div>
+        <select class="f-input" id="ctFilterBatch"><option value="">All Batches</option></select>
       </div>
       <div class="f-group">
         <div class="f-label">Site</div>
@@ -469,9 +455,11 @@
 <div class="ct-bottom-bar" id="ctBottomBar">
   <div class="ct-stat"><div class="ct-stat-val" id="ctStatCameras">–</div><div class="ct-stat-label">Camera Trap Location</div><div class="ct-stat-sub">Units</div></div>
   <div class="ct-stat"><div class="ct-stat-val" id="ctStatDetections">–</div><div class="ct-stat-label">Total Independent Events</div><div class="ct-stat-sub" id="ctStatDetSub">–</div></div>
-  <div class="ct-stat"><div class="ct-stat-val" id="ctStatGrids">–</div><div class="ct-stat-label">Grids w/ Detections</div><div class="ct-stat-sub" id="ctStatGridsPct"></div></div>
+  <!-- Changed: Grids w/ Detections → Species Recorded -->
+  <div class="ct-stat"><div class="ct-stat-val" id="ctStatSpecies">–</div><div class="ct-stat-label">Species Recorded</div><div class="ct-stat-sub" id="ctStatSpeciesSub"></div></div>
   <div class="ct-stat"><div class="ct-stat-val" id="ctStatTopGrid">–</div><div class="ct-stat-label">Highest Activity Grid</div><div class="ct-stat-sub" id="ctStatTopSub"></div></div>
-  <div class="ct-stat"><div class="ct-stat-val" id="ctStatDate">–</div><div class="ct-stat-label">Date Range</div><div class="ct-stat-sub" id="ctStatDateSub"></div></div>
+  <!-- Changed: Date Range → Total Trap-Nights -->
+  <div class="ct-stat"><div class="ct-stat-val" id="ctStatTrapNights">–</div><div class="ct-stat-label">Total Trap-Nights</div><div class="ct-stat-sub" id="ctStatTrapNightsSub"></div></div>
 </div>
 
 <!-- Image modal -->
@@ -514,6 +502,63 @@ function parseInputDate(s){if(!s)return null;const p=s.split('-');return p.lengt
 function fmtDate(d){return d?d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}):'-';}
 function toInputStr(d){if(!d)return '';const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return `${y}-${mo}-${dd}`;}
 
+/*
+ * parseBatchLabel — parse a batch string like "Jun25 - Dec25" or "Nov24 - Apr25"
+ * into {start: Date, end: Date, days: number}.
+ * Format: "MmmYY - MmmYY"  (3-letter month, 2-digit year, separated by " - ")
+ */
+function parseBatchLabel(label){
+  if(!label||!label.trim())return null;
+  const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+  // Normalise separators: support " - ", " – ", "–", "-" between two month-year tokens
+  const parts=label.trim().split(/\s*[-–]+\s*/);
+  if(parts.length<2)return null;
+  function parseToken(tok){
+    tok=tok.trim();
+    // e.g. "Jun25", "Dec25", "Apr 25", "Apr25"
+    const m=tok.match(/^([A-Za-z]{3})\s*(\d{2,4})$/);
+    if(!m)return null;
+    const mon=MON[m[1].charAt(0).toUpperCase()+m[1].slice(1).toLowerCase()];
+    if(mon===undefined)return null;
+    const yr=m[2].length===2?(+m[2]<=50?2000+ +m[2]:1900+ +m[2]):+m[2];
+    return{mon,yr};
+  }
+  const s=parseToken(parts[0]);
+  const e=parseToken(parts[parts.length-1]);
+  if(!s||!e)return null;
+  const startDate=toMidnight(s.yr,s.mon,1);
+  // End = last day of the end month
+  const endDate=toMidnight(e.yr,e.mon+1,0);
+  const days=Math.round((endDate-startDate)/(1000*60*60*24))+1;
+  return{start:startDate,end:endDate,days};
+}
+
+/*
+ * calcTrapNights — given the active subset of ctData and the currently selected
+ * batch filter, sum up trap-nights from distinct batches present in the data.
+ * Trap-nights = sum over each unique batch of (batch_duration_days × cameras_in_that_batch)
+ * where cameras_in_that_batch = distinct CameraIDs that appear in that batch.
+ */
+function calcTrapNights(filteredRows){
+  // Group unique CameraIDs per batch
+  const batchCams={};
+  filteredRows.forEach(r=>{
+    if(!r.Batch)return;
+    if(!batchCams[r.Batch])batchCams[r.Batch]=new Set();
+    if(r.CameraID)batchCams[r.Batch].add(r.CameraID);
+  });
+  let total=0;
+  const detail=[];
+  Object.entries(batchCams).forEach(([batch,cams])=>{
+    const parsed=parseBatchLabel(batch);
+    if(!parsed)return;
+    const nights=parsed.days*cams.size;
+    total+=nights;
+    detail.push({batch,days:parsed.days,cams:cams.size,nights});
+  });
+  return{total,detail};
+}
+
 function getPresetRange(preset){
   const now=new Date();const today=toMidnight(now.getFullYear(),now.getMonth(),now.getDate());
   if(preset==='all')return{start:null,end:null};
@@ -534,14 +579,6 @@ function applyPatrolQuickDate(btn){
   document.getElementById('endDate').value=end?toInputStr(end):'';
   setActiveQuickBtn(document.getElementById('patrolQuickDates'),btn.dataset.preset);
   applyPatrolFilters();
-}
-function applyCtQuickDate(btn){
-  const{start,end}=getPresetRange(btn.dataset.preset);
-  CTF.start=start;CTF.end=end;
-  document.getElementById('ctStartDate').value=start?toInputStr(start):'';
-  document.getElementById('ctEndDate').value=end?toInputStr(end):'';
-  setActiveQuickBtn(document.getElementById('ctQuickDates'),btn.dataset.preset);
-  applyCtFilters();
 }
 
 /* ── Map ── */
@@ -655,8 +692,7 @@ function updatePatrolFilterUI(){
   if(PF.category)pills.push({label:fmtLabel(PF.category),clear:`clearPatrolField('category')`});
   if(PF.finding) pills.push({label:fmtLabel(PF.finding), clear:`clearPatrolField('finding')`});
   buildPills(pills,'patrolPillsWrap','patrolActivePills');
-  const active=pills.length>0;
-  document.getElementById('filterBadge').style.display=active?'flex':'none';
+  document.getElementById('filterBadge').style.display=pills.length>0?'flex':'none';
 }
 function clearPatrolDateFilter(){PF.start=null;PF.end=null;document.getElementById('startDate').value='';document.getElementById('endDate').value='';setActiveQuickBtn(document.getElementById('patrolQuickDates'),'all');applyPatrolFilters();}
 function clearPatrolField(f){if(f==='officer'){PF.officer='';document.getElementById('filterOfficer').value='';}if(f==='category'){PF.category='';document.getElementById('filterCategory').value='';}if(f==='finding'){PF.finding='';document.getElementById('filterFinding').value='';}applyPatrolFilters();}
@@ -717,21 +753,15 @@ function openDetail(r){
 }
 document.getElementById('detailClose').onclick=()=>document.getElementById('detailPanel').classList.remove('open');
 
-/* ══ CAMERA TRAP DATA ══
-   New spreadsheet: 1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4
-   Column mapping (0-indexed, row 1 = header):
-   0:Batch  1:StartDate  2:EndDate  3:Site  4:Latitude  5:Longitude
-   6:CameraID  7:Date  8:Time  9:Class  10:Species  11:LocalName
-   12:IUCN_status  13:Independency  14:Count  15:FileType  16:FileName
-   17:Behavior  18:Note
-   ** Totals use Independency (col 13), not Count **
-*/
+/* ══ CAMERA TRAP DATA ══ */
 const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
 const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
 const CT_GRID_URL='./data/grid.geojson';
 let ctData=[],ctGridGeo=null,ctLoaded=false;
-const CTF={start:null,end:null,site:'',kelas:'',spesies:'',iucn:''};
-let allCtSites=[],allCtClasses=[],allCtSpecies=[],allCtIucns=[];
+
+// CTF: removed start/end date, added batch filter
+const CTF={batch:'',site:'',kelas:'',spesies:'',iucn:''};
+let allCtBatches=[],allCtSites=[],allCtClasses=[],allCtSpecies=[],allCtIucns=[];
 
 function loadCameraData(){
   if(ctLoaded)return;
@@ -740,28 +770,26 @@ function loadCameraData(){
   const p2=new Promise(resolve=>{
     Papa.parse(CT_SHEET_URL,{download:true,header:false,skipEmptyLines:true,complete:(res)=>{
       const rows=res.data;
-      // Skip header row (row index 0)
       ctData=rows.slice(1).map(r=>({
-        Batch:       r[0]||'',
-        StartDate:   r[1]||'',
-        EndDate:     r[2]||'',
-        Site:        r[3]||'',
-        Latitude:    parseFloat(r[4]),
-        Longitude:   parseFloat(r[5]),
-        CameraID:    r[6]||'',
-        Date:        r[7]||'',
-        Time:        r[8]||'',
-        Class:       r[9]||'',
-        Species:     r[10]||'',
-        LocalName:   r[11]||'',
-        IUCN:        r[12]||'',
-        // Independency is the primary count metric
-        Indep:       Math.max(0,parseInt(r[13])||0),
-        Count:       Math.max(0,parseInt(r[14])||0),
-        FileType:    r[15]||'',
-        FileName:    r[16]||'',
-        Behavior:    r[17]||'',
-        Note:        r[18]||''
+        Batch:     r[0]||'',
+        StartDate: r[1]||'',
+        EndDate:   r[2]||'',
+        Site:      r[3]||'',
+        Latitude:  parseFloat(r[4]),
+        Longitude: parseFloat(r[5]),
+        CameraID:  r[6]||'',
+        Date:      r[7]||'',
+        Time:      r[8]||'',
+        Class:     r[9]||'',
+        Species:   r[10]||'',
+        LocalName: r[11]||'',
+        IUCN:      r[12]||'',
+        Indep:     Math.max(0,parseInt(r[13])||0),
+        Count:     Math.max(0,parseInt(r[14])||0),
+        FileType:  r[15]||'',
+        FileName:  r[16]||'',
+        Behavior:  r[17]||'',
+        Note:      r[18]||''
       })).filter(r=>!isNaN(r.Latitude)&&!isNaN(r.Longitude)&&r.Latitude!==0);
       resolve();
     }});
@@ -775,29 +803,26 @@ function loadCameraData(){
 
 function ctSubset(excludeField){
   return ctData.filter(r=>{
-    if(CTF.start||CTF.end){
-      const d=parseDateStr(r.Date,'mdy');
-      if(!d)return false;
-      if(CTF.start&&d<CTF.start)return false;
-      if(CTF.end&&d>CTF.end)return false;
-    }
-    if(excludeField!=='site'    &&CTF.site    &&r.Site   !==CTF.site)   return false;
-    if(excludeField!=='kelas'   &&CTF.kelas   &&r.Class  !==CTF.kelas)  return false;
-    if(excludeField!=='spesies' &&CTF.spesies &&r.Species!==CTF.spesies)return false;
-    if(excludeField!=='iucn'    &&CTF.iucn    &&r.IUCN   !==CTF.iucn)   return false;
+    if(excludeField!=='batch'   &&CTF.batch   &&r.Batch   !==CTF.batch)   return false;
+    if(excludeField!=='site'    &&CTF.site    &&r.Site    !==CTF.site)     return false;
+    if(excludeField!=='kelas'   &&CTF.kelas   &&r.Class   !==CTF.kelas)   return false;
+    if(excludeField!=='spesies' &&CTF.spesies &&r.Species !==CTF.spesies) return false;
+    if(excludeField!=='iucn'    &&CTF.iucn    &&r.IUCN    !==CTF.iucn)    return false;
     return true;
   });
 }
 function getCtFiltered(){return ctSubset(null);}
 
 function initCtDropdowns(){
-  const sites=new Set(),classes=new Set(),species=new Set(),iucns=new Set();
+  const batches=new Set(),sites=new Set(),classes=new Set(),species=new Set(),iucns=new Set();
   ctData.forEach(r=>{
+    if(r.Batch)batches.add(r.Batch);
     if(r.Site)sites.add(r.Site);
     if(r.Class)classes.add(r.Class);
     if(r.Species)species.add(r.Species);
     if(r.IUCN)iucns.add(r.IUCN);
   });
+  allCtBatches=[...batches].sort();
   allCtSites=[...sites].sort();
   allCtClasses=[...classes].sort();
   allCtSpecies=[...species].sort();
@@ -805,27 +830,28 @@ function initCtDropdowns(){
   rebuildCtSelects();
 }
 function rebuildCtSelects(){
-  fillCascadeSelect('ctFilterSite',   allCtSites,   new Set(ctSubset('site').map(r=>r.Site).filter(Boolean)),    CTF.site,   'All Sites');
-  fillCascadeSelect('ctFilterClass',  allCtClasses, new Set(ctSubset('kelas').map(r=>r.Class).filter(Boolean)),  CTF.kelas,  'All Classes');
+  fillCascadeSelect('ctFilterBatch',  allCtBatches, new Set(ctSubset('batch').map(r=>r.Batch).filter(Boolean)),    CTF.batch,  'All Batches');
+  fillCascadeSelect('ctFilterSite',   allCtSites,   new Set(ctSubset('site').map(r=>r.Site).filter(Boolean)),      CTF.site,   'All Sites');
+  fillCascadeSelect('ctFilterClass',  allCtClasses, new Set(ctSubset('kelas').map(r=>r.Class).filter(Boolean)),    CTF.kelas,  'All Classes');
   fillCascadeSelect('ctFilterSpecies',allCtSpecies, new Set(ctSubset('spesies').map(r=>r.Species).filter(Boolean)),CTF.spesies,'All Species');
-  fillCascadeSelect('ctFilterIucn',   allCtIucns,   new Set(ctSubset('iucn').map(r=>r.IUCN).filter(Boolean)),    CTF.iucn,  'All Statuses');
+  fillCascadeSelect('ctFilterIucn',   allCtIucns,   new Set(ctSubset('iucn').map(r=>r.IUCN).filter(Boolean)),      CTF.iucn,  'All Statuses');
 }
 function updateCtFilterUI(){
   const pills=[];
-  if(CTF.start||CTF.end)pills.push({label:`${fmtDate(CTF.start)} – ${fmtDate(CTF.end)}`,clear:`clearCtDateFilter()`});
-  if(CTF.site)   pills.push({label:CTF.site,   clear:`clearCtField('site')`});
-  if(CTF.kelas)  pills.push({label:CTF.kelas,  clear:`clearCtField('kelas')`});
-  if(CTF.spesies)pills.push({label:CTF.spesies,clear:`clearCtField('spesies')`});
-  if(CTF.iucn)   pills.push({label:CTF.iucn,   clear:`clearCtField('iucn')`});
+  if(CTF.batch)  pills.push({label:CTF.batch,   clear:`clearCtField('batch')`});
+  if(CTF.site)   pills.push({label:CTF.site,     clear:`clearCtField('site')`});
+  if(CTF.kelas)  pills.push({label:CTF.kelas,    clear:`clearCtField('kelas')`});
+  if(CTF.spesies)pills.push({label:CTF.spesies,  clear:`clearCtField('spesies')`});
+  if(CTF.iucn)   pills.push({label:CTF.iucn,     clear:`clearCtField('iucn')`});
   buildPills(pills,'ctPillsWrap','ctActivePills');
   document.getElementById('filterBadge').style.display=pills.length?'flex':'none';
 }
-function clearCtDateFilter(){CTF.start=null;CTF.end=null;document.getElementById('ctStartDate').value='';document.getElementById('ctEndDate').value='';setActiveQuickBtn(document.getElementById('ctQuickDates'),'all');applyCtFilters();}
 function clearCtField(f){
-  if(f==='site'){CTF.site='';document.getElementById('ctFilterSite').value='';}
-  if(f==='kelas'){CTF.kelas='';document.getElementById('ctFilterClass').value='';}
+  if(f==='batch') {CTF.batch=''; document.getElementById('ctFilterBatch').value='';}
+  if(f==='site')  {CTF.site='';  document.getElementById('ctFilterSite').value='';}
+  if(f==='kelas') {CTF.kelas=''; document.getElementById('ctFilterClass').value='';}
   if(f==='spesies'){CTF.spesies='';document.getElementById('ctFilterSpecies').value='';}
-  if(f==='iucn'){CTF.iucn='';document.getElementById('ctFilterIucn').value='';}
+  if(f==='iucn')  {CTF.iucn='';  document.getElementById('ctFilterIucn').value='';}
   applyCtFilters();
 }
 
@@ -848,12 +874,11 @@ function buildCtGrid(){
   ctGridLayer.clearLayers();if(!ctGridGeo)return;
   const filtered=getCtFiltered();
   ctGridGeo.features.forEach((feat,fi)=>{
-    // Use Indep (Independency) as the detection count
     let totalCount=0;
     const klassCounts={},speciesCounts={},camsInCell=new Set(),datesInCell=[];
     filtered.forEach(r=>{
       if(inFeature(r.Latitude,r.Longitude,feat)){
-        totalCount+=r.Indep;  // <-- Independency
+        totalCount+=r.Indep;
         if(r.Class)klassCounts[r.Class]=(klassCounts[r.Class]||0)+r.Indep;
         if(r.Species){
           if(!speciesCounts[r.Species])speciesCounts[r.Species]={local:r.LocalName,iucn:r.IUCN,count:0};
@@ -890,7 +915,6 @@ function buildCtPoints(){
   });
   Object.values(locMap).forEach(loc=>{
     const rows=loc.rows;
-    // Sum Indep for total at this location
     const totalCount=rows.reduce((s,r)=>s+r.Indep,0);
     const sites=[...new Set(rows.map(r=>r.Site).filter(Boolean))].join(' / ');
     const cameras=[...new Set(rows.map(r=>r.CameraID).filter(Boolean))];
@@ -901,9 +925,6 @@ function buildCtPoints(){
         spMap[r.Species].count+=r.Indep;
       }
     });
-    // Also collect behaviors and notes for extra context
-    const behaviors=[...new Set(rows.map(r=>r.Behavior).filter(Boolean))];
-    const batches=[...new Set(rows.map(r=>r.Batch).filter(Boolean))];
     const spRows=Object.entries(spMap).sort((a,b)=>b[1].count-a[1].count)
       .map(([sp,d])=>`<tr>
         <td style="padding:4px 7px;font-style:italic;font-size:12px">${sp}</td>
@@ -915,10 +936,8 @@ function buildCtPoints(){
     const avgLine=cameras.length>1
       ?`<div><span style="color:#9ca3af">Avg / Camera</span><br><b style="color:#0ea5e9;font-size:15px">${Math.round(totalCount/cameras.length)}</b></div>`
       :'';
-    const batchLine=batches.length?`<div style="font-size:10px;color:#9ca3af;margin-bottom:4px">Batch: ${batches.join(', ')}</div>`:'';
     const popup=`<div style="font-family:Montserrat,Arial;font-size:12px;width:380px;max-width:380px">
       <b style="font-size:14px">${sites||'Camera Location'}</b>
-      ${batchLine}
       <hr style="margin:5px 0;border-color:#e5e7eb">
       <div style="display:grid;grid-template-columns:1fr 1fr${cameras.length>1?' 1fr':''};gap:4px;margin-bottom:6px">
         <div><span style="color:#9ca3af">Indep. Events</span><br><b style="color:#0ea5e9;font-size:15px">${totalCount}</b></div>
@@ -996,68 +1015,76 @@ document.getElementById('gridDetailClose').onclick=()=>document.getElementById('
 
 function updateCtStats(){
   const filtered=getCtFiltered();
-  // All totals use Indep
   const totalDet=filtered.reduce((s,r)=>s+r.Indep,0);
+  // Species recorded (distinct species with at least 1 independent event)
   const totalSp=new Set(filtered.filter(r=>r.Indep>0).map(r=>r.Species).filter(Boolean)).size;
   const totalCam=new Set(filtered.map(r=>r.CameraID).filter(Boolean)).size;
   const totalLok=new Set(filtered.map(r=>`${r.Latitude.toFixed(4)}_${r.Longitude.toFixed(4)}`)).size;
   const klassCounts={};
   filtered.forEach(r=>{if(r.Class)klassCounts[r.Class]=(klassCounts[r.Class]||0)+r.Indep;});
-  const dates=filtered.map(r=>parseDateStr(r.Date,'mdy')).filter(Boolean).sort((a,b)=>a-b);
-  // Batch info
-  const batches=[...new Set(filtered.map(r=>r.Batch).filter(Boolean))];
 
+  // ── Trap-nights calculation ──
+  // Sum (batch_duration_days × distinct_cameras_in_batch) across all batches in filtered set
+  const{total:trapNights,detail:tnDetail}=calcTrapNights(filtered);
+  // Sub-label: show per-batch breakdown, e.g. "3 batches · 12 cameras"
+  const totalBatches=tnDetail.length;
+  const totalCamsAcrossBatches=tnDetail.reduce((s,d)=>s+d.cams,0);
+  const tnSub=totalBatches>0?`${totalBatches} batch${totalBatches>1?'es':''} · ${totalCamsAcrossBatches} cam-deployments`:'';
+
+  // Top grid
+  let topGrid='–',topCount=0;
+  if(ctGridGeo){
+    ctGridGeo.features.forEach((feat,fi)=>{
+      let det=0;
+      filtered.forEach(r=>{if(inFeature(r.Latitude,r.Longitude,feat))det+=r.Indep;});
+      if(det>topCount){topCount=det;topGrid=`G-${String(fi).padStart(3,'0')}`;}
+    });
+  }
+
+  // Sidebar summary — no batch row
   document.getElementById('ctSummaryBody').innerHTML=`
     <div class="ct-stat-inline"><span>Total Indep. Events</span><span class="ct-stat-inline-val">${totalDet}</span></div>
     <div class="ct-stat-inline"><span>Species Recorded</span><span class="ct-stat-inline-val">${totalSp}</span></div>
     <div class="ct-stat-inline"><span>Cameras Deployed</span><span class="ct-stat-inline-val">${totalCam}</span></div>
     <div class="ct-stat-inline"><span>Avg Events / Camera</span><span class="ct-stat-inline-val">${totalCam?Math.round(totalDet/totalCam):0}</span></div>
     <div class="ct-stat-inline"><span>Monitoring Locations</span><span class="ct-stat-inline-val">${totalLok}</span></div>
-    ${batches.length?`<div class="ct-stat-inline"><span>Batch(es)</span><span class="ct-stat-inline-val" style="font-size:9px">${batches.join(', ')}</span></div>`:''}
+    <div class="ct-stat-inline"><span>Total Trap-Nights</span><span class="ct-stat-inline-val">${trapNights}</span></div>
     <div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">By Class</div>
     ${Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="ct-stat-inline"><span>${k}</span><span class="ct-stat-inline-val">${v} (${totalDet?Math.round(v/totalDet*100):0}%)</span></div>`).join('')}`;
 
+  // Bottom bar
   document.getElementById('ctStatCameras').textContent=totalCam;
   document.getElementById('ctStatDetections').textContent=totalDet;
   document.getElementById('ctStatDetSub').textContent=`${totalSp} species recorded`;
 
-  if(ctGridGeo){
-    let gridsWithDet=0,topGrid='–',topCount=0;
-    ctGridGeo.features.forEach((feat,fi)=>{
-      let det=0;
-      filtered.forEach(r=>{if(inFeature(r.Latitude,r.Longitude,feat))det+=r.Indep;});
-      if(det>0)gridsWithDet++;
-      if(det>topCount){topCount=det;topGrid=`G-${String(fi).padStart(3,'0')}`;}
-    });
-    const total=ctGridGeo.features.length;
-    document.getElementById('ctStatGrids').textContent=gridsWithDet;
-    document.getElementById('ctStatGridsPct').textContent=`${total?Math.round(gridsWithDet/total*100):0}% of ${total} grids`;
-    document.getElementById('ctStatTopGrid').textContent=topGrid;
-    document.getElementById('ctStatTopSub').textContent=`${topCount} Events`;
-  }
-  if(dates.length){
-    const fmt=d=>d.toLocaleDateString('id-ID',{month:'short',year:'numeric'});
-    document.getElementById('ctStatDate').textContent=fmt(dates[0]);
-    document.getElementById('ctStatDateSub').textContent=`${fmtDate(dates[0])} – ${fmtDate(dates[dates.length-1])}`;
-  }
+  // Species recorded (was Grids w/ Detections)
+  document.getElementById('ctStatSpecies').textContent=totalSp;
+  document.getElementById('ctStatSpeciesSub').textContent=`across ${totalCam} cameras`;
+
+  // Highest activity grid
+  document.getElementById('ctStatTopGrid').textContent=topGrid;
+  document.getElementById('ctStatTopSub').textContent=topCount?`${topCount} Events`:'';
+
+  // Trap-nights (was Date Range)
+  document.getElementById('ctStatTrapNights').textContent=trapNights||'–';
+  document.getElementById('ctStatTrapNightsSub').textContent=tnSub;
 }
 
 function applyCtFilters(){rebuildCtSelects();buildCtGrid();buildCtPoints();updateCtStats();updateCtFilterUI();}
 
-/* ── Event listeners ── */
-document.getElementById('ctStartDate').addEventListener('change',e=>{CTF.start=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('ctQuickDates'),'');applyCtFilters();});
-document.getElementById('ctEndDate').addEventListener('change',e=>{CTF.end=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('ctQuickDates'),'');applyCtFilters();});
+/* ── Event listeners — camera ── */
+document.getElementById('ctFilterBatch').addEventListener('change',e=>{CTF.batch=e.target.value;applyCtFilters();});
 document.getElementById('ctFilterSite').addEventListener('change',e=>{CTF.site=e.target.value;applyCtFilters();});
 document.getElementById('ctFilterClass').addEventListener('change',e=>{CTF.kelas=e.target.value;applyCtFilters();});
 document.getElementById('ctFilterSpecies').addEventListener('change',e=>{CTF.spesies=e.target.value;applyCtFilters();});
 document.getElementById('ctFilterIucn').addEventListener('change',e=>{CTF.iucn=e.target.value;applyCtFilters();});
 document.getElementById('ctClearFilters').onclick=()=>{
-  CTF.start=null;CTF.end=null;CTF.site='';CTF.kelas='';CTF.spesies='';CTF.iucn='';
-  ['ctStartDate','ctEndDate'].forEach(id=>document.getElementById(id).value='');
-  ['ctFilterSite','ctFilterClass','ctFilterSpecies','ctFilterIucn'].forEach(id=>document.getElementById(id).value='');
-  setActiveQuickBtn(document.getElementById('ctQuickDates'),'all');
+  CTF.batch='';CTF.site='';CTF.kelas='';CTF.spesies='';CTF.iucn='';
+  ['ctFilterBatch','ctFilterSite','ctFilterClass','ctFilterSpecies','ctFilterIucn'].forEach(id=>document.getElementById(id).value='');
   applyCtFilters();
 };
+
+/* ── Event listeners — patrol ── */
 document.getElementById('startDate').addEventListener('change',e=>{PF.start=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('patrolQuickDates'),'');applyPatrolFilters();});
 document.getElementById('endDate').addEventListener('change',e=>{PF.end=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('patrolQuickDates'),'');applyPatrolFilters();});
 document.getElementById('filterOfficer').addEventListener('change',e=>{PF.officer=e.target.value;applyPatrolFilters();});
@@ -1071,6 +1098,7 @@ document.getElementById('clearFilters').onclick=()=>{
   applyPatrolFilters();
 };
 
+/* ── Layer toggles ── */
 document.getElementById('toggleLulc').onchange        =e=>e.target.checked?map.addLayer(lulc)        :map.removeLayer(lulc);
 document.getElementById('toggleLulc2025').onchange    =e=>e.target.checked?map.addLayer(lulc2025)    :map.removeLayer(lulc2025);
 document.getElementById('toggleLandsat2024').onchange =e=>e.target.checked?map.addLayer(landsat2024) :map.removeLayer(landsat2024);
