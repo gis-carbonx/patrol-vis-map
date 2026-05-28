@@ -454,7 +454,7 @@
 <div class="bottom-bar" id="bottomBar"></div>
 <div class="ct-bottom-bar" id="ctBottomBar">
   <div class="ct-stat"><div class="ct-stat-val" id="ctStatCameras">–</div><div class="ct-stat-label">Camera Trap Location</div><div class="ct-stat-sub">Units</div></div>
-  <div class="ct-stat"><div class="ct-stat-val" id="ctStatDetections">–</div><div class="ct-stat-label">Total Independent Events</div><div class="ct-stat-sub" id="ctStatDetSub">–</div></div>
+  <div class="ct-stat"><div class="ct-stat-val" id="ctStatDetections">–</div><div class="ct-stat-label">Number of individuals recorded</div><div class="ct-stat-sub" id="ctStatDetSub">–</div></div>
   <!-- Changed: Grids w/ Detections → Species Recorded -->
   <div class="ct-stat"><div class="ct-stat-val" id="ctStatSpecies">–</div><div class="ct-stat-label">Species Recorded</div><div class="ct-stat-sub" id="ctStatSpeciesSub"></div></div>
   <div class="ct-stat"><div class="ct-stat-val" id="ctStatTopGrid">–</div><div class="ct-stat-label">Highest Activity Grid</div><div class="ct-stat-sub" id="ctStatTopSub"></div></div>
@@ -940,7 +940,7 @@ function buildCtPoints(){
       <b style="font-size:14px">${sites||'Camera Location'}</b>
       <hr style="margin:5px 0;border-color:#e5e7eb">
       <div style="display:grid;grid-template-columns:1fr 1fr${cameras.length>1?' 1fr':''};gap:4px;margin-bottom:6px">
-        <div><span style="color:#9ca3af">Indep. Events</span><br><b style="color:#0ea5e9;font-size:15px">${totalCount}</b></div>
+        <div><span style="color:#9ca3af">Individuals recorded</span><br><b style="color:#0ea5e9;font-size:15px">${totalCount}</b></div>
         <div><span style="color:#9ca3af">Cameras (${cameras.length})</span><br><b>${cameras.slice(0,4).join(', ')}${cameras.length>4?'…':''}</b></div>
         ${avgLine}
       </div>
@@ -993,7 +993,7 @@ function openGridDetail(fi,totalCount,klassCounts,speciesCounts,camsInCell,dates
     <div class="gdp-big-count">
       <span class="gdp-count-num">${totalCount}</span>
       <div class="gdp-count-right">
-        <span class="gdp-count-label">Independent Events (per grid)</span>
+        <span class="gdp-count-label">Total individuals recorded (per grid)</span>
         <span class="gdp-count-badge" style="background:${levelCol}">${level}</span>
         ${numCams>0?`<span style="font-size:10px;color:#6b7280;margin-top:2px">${avgPerCam} avg/camera (${numCams} cam)</span>`:''}
       </div>
@@ -1043,7 +1043,7 @@ function updateCtStats(){
 
   // Sidebar summary — no batch row
   document.getElementById('ctSummaryBody').innerHTML=`
-    <div class="ct-stat-inline"><span>Total Indep. Events</span><span class="ct-stat-inline-val">${totalDet}</span></div>
+    <div class="ct-stat-inline"><span>Total individuals recorded</span><span class="ct-stat-inline-val">${totalDet}</span></div>
     <div class="ct-stat-inline"><span>Species Recorded</span><span class="ct-stat-inline-val">${totalSp}</span></div>
     <div class="ct-stat-inline"><span>Cameras Deployed</span><span class="ct-stat-inline-val">${totalCam}</span></div>
     <div class="ct-stat-inline"><span>Avg Events / Camera</span><span class="ct-stat-inline-val">${totalCam?Math.round(totalDet/totalCam):0}</span></div>
