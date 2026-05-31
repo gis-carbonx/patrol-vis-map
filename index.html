@@ -185,24 +185,19 @@
     .modal-close{position:absolute;top:18px;right:26px;color:#fff;font-size:28px;cursor:pointer;opacity:.7;transition:opacity .15s;line-height:1}
     .modal-close:hover{opacity:1}
     .loading-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);color:#fff;padding:12px 22px;border-radius:10px;font-size:12px;z-index:2000;display:none}
-
-    /* ── Basemap Switcher ── */
-    .basemap-panel{position:absolute;bottom:72px;left:280px;z-index:900;background:#fff;border:1.5px solid #e8eaed;border-radius:10px;padding:4px;display:flex;gap:4px;box-shadow:0 2px 8px rgba(0,0,0,.12)}
-    .bm-btn{padding:4px 9px;border-radius:7px;border:none;background:transparent;color:#374151;font-size:10px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap}
-    .bm-btn:hover{background:#f3f4f6}
-    .bm-btn.active{background:#111;color:#fff}
-
-    /* ── GFW Alert legend sub-label ── */
-    .legend-sub{font-size:9px;color:#9ca3af;padding:1px 16px 6px;line-height:1.4}
-
-    /* ── GFW conf color dots ── */
-    .conf-high{background:#ef4444}
-    .conf-nominal{background:#f59e0b}
+    /* Basemap switcher */
+    .basemap-switcher{position:absolute;bottom:120px;right:16px;z-index:900;background:#fff;border:1.5px solid #e8eaed;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.12);overflow:hidden}
+    .basemap-btn{display:block;width:100%;padding:7px 12px;border:none;background:transparent;font-size:10px;font-weight:600;font-family:'Montserrat',sans-serif;color:#374151;cursor:pointer;text-align:left;transition:background .12s;white-space:nowrap}
+    .basemap-btn:hover{background:#f3f4f6}
+    .basemap-btn.active{background:#2d6a2d;color:#fff}
+    .basemap-label{padding:5px 12px 3px;font-size:8px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #f3f4f6}
+    /* Legend section hidden state */
+    .legend-section-hidden{opacity:.35;pointer-events:none}
   </style>
 </head>
 <body>
 <div id="map"></div>
-<div class="loading-overlay" id="loadingOverlay">Loading data…</div>
+<div class="loading-overlay" id="loadingOverlay">Loading camera trap data…</div>
 
 <div class="top-bar">
   <div class="top-bar-left">
@@ -272,10 +267,9 @@
           <div class="layer-item-left"><div class="layer-icon-sq" style="background:#f5a623;border-radius:50%"></div><span class="layer-label">Patrol Points</span></div>
           <label class="switch"><input type="checkbox" id="togglePoints" checked><span class="sw-track"></span></label>
         </div>
-        <!-- GFW Disturbance Alerts layer toggle -->
         <div class="layer-item">
-          <div class="layer-item-left"><div class="layer-icon-sq" style="background:#ef4444;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px #ef4444"></div><span class="layer-label">GFW Disturbance Alerts</span></div>
-          <label class="switch"><input type="checkbox" id="toggleGFW" checked><span class="sw-track"></span></label>
+          <div class="layer-item-left"><div class="layer-icon-sq" style="background:#ff3b3b;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px #ff3b3b"></div><span class="layer-label">GFW Disturbance Alert</span></div>
+          <label class="switch"><input type="checkbox" id="toggleGfw"><span class="sw-track"></span></label>
         </div>
       </div>
       <div class="divider"></div>
@@ -296,26 +290,20 @@
         <div style="height:6px"></div>
       </div>
       <div class="divider"></div>
-      <!-- GFW Legend -->
-      <div class="sidebar-section-header" onclick="toggleSection('secGFWLeg','chevGFW')">
-        <span class="sidebar-section-title">GFW Disturbance Alerts</span>
-        <span class="sidebar-chevron open" id="chevGFW">▲</span>
-      </div>
-      <div id="secGFWLeg">
-        <div class="legend-sub" id="gfwLegendSub">Default: last 1 month · <span id="gfwAlertCount">–</span> alerts shown</div>
-        <div class="legend-item"><div class="legend-swatch conf-high" style="border-radius:50%"></div>High Confidence</div>
-        <div class="legend-item"><div class="legend-swatch conf-nominal" style="border-radius:50%"></div>Nominal Confidence</div>
-        <div class="legend-item" style="padding-top:4px">
-          <div style="width:14px;height:14px;border-radius:50%;background:#ef4444;border:2px solid #fff;box-shadow:0 0 0 1.5px #ef4444;flex-shrink:0"></div>
-          <span style="font-size:10px;color:#6b7280;margin-left:4px">Inside project area</span>
+      <!-- GFW Legend Section -->
+      <div id="secGfwLegend" style="display:none">
+        <div class="sidebar-section-header" onclick="toggleSection('secGfwLegBody','chevGfw')">
+          <span class="sidebar-section-title">GFW Disturbance Alert</span>
+          <span class="sidebar-chevron open" id="chevGfw">▲</span>
         </div>
-        <div class="legend-item" style="padding-bottom:6px">
-          <div style="width:14px;height:14px;border-radius:50%;background:#f59e0b;border:2px dashed #888;flex-shrink:0;opacity:.7"></div>
-          <span style="font-size:10px;color:#6b7280;margin-left:4px">Outside project area</span>
+        <div id="secGfwLegBody">
+          <div style="padding:4px 16px 2px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">Confidence Level</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#ff3b3b;border-radius:50%"></div>Nominal (High Confidence)</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#ff9500;border-radius:50%"></div>Low / Other Confidence</div>
+          <div style="padding:4px 16px 8px;font-size:9px;color:#9ca3af;line-height:1.4">Default: 1 bulan terakhir. Gunakan filter untuk ubah rentang tanggal.</div>
         </div>
-        <div class="legend-sub">Sources: GLAD, GLADS2, RADD · Click point for details</div>
+        <div class="divider"></div>
       </div>
-      <div class="divider"></div>
       <div class="sidebar-section-header" onclick="toggleSection('secFindings','chev3')">
         <span class="sidebar-section-title">Patrol Findings</span>
         <span class="sidebar-chevron open" id="chev3">▲</span>
@@ -426,47 +414,26 @@
         <div class="f-label">Finding</div>
         <select class="f-input" id="filterFinding"><option value="">All Findings</option></select>
       </div>
-      <!-- GFW date filter -->
-      <div style="border-top:1px solid #f3f4f6;margin:4px 0 8px;padding-top:10px">
-        <div style="font-size:10px;font-weight:700;color:#ef4444;margin-bottom:8px;display:flex;align-items:center;gap:5px">
-          <span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block"></span>
-          GFW Disturbance Alerts
+      <!-- GFW Date Filter -->
+      <div class="f-group" id="gfwFilterGroup" style="border-top:1px solid #f3f4f6;padding-top:12px;margin-top:4px">
+        <div class="f-label" style="color:#ef4444">GFW Alert — Date Range</div>
+        <div class="quick-date-row" id="gfwQuickDates" style="margin-bottom:6px">
+          <button class="qd-btn" data-preset="today" onclick="applyGfwQuickDate(this)">Today</button>
+          <button class="qd-btn" data-preset="1w" onclick="applyGfwQuickDate(this)">1W</button>
+          <button class="qd-btn active" data-preset="1m" onclick="applyGfwQuickDate(this)">1M</button>
+          <button class="qd-btn" data-preset="3m" onclick="applyGfwQuickDate(this)">3M</button>
+          <button class="qd-btn" data-preset="6m" onclick="applyGfwQuickDate(this)">6M</button>
+          <button class="qd-btn" data-preset="1y" onclick="applyGfwQuickDate(this)">1Y</button>
+          <button class="qd-btn" data-preset="all" onclick="applyGfwQuickDate(this)">All</button>
         </div>
-        <div class="f-group">
-          <div class="f-label">Alert Date Range</div>
-          <div class="quick-date-row" id="gfwQuickDates">
-            <button class="qd-btn" data-preset="1w" onclick="applyGFWQuickDate(this)">1W</button>
-            <button class="qd-btn active" data-preset="1m" onclick="applyGFWQuickDate(this)">1M</button>
-            <button class="qd-btn" data-preset="3m" onclick="applyGFWQuickDate(this)">3M</button>
-            <button class="qd-btn" data-preset="6m" onclick="applyGFWQuickDate(this)">6M</button>
-            <button class="qd-btn" data-preset="1y" onclick="applyGFWQuickDate(this)">1Y</button>
-            <button class="qd-btn" data-preset="all" onclick="applyGFWQuickDate(this)">All</button>
-          </div>
+        <div class="f-date-row">
+          <input type="date" class="f-input date-input" id="gfwStartDate" placeholder="From">
+          <input type="date" class="f-input date-input" id="gfwEndDate" placeholder="To">
         </div>
-        <div class="f-group">
-          <div class="f-label">Custom Alert Date</div>
-          <div class="f-date-row">
-            <input type="date" class="f-input date-input" id="gfwStartDate" placeholder="From">
-            <input type="date" class="f-input date-input" id="gfwEndDate" placeholder="To">
-          </div>
-        </div>
-        <div class="f-group">
-          <div class="f-label">Confidence Level</div>
-          <select class="f-input" id="filterGFWConf">
-            <option value="">All Confidence</option>
-            <option value="high">High</option>
-            <option value="nominal">Nominal</option>
-          </select>
-        </div>
-        <div class="f-group">
-          <div class="f-label">Alert Source</div>
-          <select class="f-input" id="filterGFWSource">
-            <option value="">All Sources</option>
-            <option value="GLAD">GLAD</option>
-            <option value="GLADS2">GLADS2</option>
-            <option value="RADD">RADD</option>
-          </select>
-        </div>
+      </div>
+      <div class="f-group">
+        <div class="f-label">GFW Confidence</div>
+        <select class="f-input" id="filterGfwConf"><option value="">All Confidence</option></select>
       </div>
       <div class="f-active-box" id="patrolActivePills" style="display:none">
         <div class="f-active-label">Active Filters</div>
@@ -506,12 +473,13 @@
   </div>
 </div>
 
-<!-- Basemap Switcher -->
-<div class="basemap-panel" id="basemapPanel">
-  <button class="bm-btn active" id="bm-satellite" onclick="switchBasemap('satellite')">Satellite</button>
-  <button class="bm-btn" id="bm-esri-satellite" onclick="switchBasemap('esri-satellite')">ESRI Sat</button>
-  <button class="bm-btn" id="bm-osm" onclick="switchBasemap('osm')">Street</button>
-  <button class="bm-btn" id="bm-dark" onclick="switchBasemap('dark')">Dark</button>
+<!-- Basemap switcher -->
+<div class="basemap-switcher" id="basemapSwitcher">
+  <div class="basemap-label">Basemap</div>
+  <button class="basemap-btn active" onclick="switchBasemap('esri_imagery')" id="bm_esri_imagery">ESRI Satellite</button>
+  <button class="basemap-btn" onclick="switchBasemap('esri_topo')" id="bm_esri_topo">ESRI Topo</button>
+  <button class="basemap-btn" onclick="switchBasemap('osm')" id="bm_osm">OpenStreetMap</button>
+  <button class="basemap-btn" onclick="switchBasemap('carto_dark')" id="bm_carto_dark">Dark (Carto)</button>
 </div>
 
 <!-- Zoom controls -->
@@ -555,9 +523,6 @@
 </div>
 
 <script>
-/* ══════════════════════════════════════════════
-   UTILITIES
-══════════════════════════════════════════════ */
 const PALETTE=['#3b82f6','#22c55e','#ef4444','#f59e0b','#a855f7','#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6'];
 const catColorMap={};
 function catColor(cat){if(!catColorMap[cat])catColorMap[cat]=PALETTE[Object.keys(catColorMap).length%PALETTE.length];return catColorMap[cat];}
@@ -655,30 +620,28 @@ function applyPatrolQuickDate(btn){
   applyPatrolFilters();
 }
 
-/* ══════════════════════════════════════════════
-   MAP INIT + BASEMAPS
-══════════════════════════════════════════════ */
-const map=L.map('map',{center:[0.8,110.325],zoom:13,zoomControl:false,attributionControl:false});
-
-// Basemap tile layers
+/* ══ BASEMAP ══ */
 const basemaps={
-  'satellite': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{opacity:0.85,maxZoom:19}),
-  'esri-satellite': L.tileLayer('https://clarity.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{opacity:0.92,maxZoom:19}),
-  'osm': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}),
-  'dark': L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19})
+  esri_imagery: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{opacity:0.85,attribution:'ESRI'}),
+  esri_topo: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{opacity:1,attribution:'ESRI'}),
+  osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{opacity:1,attribution:'OSM'}),
+  carto_dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{opacity:1,attribution:'Carto'})
 };
-let activeBasemap='satellite';
-basemaps['satellite'].addTo(map);
+let currentBasemap='esri_imagery';
 
-function switchBasemap(name){
-  if(name===activeBasemap)return;
-  map.removeLayer(basemaps[activeBasemap]);
-  basemaps[name].addTo(map);
-  // Make sure basemap stays below data layers
-  basemaps[name].bringToBack();
-  activeBasemap=name;
-  document.querySelectorAll('.bm-btn').forEach(b=>b.classList.toggle('active',b.id==='bm-'+name));
+function switchBasemap(id){
+  if(currentBasemap===id)return;
+  map.removeLayer(basemaps[currentBasemap]);
+  currentBasemap=id;
+  basemaps[id].addTo(map);
+  basemaps[id].bringToBack();
+  document.querySelectorAll('.basemap-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('bm_'+id).classList.add('active');
 }
+
+/* ── Map ── */
+const map=L.map('map',{center:[0.8,110.325],zoom:13,zoomControl:false,attributionControl:false});
+basemaps['esri_imagery'].addTo(map);
 
 const lulc        =L.tileLayer('./data/Tiles/{z}/{x}/{y}.png',{opacity:1}).addTo(map);
 const lulc2025    =L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',{opacity:1});
@@ -686,7 +649,7 @@ const landsat2024 =L.tileLayer('./data/landsat-2024/{z}/{x}/{y}.png',{opacity:1}
 const landsat2025 =L.tileLayer('./data/landsat-2025/{z}/{x}/{y}.png',{opacity:1});
 let boundaryLayer,mapBounds;
 const pointLayer  =L.layerGroup().addTo(map);
-const gfwLayer    =L.layerGroup().addTo(map);
+const gfwLayer    =L.layerGroup(); // default OFF
 const ctGridLayer =L.layerGroup();
 const ctPointLayer=L.layerGroup();
 let currentTab='patrol';
@@ -697,6 +660,132 @@ fetch('data/CMI.json').then(r=>r.json()).then(j=>{
   map.fitBounds(mapBounds,{paddingTopLeft:[0,0]});
 });
 function resetView(){if(mapBounds)map.fitBounds(mapBounds,{paddingTopLeft:[0,0]});}
+
+/* ══ GFW DATA ══ */
+const GFW_SHEET_URL='https://docs.google.com/spreadsheets/d/1UW3uOFcLr4AQFBp_VMbEXk37_Vb5DekHU-_9QSkskCo/export?format=csv&gid=0';
+let gfwRawData=[];
+let allGfwConf=[];
+// Default: last 1 month
+const{start:gfw1mStart,end:gfw1mEnd}=getPresetRange('1m');
+const GFW={start:gfw1mStart,end:gfw1mEnd,conf:''};
+// Set initial date inputs
+document.getElementById('gfwStartDate').value=gfw1mStart?toInputStr(gfw1mStart):'';
+document.getElementById('gfwEndDate').value=gfw1mEnd?toInputStr(gfw1mEnd):'';
+
+function applyGfwQuickDate(btn){
+  const{start,end}=getPresetRange(btn.dataset.preset);
+  GFW.start=start;GFW.end=end;
+  document.getElementById('gfwStartDate').value=start?toInputStr(start):'';
+  document.getElementById('gfwEndDate').value=end?toInputStr(end):'';
+  setActiveQuickBtn(document.getElementById('gfwQuickDates'),btn.dataset.preset);
+  updateGfwLayer();
+  applyPatrolFilters(); // refresh pills
+}
+
+Papa.parse(GFW_SHEET_URL,{download:true,header:true,skipEmptyLines:true,complete:(res)=>{
+  // Only Note = "Titik"
+  gfwRawData=res.data.filter(r=>(r['Note']||'').trim()==='Titik'&&r['latitude']&&r['longitude']);
+  // Collect all confidence values
+  const confSet=new Set();
+  gfwRawData.forEach(r=>{
+    const c=(r['Conf_Integrate']||r['conf_integrate']||'').trim();
+    if(c)confSet.add(c);
+  });
+  allGfwConf=[...confSet].sort();
+  // Populate conf filter
+  const sel=document.getElementById('filterGfwConf');
+  sel.innerHTML='<option value="">All Confidence</option>';
+  allGfwConf.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
+  // Initial render (layer is OFF by default, but data is ready)
+  // We still build but don't add to map
+  updateGfwLayer();
+}});
+
+function getGfwFiltered(){
+  return gfwRawData.filter(r=>{
+    const d=parseDateStr((r['Date']||r['date']||'').trim(),'ymd');
+    if(GFW.start!==null&&d&&d<GFW.start)return false;
+    if(GFW.end!==null&&d&&d>GFW.end)return false;
+    if(GFW.conf){
+      const c=(r['Conf_Integrate']||r['conf_integrate']||'').trim();
+      if(c!==GFW.conf)return false;
+    }
+    return true;
+  });
+}
+
+function gfwPointColor(r){
+  const c=(r['Conf_Integrate']||r['conf_integrate']||'').trim().toLowerCase();
+  if(c==='nominal')return'#ff3b3b';
+  return'#ff9500';
+}
+
+function updateGfwLayer(){
+  gfwLayer.clearLayers();
+  const filtered=getGfwFiltered();
+  filtered.forEach(r=>{
+    const lat=parseFloat(r['latitude']||r['Latitude']);
+    const lon=parseFloat(r['longitude']||r['Longitude']);
+    if(isNaN(lat)||isNaN(lon))return;
+    const color=gfwPointColor(r);
+    const date=(r['Date']||r['date']||'-').trim();
+    const conf=(r['Conf_Integrate']||r['conf_integrate']||'-').trim();
+    const desa=(r['Desa']||'-').trim();
+    const owner=(r['Owner']||'-').trim();
+    const blok=(r['Blok']||'-').trim();
+    const penutup=(r['Penutup_Lahan']||'-').trim();
+    const mk=L.marker([lat,lon],{icon:L.divIcon({
+      html:`<div style="width:10px;height:10px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,0.5)"></div>`,
+      className:'',iconSize:[10,10],iconAnchor:[5,5]
+    })});
+    mk.on('click',()=>{
+      document.getElementById('detailPanelTitle').textContent='GFW Disturbance Alert';
+      document.getElementById('detailBody').innerHTML=`
+        <div class="detail-cat-row"><div class="detail-cat-dot" style="background:${color}"></div><span class="detail-cat-name">Disturbance Alert</span></div>
+        <div style="height:6px"></div>
+        <div class="detail-row"><span class="detail-key">Date</span><span class="detail-val">${date}</span></div>
+        <div class="detail-row"><span class="detail-key">Confidence</span><span class="detail-val">${conf}</span></div>
+        <div class="detail-row"><span class="detail-key">Desa</span><span class="detail-val">${desa}</span></div>
+        <div class="detail-row"><span class="detail-key">Owner</span><span class="detail-val">${owner}</span></div>
+        <div class="detail-row"><span class="detail-key">Blok</span><span class="detail-val">${blok}</span></div>
+        <div class="detail-row"><span class="detail-key">Penutup Lahan</span><span class="detail-val">${penutup}</span></div>
+        <div class="detail-row"><span class="detail-key">Koordinat</span><span class="detail-val" style="font-size:9px">${lat.toFixed(5)}, ${lon.toFixed(5)}</span></div>
+        <div style="height:10px"></div>`;
+      document.getElementById('detailPanel').classList.add('open');
+    });
+    gfwLayer.addLayer(mk);
+  });
+}
+
+/* ══ GFW legend visibility ══ */
+function updateGfwLegendVisibility(){
+  const on=document.getElementById('toggleGfw').checked;
+  document.getElementById('secGfwLegend').style.display=on?'':'none';
+}
+
+/* ══ LULC legend visibility ══ */
+function updateLulcLegendVisibility(){
+  const on2023=document.getElementById('toggleLulc').checked;
+  const on2025=document.getElementById('toggleLulc2025').checked;
+  const legSection=document.getElementById('secLulcLeg');
+  const headerEl=legSection.previousElementSibling; // the sidebar-section-header
+  const anyOn=on2023||on2025;
+  legSection.style.opacity=anyOn?'':'0.35';
+  legSection.style.pointerEvents=anyOn?'':'none';
+  if(headerEl)headerEl.style.opacity=anyOn?'':'0.35';
+}
+
+/* ══ Camera legend sections visibility ══ */
+function updateCtLegendVisibility(){
+  const gridOn=document.getElementById('ctToggleGrid').checked;
+  const pointsOn=document.getElementById('ctTogglePoints').checked;
+  // Detection intensity legend follows grid
+  const gridLegSec=document.getElementById('secGridLeg');
+  const gridLegHeader=gridLegSec.previousElementSibling;
+  gridLegSec.style.opacity=gridOn?'':'0.35';
+  gridLegSec.style.pointerEvents=gridOn?'':'none';
+  if(gridLegHeader)gridLegHeader.style.opacity=gridOn?'':'0.35';
+}
 
 function switchTab(tab){
   currentTab=tab;
@@ -712,7 +801,7 @@ function switchTab(tab){
   document.getElementById('gridDetailPanel').classList.remove('open');
   if(tab==='patrol'){
     map.addLayer(pointLayer);
-    if(document.getElementById('toggleGFW').checked)map.addLayer(gfwLayer);
+    if(document.getElementById('toggleGfw').checked)map.addLayer(gfwLayer);
     map.removeLayer(ctGridLayer);map.removeLayer(ctPointLayer);
   } else {
     map.removeLayer(pointLayer);
@@ -730,9 +819,7 @@ filterToggleBtn.addEventListener('click',e=>{e.stopPropagation();filterPanel.cla
 document.getElementById('filterClose').addEventListener('click',()=>{filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');});
 document.addEventListener('click',e=>{if(filterPanel.classList.contains('open')&&!filterPanel.contains(e.target)&&e.target!==filterToggleBtn){filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');}});
 
-/* ══════════════════════════════════════════════
-   PATROL DATA
-══════════════════════════════════════════════ */
+/* ══ PATROL DATA ══ */
 const PATROL_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 let rawData=[],highlightCat=null;
 Papa.parse(PATROL_URL,{download:true,header:true,complete:(res)=>{
@@ -790,18 +877,19 @@ function buildPills(pills,wrapId,boxId){
 }
 function updatePatrolFilterUI(){
   const pills=[];
-  if(PF.start||PF.end)pills.push({label:`${fmtDate(PF.start)} – ${fmtDate(PF.end)}`,clear:`clearPatrolDateFilter()`});
+  if(PF.start||PF.end)pills.push({label:`Patrol: ${fmtDate(PF.start)} – ${fmtDate(PF.end)}`,clear:`clearPatrolDateFilter()`});
   if(PF.officer) pills.push({label:fmtLabel(PF.officer), clear:`clearPatrolField('officer')`});
   if(PF.category)pills.push({label:fmtLabel(PF.category),clear:`clearPatrolField('category')`});
   if(PF.finding) pills.push({label:fmtLabel(PF.finding), clear:`clearPatrolField('finding')`});
-  if(GFWF.start||GFWF.end)pills.push({label:`Alert: ${fmtDate(GFWF.start)} – ${fmtDate(GFWF.end)}`,clear:`clearGFWDateFilter()`});
-  if(GFWF.conf)  pills.push({label:`Conf: ${GFWF.conf}`, clear:`clearGFWField('conf')`});
-  if(GFWF.source)pills.push({label:`Src: ${GFWF.source}`,clear:`clearGFWField('source')`});
+  if(GFW.start||GFW.end)pills.push({label:`GFW: ${fmtDate(GFW.start)} – ${fmtDate(GFW.end)}`,clear:`clearGfwDateFilter()`});
+  if(GFW.conf)   pills.push({label:`GFW Conf: ${GFW.conf}`,clear:`clearGfwField('conf')`});
   buildPills(pills,'patrolPillsWrap','patrolActivePills');
   document.getElementById('filterBadge').style.display=pills.length>0?'flex':'none';
 }
 function clearPatrolDateFilter(){PF.start=null;PF.end=null;document.getElementById('startDate').value='';document.getElementById('endDate').value='';setActiveQuickBtn(document.getElementById('patrolQuickDates'),'all');applyPatrolFilters();}
 function clearPatrolField(f){if(f==='officer'){PF.officer='';document.getElementById('filterOfficer').value='';}if(f==='category'){PF.category='';document.getElementById('filterCategory').value='';}if(f==='finding'){PF.finding='';document.getElementById('filterFinding').value='';}applyPatrolFilters();}
+function clearGfwDateFilter(){GFW.start=null;GFW.end=null;document.getElementById('gfwStartDate').value='';document.getElementById('gfwEndDate').value='';setActiveQuickBtn(document.getElementById('gfwQuickDates'),'all');updateGfwLayer();applyPatrolFilters();}
+function clearGfwField(f){if(f==='conf'){GFW.conf='';document.getElementById('filterGfwConf').value='';}updateGfwLayer();applyPatrolFilters();}
 
 function makeIcon(color,faded=false){return L.divIcon({html:`<div style="width:12px;height:12px;border-radius:50%;background:${color};border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);opacity:${faded?0.18:1}"></div>`,className:'',iconSize:[12,12],iconAnchor:[6,6]});}
 function updateMap(){
@@ -812,12 +900,13 @@ function updateMap(){
     const lat=parseFloat(parts[0]),lon=parseFloat(parts[1]);if(isNaN(lat)||isNaN(lon))return;
     const cat=r['data-survey-categ']||'Unknown';catCounts[cat]=(catCounts[cat]||0)+1;
     const mk=L.marker([lat,lon],{icon:makeIcon(catColor(cat))});
-    mk.category=cat;mk.on('click',()=>openDetail(r));allMarkers.push(mk);pointLayer.addLayer(mk);
+    mk.category=cat;mk.on('click',()=>{
+      document.getElementById('detailPanelTitle').textContent='Patrol Finding';
+      openDetail(r);
+    });allMarkers.push(mk);pointLayer.addLayer(mk);
   });
   if(highlightCat)allMarkers.forEach(mk=>mk.setIcon(makeIcon(catColor(mk.category),mk.category!==highlightCat)));
   buildBottomBar(catCounts);buildFindingsLegend(catCounts);
-  // Also refresh GFW layer when patrol map updates
-  buildGFWLayer();
 }
 function buildBottomBar(catCounts){
   const bar=document.getElementById('bottomBar');
@@ -841,7 +930,6 @@ function buildDetailSlider(imgs,uid){
 }
 function dsMv(uid,dir){const c=document.getElementById(uid);if(!c)return;const n=c.querySelectorAll('.slide').length;let idx=((dsIndex[uid]||0)+dir+n)%n;dsIndex[uid]=idx;c.querySelector('.slides').style.transform=`translateX(-${idx*100}%)`;c.querySelectorAll('.ds-dots span').forEach((d,i)=>d.classList.toggle('active',i===idx));}
 function openDetail(r){
-  document.getElementById('detailPanelTitle').textContent='Patrol Finding';
   const cat=r['data-survey-categ']||'Unknown',finding=r['data-survey-finding']||'-',col=catColor(cat);
   const imgs=[convert(r['data-documentation-image_1']),convert(r['data-documentation-image_2'])].filter(Boolean);
   const uid='ds_'+Math.random().toString(36).slice(2,7);
@@ -862,182 +950,7 @@ function openDetail(r){
 }
 document.getElementById('detailClose').onclick=()=>document.getElementById('detailPanel').classList.remove('open');
 
-
-const GFW_URL='https://docs.google.com/spreadsheets/d/1UW3uOFcLr4AQFBp_VMbEXk37_Vb5DekHU-_9QSkskCo/export?format=csv&gid=0';
-let gfwRawData=[];
-let gfwLoaded=false;
-
-const GFWF={
-  start: (()=>{const d=new Date();d.setMonth(d.getMonth()-1);return toMidnight(d.getFullYear(),d.getMonth(),d.getDate());})(),
-  end: null,
-  conf: '',
-  source: ''
-};
-
-function loadGFWData(){
-  if(gfwLoaded)return;
-  document.getElementById('loadingOverlay').style.display='block';
-  document.getElementById('loadingOverlay').textContent='Loading GFW alert data…';
-  Papa.parse(GFW_URL,{
-    download:true,header:false,skipEmptyLines:true,
-    complete:(res)=>{
-      const rows=res.data;
-      gfwRawData=rows.slice(1).map(r=>({
-        latitude:   parseFloat(r[0]),
-        longitude:  parseFloat(r[1]),
-        Date:       r[2]||'',
-        Conf_Integrate: (r[3]||'').trim().toLowerCase(),
-        Conf_GLADL: (r[4]||'').trim().toLowerCase(),
-        Conf_GLADS2:(r[5]||'').trim().toLowerCase(),
-        Conf_RADD:  (r[6]||'').trim().toLowerCase(),
-        Desa:       r[7]||'',
-        Owner:      r[8]||'',
-        Blok:       r[9]||'',
-        Penutup_Lahan: r[10]||'',
-        Note:       r[11]||''
-      })).filter(r=>!isNaN(r.latitude)&&!isNaN(r.longitude));
-      gfwLoaded=true;
-      document.getElementById('loadingOverlay').style.display='none';
-      buildGFWLayer();
-    },
-    error:()=>{
-      document.getElementById('loadingOverlay').style.display='none';
-      console.warn('GFW data load failed');
-    }
-  });
-}
-
-
-function gfwConf(row){
-  const ci=row.Conf_Integrate;
-  if(ci==='high')return 'high';
-  return 'nominal';
-}
-
-function gfwActiveSources(row){
-  const src=[];
-  if(row.Conf_GLADL&&row.Conf_GLADL!=='not_detected')src.push('GLAD');
-  if(row.Conf_GLADS2&&row.Conf_GLADS2!=='not_detected')src.push('GLADS2');
-  if(row.Conf_RADD&&row.Conf_RADD!=='not_detected')src.push('RADD');
-  return src;
-}
-
-function gfwFilteredData(){
-  return gfwRawData.filter(r=>{
-    // Date filter
-    const rd=parseDateStr(r.Date,'ymd');
-    if(GFWF.start&&rd&&rd<GFWF.start)return false;
-    if(GFWF.end&&rd&&rd>GFWF.end)return false;
-    // Confidence filter
-    if(GFWF.conf&&gfwConf(r)!==GFWF.conf)return false;
-    // Source filter
-    if(GFWF.source){
-      const sources=gfwActiveSources(r);
-      if(!sources.includes(GFWF.source))return false;
-    }
-    return true;
-  });
-}
-
-function buildGFWLayer(){
-  gfwLayer.clearLayers();
-  if(!gfwLoaded)return;
-  const filtered=gfwFilteredData();
-
-  filtered.forEach(r=>{
-    const conf=gfwConf(r);
-    const isInside=r.Owner&&r.Owner.toLowerCase()!=='outside project area';
-    const color=conf==='high'?'#ef4444':'#f59e0b';
-    const opacity=isInside?1:0.55;
-    const size=conf==='high'?11:9;
-    const border=isInside?'2px solid #fff':'2px dashed rgba(255,255,255,.6)';
-    const shadow=isInside?'0 0 0 1.5px '+color+', 0 1px 5px rgba(0,0,0,0.4)':'0 1px 4px rgba(0,0,0,0.25)';
-
-    const icon=L.divIcon({
-      html:`<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:${border};box-shadow:${shadow};opacity:${opacity}"></div>`,
-      className:'',iconSize:[size,size],iconAnchor:[size/2,size/2]
-    });
-
-    const sources=gfwActiveSources(r).join(', ')||'–';
-    const mk=L.marker([r.latitude,r.longitude],{icon});
-    mk.bindPopup(`
-      <div style="font-family:Montserrat,Arial;font-size:12px;min-width:220px">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-          <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></div>
-          <b style="font-size:13px">GFW Disturbance Alert</b>
-        </div>
-        <hr style="margin:4px 0;border-color:#e5e7eb">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;font-size:11px">
-          <span style="color:#9ca3af">Date</span><b>${r.Date||'–'}</b>
-          <span style="color:#9ca3af">Confidence</span><b style="color:${color}">${conf.charAt(0).toUpperCase()+conf.slice(1)}</b>
-          <span style="color:#9ca3af">Sources</span><b>${sources}</b>
-          <span style="color:#9ca3af">Desa</span><b>${r.Desa||'–'}</b>
-          <span style="color:#9ca3af">Owner</span><b>${r.Owner||'–'}</b>
-          <span style="color:#9ca3af">Land Cover</span><b>${r.Penutup_Lahan||'–'}</b>
-          ${r.Blok?`<span style="color:#9ca3af">Blok</span><b>${r.Blok}</b>`:''}
-        </div>
-        ${r.Note?`<div style="margin-top:5px;font-size:10px;color:#6b7280;padding:4px 6px;background:#f9fafb;border-radius:5px">${r.Note}</div>`:''}
-      </div>
-    `,{maxWidth:300});
-    gfwLayer.addLayer(mk);
-  });
-
-  // Update legend subtitle
-  const sub=document.getElementById('gfwLegendSub');
-  if(sub){
-    let label='Default: last 1 month';
-    if(GFWF.start&&GFWF.end)label=`${fmtDate(GFWF.start)} – ${fmtDate(GFWF.end)}`;
-    else if(GFWF.start)label=`From ${fmtDate(GFWF.start)}`;
-    else if(GFWF.end)label=`Until ${fmtDate(GFWF.end)}`;
-    document.getElementById('gfwAlertCount').textContent=filtered.length;
-    sub.innerHTML=`${label} · <span id="gfwAlertCount">${filtered.length}</span> alerts shown`;
-  }
-}
-
-// GFW filter state helpers
-function applyGFWQuickDate(btn){
-  const{start,end}=getPresetRange(btn.dataset.preset);
-  GFWF.start=start;GFWF.end=end;
-  document.getElementById('gfwStartDate').value=start?toInputStr(start):'';
-  document.getElementById('gfwEndDate').value=end?toInputStr(end):'';
-  setActiveQuickBtn(document.getElementById('gfwQuickDates'),btn.dataset.preset);
-  buildGFWLayer();updatePatrolFilterUI();
-}
-function clearGFWDateFilter(){
-  // Reset to default 1 month
-  const d=new Date();d.setMonth(d.getMonth()-1);
-  GFWF.start=toMidnight(d.getFullYear(),d.getMonth(),d.getDate());
-  GFWF.end=null;
-  document.getElementById('gfwStartDate').value=toInputStr(GFWF.start);
-  document.getElementById('gfwEndDate').value='';
-  setActiveQuickBtn(document.getElementById('gfwQuickDates'),'1m');
-  buildGFWLayer();updatePatrolFilterUI();
-}
-function clearGFWField(f){
-  if(f==='conf'){GFWF.conf='';document.getElementById('filterGFWConf').value='';}
-  if(f==='source'){GFWF.source='';document.getElementById('filterGFWSource').value='';}
-  buildGFWLayer();updatePatrolFilterUI();
-}
-
-// GFW layer toggle
-document.getElementById('toggleGFW').onchange=e=>{
-  if(e.target.checked){
-    map.addLayer(gfwLayer);
-    if(!gfwLoaded)loadGFWData();
-  } else {
-    map.removeLayer(gfwLayer);
-  }
-};
-
-// GFW filter event listeners
-document.getElementById('gfwStartDate').addEventListener('change',e=>{GFWF.start=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('gfwQuickDates'),'');buildGFWLayer();updatePatrolFilterUI();});
-document.getElementById('gfwEndDate').addEventListener('change',e=>{GFWF.end=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('gfwQuickDates'),'');buildGFWLayer();updatePatrolFilterUI();});
-document.getElementById('filterGFWConf').addEventListener('change',e=>{GFWF.conf=e.target.value;buildGFWLayer();updatePatrolFilterUI();});
-document.getElementById('filterGFWSource').addEventListener('change',e=>{GFWF.source=e.target.value;buildGFWLayer();updatePatrolFilterUI();});
-
-// Load GFW data on page init (since layer is on by default)
-loadGFWData();
-
+/* ══ CAMERA TRAP DATA ══ */
 const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
 const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
 const CT_GRID_URL='./data/grid.geojson';
@@ -1049,7 +962,6 @@ let allCtBatches=[],allCtSites=[],allCtClasses=[],allCtSpecies=[],allCtIucns=[];
 function loadCameraData(){
   if(ctLoaded)return;
   document.getElementById('loadingOverlay').style.display='block';
-  document.getElementById('loadingOverlay').textContent='Loading camera trap data…';
   const p1=fetch(CT_GRID_URL).then(r=>r.json()).then(j=>{ctGridGeo=j;}).catch(e=>console.warn('Grid fail:',e));
   const p2=new Promise(resolve=>{
     Papa.parse(CT_SHEET_URL,{download:true,header:false,skipEmptyLines:true,complete:(res)=>{
@@ -1305,10 +1217,12 @@ function updateCtStats(){
   const totalLok=new Set(filtered.map(r=>`${r.Latitude.toFixed(4)}_${r.Longitude.toFixed(4)}`)).size;
   const klassCounts={};
   filtered.forEach(r=>{if(r.Class)klassCounts[r.Class]=(klassCounts[r.Class]||0)+r.Indep;});
+
   const{total:trapNights,detail:tnDetail}=calcTrapNights(filtered);
   const totalBatches=tnDetail.length;
   const totalCamsAcrossBatches=tnDetail.reduce((s,d)=>s+d.cams,0);
   const tnSub=totalBatches>0?`${totalBatches} batch${totalBatches>1?'es':''} · ${totalCamsAcrossBatches} cam-deployments`:'';
+
   let topGrid='–',topCount=0;
   if(ctGridGeo){
     ctGridGeo.features.forEach((feat,fi)=>{
@@ -1317,6 +1231,7 @@ function updateCtStats(){
       if(det>topCount){topCount=det;topGrid=`G-${String(fi).padStart(3,'0')}`;}
     });
   }
+
   document.getElementById('ctSummaryBody').innerHTML=`
     <div class="ct-stat-inline"><span>Total individuals recorded</span><span class="ct-stat-inline-val">${totalDet}</span></div>
     <div class="ct-stat-inline"><span>Species Recorded</span><span class="ct-stat-inline-val">${totalSp}</span></div>
@@ -1326,6 +1241,7 @@ function updateCtStats(){
     <div class="ct-stat-inline"><span>Total Trap-Nights</span><span class="ct-stat-inline-val">${trapNights}</span></div>
     <div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">By Class</div>
     ${Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="ct-stat-inline"><span>${k}</span><span class="ct-stat-inline-val">${v} (${totalDet?Math.round(v/totalDet*100):0}%)</span></div>`).join('')}`;
+
   document.getElementById('ctStatCameras').textContent=totalCam;
   document.getElementById('ctStatDetections').textContent=totalDet;
   document.getElementById('ctStatDetSub').textContent=`${totalSp} species recorded`;
@@ -1360,31 +1276,55 @@ document.getElementById('filterFinding').addEventListener('change',e=>{PF.findin
 document.getElementById('clearFilters').onclick=()=>{
   PF.start=null;PF.end=null;PF.officer='';PF.category='';PF.finding='';
   document.getElementById('startDate').value='';document.getElementById('endDate').value='';
-  // Reset GFW to default 1 month
-  const d=new Date();d.setMonth(d.getMonth()-1);
-  GFWF.start=toMidnight(d.getFullYear(),d.getMonth(),d.getDate());GFWF.end=null;GFWF.conf='';GFWF.source='';
-  document.getElementById('gfwStartDate').value=toInputStr(GFWF.start);
-  document.getElementById('gfwEndDate').value='';
-  document.getElementById('filterGFWConf').value='';
-  document.getElementById('filterGFWSource').value='';
-  setActiveQuickBtn(document.getElementById('gfwQuickDates'),'1m');
+  GFW.start=null;GFW.end=null;GFW.conf='';
+  document.getElementById('gfwStartDate').value='';document.getElementById('gfwEndDate').value='';
+  document.getElementById('filterGfwConf').value='';
   highlightCat=null;
   setActiveQuickBtn(document.getElementById('patrolQuickDates'),'all');
+  setActiveQuickBtn(document.getElementById('gfwQuickDates'),'all');
+  updateGfwLayer();
   applyPatrolFilters();
-  buildGFWLayer();
 };
 
+/* ── GFW filter listeners ── */
+document.getElementById('gfwStartDate').addEventListener('change',e=>{GFW.start=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('gfwQuickDates'),'');updateGfwLayer();applyPatrolFilters();});
+document.getElementById('gfwEndDate').addEventListener('change',e=>{GFW.end=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('gfwQuickDates'),'');updateGfwLayer();applyPatrolFilters();});
+document.getElementById('filterGfwConf').addEventListener('change',e=>{GFW.conf=e.target.value;updateGfwLayer();applyPatrolFilters();});
+
 /* ── Layer toggles ── */
-document.getElementById('toggleLulc').onchange        =e=>e.target.checked?map.addLayer(lulc)        :map.removeLayer(lulc);
-document.getElementById('toggleLulc2025').onchange    =e=>e.target.checked?map.addLayer(lulc2025)    :map.removeLayer(lulc2025);
-document.getElementById('toggleLandsat2024').onchange =e=>e.target.checked?map.addLayer(landsat2024) :map.removeLayer(landsat2024);
-document.getElementById('toggleLandsat2025').onchange =e=>e.target.checked?map.addLayer(landsat2025) :map.removeLayer(landsat2025);
-document.getElementById('toggleBoundary').onchange    =e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
-document.getElementById('togglePoints').onchange      =e=>e.target.checked?map.addLayer(pointLayer)  :map.removeLayer(pointLayer);
-document.getElementById('ctToggleBoundary').onchange  =e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
-document.getElementById('ctToggleLulc').onchange      =e=>e.target.checked?map.addLayer(lulc)        :map.removeLayer(lulc);
-document.getElementById('ctToggleGrid').onchange      =e=>e.target.checked?map.addLayer(ctGridLayer) :map.removeLayer(ctGridLayer);
-document.getElementById('ctTogglePoints').onchange    =e=>e.target.checked?map.addLayer(ctPointLayer):map.removeLayer(ctPointLayer);
+document.getElementById('toggleLulc').onchange=e=>{
+  e.target.checked?map.addLayer(lulc):map.removeLayer(lulc);
+  updateLulcLegendVisibility();
+};
+document.getElementById('toggleLulc2025').onchange=e=>{
+  e.target.checked?map.addLayer(lulc2025):map.removeLayer(lulc2025);
+  updateLulcLegendVisibility();
+};
+document.getElementById('toggleLandsat2024').onchange=e=>e.target.checked?map.addLayer(landsat2024):map.removeLayer(landsat2024);
+document.getElementById('toggleLandsat2025').onchange=e=>e.target.checked?map.addLayer(landsat2025):map.removeLayer(landsat2025);
+document.getElementById('toggleBoundary').onchange=e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
+document.getElementById('togglePoints').onchange=e=>{
+  e.target.checked?map.addLayer(pointLayer):map.removeLayer(pointLayer);
+  // findings legend follows patrol points
+  const sec=document.getElementById('secFindings');
+  sec.style.opacity=e.target.checked?'':'0.35';
+  sec.style.pointerEvents=e.target.checked?'':'none';
+};
+document.getElementById('toggleGfw').onchange=e=>{
+  if(e.target.checked){map.addLayer(gfwLayer);}
+  else{map.removeLayer(gfwLayer);}
+  updateGfwLegendVisibility();
+};
+document.getElementById('ctToggleBoundary').onchange=e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
+document.getElementById('ctToggleLulc').onchange=e=>e.target.checked?map.addLayer(lulc):map.removeLayer(lulc);
+document.getElementById('ctToggleGrid').onchange=e=>{
+  e.target.checked?map.addLayer(ctGridLayer):map.removeLayer(ctGridLayer);
+  updateCtLegendVisibility();
+};
+document.getElementById('ctTogglePoints').onchange=e=>{
+  e.target.checked?map.addLayer(ctPointLayer):map.removeLayer(ctPointLayer);
+  updateCtLegendVisibility();
+};
 
 function toggleSection(id,chevId){const el=document.getElementById(id),ch=document.getElementById(chevId);const hidden=el.style.display==='none';el.style.display=hidden?'':'none';ch.classList.toggle('open',hidden);ch.textContent=hidden?'▲':'▼';}
 function openModal(src){imageModal.style.display='flex';modalImage.src=src;}
@@ -1392,8 +1332,9 @@ document.getElementById('closeModal').onclick=()=>imageModal.style.display='none
 imageModal.onclick=e=>{if(e.target===imageModal)imageModal.style.display='none';};
 document.getElementById('ctBottomBar').style.display='none';
 
-// Set default GFW date in filter inputs
-document.getElementById('gfwStartDate').value=toInputStr(GFWF.start);
+// Init legend states
+updateLulcLegendVisibility();
+updateGfwLegendVisibility();
 </script>
 </body>
 </html>
