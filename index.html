@@ -109,7 +109,7 @@
     .filter-badge{display:none;position:absolute;top:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#ef4444;font-size:8px;font-weight:700;color:#fff;align-items:center;justify-content:center}
 
     /* ── Bottom bars ── */
-    .bottom-bar{position:absolute;bottom:0;left:268px;right:0;z-index:900;background:#fff;border-top:1px solid #e8eaed;display:flex;align-items:center;height:52px;overflow:hidden}
+    .bottom-bar{position:absolute;bottom:0;left:268px;right:0;z-index:900;background:#fff;border-top:1px solid #e8eaed;display:flex;align-items:center;height:72px;overflow:hidden}
     .bottom-cat{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 6px;border-right:1px solid #f3f4f6;cursor:pointer;transition:background .15s;height:100%}
     .bottom-cat:last-child{border-right:none}
     .bottom-cat:hover{background:#f9fafb}
@@ -194,7 +194,7 @@
     .ct-stat-inline-val{font-weight:700;color:#0ea5e9}
 
     /* ── Zoom controls ── */
-    .map-zoom{position:absolute;bottom:72px;right:16px;z-index:900;display:flex;flex-direction:column;gap:2px}
+    .map-zoom{position:absolute;bottom:92px;right:16px;z-index:900;display:flex;flex-direction:column;gap:2px}
     .zoom-btn{width:32px;height:32px;background:#fff;border:1.5px solid #e8eaed;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:#374151;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:background .15s;font-weight:300;line-height:1}
     .zoom-btn:hover{background:#f9fafb}
 
@@ -208,7 +208,7 @@
     /* ── Basemap picker — modern pill style, bottom-left ── */
     .basemap-panel{
       position:absolute;
-      bottom:64px;
+      bottom:84px;
       left:284px;
       z-index:900;
       display:flex;
@@ -617,9 +617,7 @@
 </div>
 
 <script>
-/* ═══════════════════════════════════════════════════
-   UTILITIES
-═══════════════════════════════════════════════════ */
+
 const PALETTE=['#3b82f6','#22c55e','#ef4444','#f59e0b','#a855f7','#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6'];
 const catColorMap={};
 function catColor(cat){if(!catColorMap[cat])catColorMap[cat]=PALETTE[Object.keys(catColorMap).length%PALETTE.length];return catColorMap[cat];}
@@ -695,9 +693,6 @@ function getPresetRange(preset){
 }
 function setActiveQuickBtn(container,preset){container.querySelectorAll('.qd-btn').forEach(b=>b.classList.toggle('active',b.dataset.preset===preset));}
 
-/* ═══════════════════════════════════════════════════
-   BASEMAP
-═══════════════════════════════════════════════════ */
 const basemaps={
   esri_imagery:L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{opacity:0.85}),
   esri_topo:   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{opacity:1}),
@@ -715,9 +710,6 @@ function switchBasemap(id){
   document.getElementById('bm_'+id).classList.add('active');
 }
 
-/* ═══════════════════════════════════════════════════
-   MAP INIT
-═══════════════════════════════════════════════════ */
 const map=L.map('map',{center:[0.8,110.325],zoom:13,zoomControl:false,attributionControl:false});
 basemaps['esri_imagery'].addTo(map);
 
@@ -736,7 +728,7 @@ let currentTab='patrol';
 
 // GFW cluster group — off by default
 const gfwCluster=L.markerClusterGroup({
-  maxClusterRadius:40,
+  maxClusterRadius:25,
   disableClusteringAtZoom:14,
   spiderfyOnMaxZoom:true,
   showCoverageOnHover:false,
@@ -757,9 +749,6 @@ fetch('data/CMI.json').then(r=>r.json()).then(j=>{
 });
 function resetView(){if(mapBounds)map.fitBounds(mapBounds,{paddingTopLeft:[0,0]});}
 
-/* ═══════════════════════════════════════════════════
-   TAB SWITCH
-═══════════════════════════════════════════════════ */
 function switchTab(tab){
   currentTab=tab;
   document.getElementById('tabPatrol').classList.toggle('active',tab==='patrol');
@@ -791,9 +780,6 @@ filterToggleBtn.addEventListener('click',e=>{e.stopPropagation();filterPanel.cla
 document.getElementById('filterClose').addEventListener('click',()=>{filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');});
 document.addEventListener('click',e=>{if(filterPanel.classList.contains('open')&&!filterPanel.contains(e.target)&&e.target!==filterToggleBtn){filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');}});
 
-/* ═══════════════════════════════════════════════════
-   GFW DATA  — canvas circleMarker + cluster
-═══════════════════════════════════════════════════ */
 const GFW_SHEET_URL='https://docs.google.com/spreadsheets/d/1UW3uOFcLr4AQFBp_VMbEXk37_Vb5DekHU-_9QSkskCo/export?format=csv&gid=0';
 let gfwRawData=[];
 let allGfwConf=[];
@@ -891,9 +877,6 @@ function updateGfwLegendVisibility(){
   document.getElementById('secGfwLegend').style.display=document.getElementById('toggleGfw').checked?'':'none';
 }
 
-/* ═══════════════════════════════════════════════════
-   PATROL DATA
-═══════════════════════════════════════════════════ */
 const PATROL_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 let rawData=[],highlightCat=null;
 
@@ -1037,9 +1020,6 @@ function openDetail(r){
 }
 document.getElementById('detailClose').onclick=()=>document.getElementById('detailPanel').classList.remove('open');
 
-/* ═══════════════════════════════════════════════════
-   CAMERA TRAP DATA
-═══════════════════════════════════════════════════ */
 const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
 const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
 const CT_GRID_URL='./data/grid.geojson';
