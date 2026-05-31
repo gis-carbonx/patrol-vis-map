@@ -508,10 +508,10 @@
 
 <!-- Basemap Switcher -->
 <div class="basemap-panel" id="basemapPanel">
-  <button class="bm-btn active" id="bm-satellite" onclick="switchBasemap('satellite')">🛰 Satellite</button>
-  <button class="bm-btn" id="bm-esri-satellite" onclick="switchBasemap('esri-satellite')">🛰 ESRI Sat</button>
-  <button class="bm-btn" id="bm-osm" onclick="switchBasemap('osm')">🗺 Street</button>
-  <button class="bm-btn" id="bm-dark" onclick="switchBasemap('dark')">🌑 Dark</button>
+  <button class="bm-btn active" id="bm-satellite" onclick="switchBasemap('satellite')">Satellite</button>
+  <button class="bm-btn" id="bm-esri-satellite" onclick="switchBasemap('esri-satellite')">ESRI Sat</button>
+  <button class="bm-btn" id="bm-osm" onclick="switchBasemap('osm')">Street</button>
+  <button class="bm-btn" id="bm-dark" onclick="switchBasemap('dark')">Dark</button>
 </div>
 
 <!-- Zoom controls -->
@@ -862,17 +862,11 @@ function openDetail(r){
 }
 document.getElementById('detailClose').onclick=()=>document.getElementById('detailPanel').classList.remove('open');
 
-/* ══════════════════════════════════════════════
-   GFW DISTURBANCE ALERTS
-   Sheet: https://docs.google.com/spreadsheets/d/1UW3uOFcLr4AQFBp_VMbEXk37_Vb5DekHU-_9QSkskCo
-   Columns (0-based): latitude, longitude, Date, Conf_Integrated, Conf_GLADL,
-   Conf_GLADS2, Conf_RADD, Desa, Owner, Blok, Penutup_Lahan, Note
-══════════════════════════════════════════════ */
+
 const GFW_URL='https://docs.google.com/spreadsheets/d/1UW3uOFcLr4AQFBp_VMbEXk37_Vb5DekHU-_9QSkskCo/export?format=csv&gid=0';
 let gfwRawData=[];
 let gfwLoaded=false;
 
-// GFW filters — default to last 1 month
 const GFWF={
   start: (()=>{const d=new Date();d.setMonth(d.getMonth()-1);return toMidnight(d.getFullYear(),d.getMonth(),d.getDate());})(),
   end: null,
@@ -888,7 +882,6 @@ function loadGFWData(){
     download:true,header:false,skipEmptyLines:true,
     complete:(res)=>{
       const rows=res.data;
-      // First row is header: latitude, longitude, Date, Conf_Integrate, Conf_GLADL, Conf_GLADS2, Conf_RADD, Desa, Owner, Blok, Penutup_Lahan, Note
       gfwRawData=rows.slice(1).map(r=>({
         latitude:   parseFloat(r[0]),
         longitude:  parseFloat(r[1]),
@@ -914,15 +907,13 @@ function loadGFWData(){
   });
 }
 
-/* Determine confidence level from a GFW row.
-   "high" = Conf_Integrate is "high", else "nominal" */
+
 function gfwConf(row){
   const ci=row.Conf_Integrate;
   if(ci==='high')return 'high';
   return 'nominal';
 }
 
-/* Active source detection: row is positive if any of GLAD/GLADS2/RADD is not "not_detected" */
 function gfwActiveSources(row){
   const src=[];
   if(row.Conf_GLADL&&row.Conf_GLADL!=='not_detected')src.push('GLAD');
@@ -1047,9 +1038,6 @@ document.getElementById('filterGFWSource').addEventListener('change',e=>{GFWF.so
 // Load GFW data on page init (since layer is on by default)
 loadGFWData();
 
-/* ══════════════════════════════════════════════
-   CAMERA TRAP DATA
-══════════════════════════════════════════════ */
 const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
 const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
 const CT_GRID_URL='./data/grid.geojson';
