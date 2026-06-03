@@ -77,6 +77,9 @@
     .grid-legend-item{display:flex;align-items:center;gap:8px;padding:3px 16px;font-size:11px;color:#4b5563}
     .grid-legend-swatch{width:18px;height:14px;border-radius:2px;flex-shrink:0;border:1px solid rgba(0,0,0,.1)}
 
+    /* ── Track line legend ── */
+    .track-line-swatch{width:22px;height:4px;border-radius:2px;flex-shrink:0}
+
     /* ── Filter panel ── */
     .filter-panel{position:absolute;top:64px;right:16px;z-index:1300;width:320px;background:#fff;border-radius:14px;border:1px solid #e8eaed;box-shadow:0 8px 32px rgba(0,0,0,.16);display:none;flex-direction:column;max-height:calc(100vh - 80px);overflow:hidden}
     .filter-panel.open{display:flex}
@@ -127,7 +130,7 @@
     .ct-stat-sub{font-size:8px;color:#4b5563;text-align:center}
 
     /* ── Detail panels ── */
-    .detail-panel{position:absolute;top:68px;right:16px;bottom:64px;z-index:1000;width:296px;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.14);display:none;flex-direction:column;overflow:hidden}
+    .detail-panel{position:absolute;top:68px;right:16px;bottom:84px;z-index:1000;width:296px;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.14);display:none;flex-direction:column;overflow:hidden}
     .detail-panel.open{display:flex}
     .detail-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid #f3f4f6;flex-shrink:0}
     .detail-header-title{font-size:12px;font-weight:700;color:#111}
@@ -205,48 +208,21 @@
     .modal-close:hover{opacity:1}
     .loading-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);color:#fff;padding:12px 22px;border-radius:10px;font-size:12px;z-index:2000;display:none}
 
-    /* ── Basemap picker — modern pill style, bottom-left ── */
-    .basemap-panel{
-      position:absolute;
-      bottom:84px;
-      left:284px;
-      z-index:900;
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
-    .basemap-label-row{
-      font-size:8px;font-weight:700;color:#6b7280;
-      text-transform:uppercase;letter-spacing:.7px;
-      padding-left:2px;
-    }
-    .basemap-pills{
-      display:flex;
-      gap:5px;
-      flex-wrap:wrap;
-    }
-    .bm-pill{
-      display:flex;flex-direction:column;align-items:center;gap:3px;
-      cursor:pointer;
-      transition:transform .15s;
-    }
-    .bm-pill:hover .bm-thumb-wrap{box-shadow:0 0 0 2px #2d6a2d;}
-    .bm-pill.active .bm-thumb-wrap{box-shadow:0 0 0 2.5px #2d6a2d;opacity:1;}
-    .bm-thumb-wrap{
-      width:44px;height:36px;border-radius:8px;
-      overflow:hidden;
-      border:1.5px solid rgba(255,255,255,.7);
-      box-shadow:0 1px 4px rgba(0,0,0,.22);
-      opacity:.82;
-      transition:all .15s;
-    }
-    .bm-thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
-    .bm-name{font-size:8px;font-weight:600;color:#374151;background:rgba(255,255,255,.88);padding:2px 5px;border-radius:4px;line-height:1.3;text-align:center;max-width:46px;backdrop-filter:blur(4px);}
+    /* ── Basemap picker ── */
+    .basemap-panel{position:absolute;bottom:84px;left:284px;z-index:900;display:flex;flex-direction:column;gap:6px}
+    .basemap-label-row{font-size:8px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.7px;padding-left:2px}
+    .basemap-pills{display:flex;gap:5px;flex-wrap:wrap}
+    .bm-pill{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:transform .15s}
+    .bm-pill:hover .bm-thumb-wrap{box-shadow:0 0 0 2px #2d6a2d}
+    .bm-pill.active .bm-thumb-wrap{box-shadow:0 0 0 2.5px #2d6a2d;opacity:1}
+    .bm-thumb-wrap{width:44px;height:36px;border-radius:8px;overflow:hidden;border:1.5px solid rgba(255,255,255,.7);box-shadow:0 1px 4px rgba(0,0,0,.22);opacity:.82;transition:all .15s}
+    .bm-thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+    .bm-name{font-size:8px;font-weight:600;color:#374151;background:rgba(255,255,255,.88);padding:2px 5px;border-radius:4px;line-height:1.3;text-align:center;max-width:46px;backdrop-filter:blur(4px)}
 
     /* ── GFW cluster overrides ── */
-    .marker-cluster-small,.marker-cluster-medium,.marker-cluster-large{background:rgba(239,68,68,.18)!important;}
-    .marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{background:rgba(239,68,68,.72)!important;color:#fff!important;font-family:'Montserrat',sans-serif!important;font-weight:700!important;font-size:10px!important;}
-    .leaflet-cluster-anim .leaflet-marker-icon,.leaflet-cluster-anim .leaflet-marker-shadow{transition:transform .3s ease,opacity .3s ease!important;}
+    .marker-cluster-small,.marker-cluster-medium,.marker-cluster-large{background:rgba(239,68,68,.18)!important}
+    .marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{background:rgba(239,68,68,.72)!important;color:#fff!important;font-family:'Montserrat',sans-serif!important;font-weight:700!important;font-size:10px!important}
+    .leaflet-cluster-anim .leaflet-marker-icon,.leaflet-cluster-anim .leaflet-marker-shadow{transition:transform .3s ease,opacity .3s ease!important}
   </style>
 </head>
 <body>
@@ -332,6 +308,47 @@
           </div>
           <label class="switch"><input type="checkbox" id="toggleGfw"><span class="sw-track"></span></label>
         </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Patrol Track section -->
+      <div class="sidebar-section-header" onclick="toggleSection('secTracks','chevTrack')">
+        <span class="sidebar-section-title">Patrol Track</span>
+        <span class="sidebar-chevron open" id="chevTrack">▲</span>
+      </div>
+      <div id="secTracks">
+        <div style="padding:4px 0">
+          <div class="layer-item" style="padding-left:28px">
+            <div class="layer-item-left">
+              <div class="track-line-swatch" style="background:#3b82f6"></div>
+              <span class="layer-label">February</span>
+            </div>
+            <label class="switch"><input type="checkbox" id="trackFeb"><span class="sw-track"></span></label>
+          </div>
+          <div class="layer-item" style="padding-left:28px">
+            <div class="layer-item-left">
+              <div class="track-line-swatch" style="background:#f97316"></div>
+              <span class="layer-label">March</span>
+            </div>
+            <label class="switch"><input type="checkbox" id="trackMaret"><span class="sw-track"></span></label>
+          </div>
+          <div class="layer-item" style="padding-left:28px">
+            <div class="layer-item-left">
+              <div class="track-line-swatch" style="background:#a855f7"></div>
+              <span class="layer-label">April</span>
+            </div>
+            <label class="switch"><input type="checkbox" id="trackApril"><span class="sw-track"></span></label>
+          </div>
+          <div class="layer-item" style="padding-left:28px">
+            <div class="layer-item-left">
+              <div class="track-line-swatch" style="background:#22c55e"></div>
+              <span class="layer-label">May</span>
+            </div>
+            <label class="switch"><input type="checkbox" id="trackMei"><span class="sw-track"></span></label>
+          </div>
+        </div>
+        <div style="padding:2px 16px 8px;font-size:9px;color:#9ca3af">All tracks off by default · Toggle to show on map</div>
       </div>
 
       <div class="divider"></div>
@@ -451,7 +468,6 @@
     <button class="filter-panel-close" id="filterClose">✕</button>
   </div>
   <div class="filter-panel-body">
-
     <!-- PATROL FILTERS -->
     <div id="patrolFilters">
       <div class="f-group">
@@ -486,7 +502,6 @@
         <div class="f-label">Finding</div>
         <select class="f-input" id="filterFinding"><option value="">All Findings</option></select>
       </div>
-
       <!-- GFW filters -->
       <div style="border-top:1px solid #f3f4f6;margin-top:4px;padding-top:12px">
         <div class="f-group">
@@ -513,7 +528,6 @@
           <select class="f-input" id="filterGfwConf"><option value="">All Confidence</option></select>
         </div>
       </div>
-
       <div class="f-active-box" id="patrolActivePills" style="display:none">
         <div class="f-active-label">Active Filters</div>
         <div class="f-pills" id="patrolPillsWrap"></div>
@@ -552,7 +566,7 @@
   </div>
 </div>
 
-<!-- Basemap panel — bottom-left, thumbnail pills -->
+<!-- Basemap panel -->
 <div class="basemap-panel" id="basemapPanel">
   <div class="basemap-label-row">Basemap</div>
   <div class="basemap-pills">
@@ -692,6 +706,7 @@ function getPresetRange(preset){
 }
 function setActiveQuickBtn(container,preset){container.querySelectorAll('.qd-btn').forEach(b=>b.classList.toggle('active',b.dataset.preset===preset));}
 
+/* ── Basemaps ── */
 const basemaps={
   esri_imagery:L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{opacity:0.85}),
   esri_topo:   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{opacity:1}),
@@ -712,7 +727,6 @@ function switchBasemap(id){
 const map=L.map('map',{center:[0.8,110.325],zoom:13,zoomControl:false,attributionControl:false});
 basemaps['esri_imagery'].addTo(map);
 
-// Canvas renderer — key for performance with many circleMarkers
 const canvasRenderer=L.canvas({padding:0.5});
 
 const lulc        =L.tileLayer('./data/Tiles/{z}/{x}/{y}.png',{opacity:1}).addTo(map);
@@ -725,7 +739,52 @@ const ctGridLayer =L.layerGroup();
 const ctPointLayer=L.layerGroup();
 let currentTab='patrol';
 
-// GFW cluster group — off by default
+/* ── Patrol Track layers — one per month, all OFF by default ── */
+const TRACK_CONFIG=[
+  {id:'trackFeb',  file:'track_feb.geojson',   color:'#3b82f6', label:'February'},
+  {id:'trackMaret',file:'track_maret.geojson', color:'#f97316', label:'March'},
+  {id:'trackApril',file:'track_april.geojson', color:'#a855f7', label:'April'},
+  {id:'trackMei',  file:'track_mei.geojson',   color:'#22c55e', label:'May'},
+];
+const trackLayers={};  // key → L.layerGroup (lazy-loaded)
+const trackLoaded={};  // key → boolean
+
+function loadTrackLayer(cfg){
+  return new Promise(resolve=>{
+    if(trackLoaded[cfg.id]){resolve();return;}
+    fetch(`./data/track/${cfg.file}`)
+      .then(r=>r.ok?r.json():Promise.reject(r.status))
+      .then(geojson=>{
+        const lg=L.layerGroup();
+        L.geoJSON(geojson,{
+          style:{color:cfg.color,weight:2.5,opacity:0.85,fillOpacity:0},
+          pointToLayer:()=>null  // skip any point features
+        }).addTo(lg);
+        trackLayers[cfg.id]=lg;
+        trackLoaded[cfg.id]=true;
+        resolve();
+      })
+      .catch(err=>{
+        console.warn(`Track not loaded (${cfg.file}):`,err);
+        trackLoaded[cfg.id]=true; // mark so we don't retry endlessly
+        resolve();
+      });
+  });
+}
+
+function bindTrackToggle(cfg){
+  document.getElementById(cfg.id).addEventListener('change',async function(){
+    if(this.checked){
+      await loadTrackLayer(cfg);
+      if(trackLayers[cfg.id]&&currentTab==='patrol')map.addLayer(trackLayers[cfg.id]);
+    } else {
+      if(trackLayers[cfg.id])map.removeLayer(trackLayers[cfg.id]);
+    }
+  });
+}
+TRACK_CONFIG.forEach(bindTrackToggle);
+
+/* ── GFW cluster ── */
 const gfwCluster=L.markerClusterGroup({
   maxClusterRadius:25,
   disableClusteringAtZoom:16,
@@ -763,9 +822,15 @@ function switchTab(tab){
   if(tab==='patrol'){
     map.addLayer(pointLayer);
     if(document.getElementById('toggleGfw').checked)map.addLayer(gfwCluster);
+    // restore checked track layers
+    TRACK_CONFIG.forEach(cfg=>{
+      if(document.getElementById(cfg.id).checked&&trackLayers[cfg.id])map.addLayer(trackLayers[cfg.id]);
+    });
     map.removeLayer(ctGridLayer);map.removeLayer(ctPointLayer);
   } else {
     map.removeLayer(pointLayer);map.removeLayer(gfwCluster);
+    // hide track layers when switching to camera tab
+    TRACK_CONFIG.forEach(cfg=>{if(trackLayers[cfg.id])map.removeLayer(trackLayers[cfg.id]);});
     if(document.getElementById('ctToggleGrid').checked)map.addLayer(ctGridLayer);
     if(document.getElementById('ctTogglePoints').checked)map.addLayer(ctPointLayer);
     loadCameraData();
@@ -779,11 +844,11 @@ filterToggleBtn.addEventListener('click',e=>{e.stopPropagation();filterPanel.cla
 document.getElementById('filterClose').addEventListener('click',()=>{filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');});
 document.addEventListener('click',e=>{if(filterPanel.classList.contains('open')&&!filterPanel.contains(e.target)&&e.target!==filterToggleBtn){filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');}});
 
+/* ── GFW data ── */
 const GFW_SHEET_URL='https://docs.google.com/spreadsheets/d/1UW3uOFcLr4AQFBp_VMbEXk37_Vb5DekHU-_9QSkskCo/export?format=csv&gid=0';
 let gfwRawData=[];
 let allGfwConf=[];
 
-// Init GFW date = last 30 days
 const{start:gfw1mStart,end:gfw1mEnd}=getPresetRange('1m');
 const GFW={start:gfw1mStart,end:gfw1mEnd,conf:''};
 document.getElementById('gfwStartDate').value=gfw1mStart?toInputStr(gfw1mStart):'';
@@ -825,26 +890,20 @@ function getGfwFiltered(){
 function updateGfwLayer(){
   gfwCluster.clearLayers();
   const filtered=getGfwFiltered();
-  // Batch-build all markers, add once — avoids repeated DOM reflows
   const markers=[];
   filtered.forEach(r=>{
     const lat=parseFloat(r['latitude']);
     const lon=parseFloat(r['longitude']);
     if(isNaN(lat)||isNaN(lon))return;
-    // Single unified symbol — canvas circleMarker, very lightweight
     const mk=L.circleMarker([lat,lon],{
-      renderer:canvasRenderer,
-      radius:5,
-      fillColor:'#ef4444',
-      color:'#fff',
-      weight:1.5,
-      fillOpacity:0.9
+      renderer:canvasRenderer,radius:5,
+      fillColor:'#ef4444',color:'#fff',weight:1.5,fillOpacity:0.9
     });
-    mk._gfwRow=r; // store ref for popup
+    mk._gfwRow=r;
     mk.on('click',()=>openGfwDetail(r,lat,lon));
     markers.push(mk);
   });
-  gfwCluster.addLayers(markers); // addLayers (plural) is batch — much faster than loop
+  gfwCluster.addLayers(markers);
 }
 
 function openGfwDetail(r,lat,lon){
@@ -856,10 +915,7 @@ function openGfwDetail(r,lat,lon){
   const blok=(r['Blok']||'-').trim();
   const penutup=(r['Penutup_Lahan']||'-').trim();
   document.getElementById('detailBody').innerHTML=`
-    <div class="detail-cat-row">
-      <div class="detail-cat-dot" style="background:#ef4444"></div>
-      <span class="detail-cat-name">Disturbance Alert</span>
-    </div>
+    <div class="detail-cat-row"><div class="detail-cat-dot" style="background:#ef4444"></div><span class="detail-cat-name">Disturbance Alert</span></div>
     <div style="height:6px"></div>
     <div class="detail-row"><span class="detail-key">Date</span><span class="detail-val">${date}</span></div>
     <div class="detail-row"><span class="detail-key">Confidence</span><span class="detail-val">${conf}</span></div>
@@ -876,10 +932,10 @@ function updateGfwLegendVisibility(){
   document.getElementById('secGfwLegend').style.display=document.getElementById('toggleGfw').checked?'':'none';
 }
 
+/* ── Patrol data ── */
 const PATROL_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 let rawData=[],highlightCat=null;
 
-// Default patrol = last 30 days
 const{start:p1mStart,end:p1mEnd}=getPresetRange('1m');
 const PF={start:p1mStart,end:p1mEnd,officer:'',category:'',finding:''};
 document.getElementById('startDate').value=p1mStart?toInputStr(p1mStart):'';
@@ -1019,6 +1075,7 @@ function openDetail(r){
 }
 document.getElementById('detailClose').onclick=()=>document.getElementById('detailPanel').classList.remove('open');
 
+/* ── Camera trap ── */
 const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
 const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
 const CT_GRID_URL='./data/grid.geojson';
