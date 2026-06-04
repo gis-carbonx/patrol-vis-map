@@ -17,6 +17,7 @@
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%;overflow:hidden;font-family:'Montserrat',sans-serif;background:#f4f6f8}
 
+    /* ── Top bar ── */
     .top-bar{position:absolute;top:0;left:0;right:0;z-index:1200;height:56px;background:#111;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
     .top-bar-left{display:flex;align-items:center;gap:14px}
     .logo-img{height:30px;width:auto;display:block}
@@ -35,8 +36,10 @@
     .tab-btn.active{background:#2d6a2d;color:#fff}
     .tab-btn:not(.active):hover{background:#252525;color:#ccc}
 
+    /* ── Map & layout ── */
     #map{position:absolute;top:56px;left:268px;right:0;bottom:0}
 
+    /* ── Sidebar ── */
     .sidebar{position:absolute;top:56px;left:0;bottom:0;z-index:1000;width:268px;background:#fff;border-right:1px solid #e8eaed;display:flex;flex-direction:column;overflow:hidden}
     .sidebar-body{flex:1;overflow-y:auto;padding-bottom:16px;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
     .sidebar-body::-webkit-scrollbar{width:3px}
@@ -73,11 +76,11 @@
     .info-hint-icon{flex-shrink:0;width:15px;height:15px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:8px;color:#6b7280;margin-top:1px}
     .grid-legend-item{display:flex;align-items:center;gap:8px;padding:3px 16px;font-size:11px;color:#4b5563}
     .grid-legend-swatch{width:18px;height:14px;border-radius:2px;flex-shrink:0;border:1px solid rgba(0,0,0,.1)}
+
+    /* ── Track line legend ── */
     .track-line-swatch{width:22px;height:4px;border-radius:2px;flex-shrink:0}
 
-    .rkt-legend-item{display:flex;align-items:center;gap:8px;padding:3px 16px;font-size:11px;color:#4b5563}
-    .rkt-legend-swatch{width:18px;height:14px;border-radius:2px;flex-shrink:0;border:1px solid rgba(0,0,0,.12)}
-
+    /* ── Filter panel ── */
     .filter-panel{position:absolute;top:64px;right:16px;z-index:1300;width:320px;background:#fff;border-radius:14px;border:1px solid #e8eaed;box-shadow:0 8px 32px rgba(0,0,0,.16);display:none;flex-direction:column;max-height:calc(100vh - 80px);overflow:hidden}
     .filter-panel.open{display:flex}
     .filter-panel-head{padding:14px 16px 12px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff}
@@ -108,6 +111,7 @@
     .icon-btn-wrap{position:relative}
     .filter-badge{display:none;position:absolute;top:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#ef4444;font-size:8px;font-weight:700;color:#fff;align-items:center;justify-content:center}
 
+    /* ── Bottom bars ── */
     .bottom-bar{position:absolute;bottom:0;left:268px;right:0;z-index:900;background:#fff;border-top:1px solid #e8eaed;display:flex;align-items:center;height:72px;overflow:hidden}
     .bottom-cat{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 6px;border-right:1px solid #f3f4f6;cursor:pointer;transition:background .15s;height:100%}
     .bottom-cat:last-child{border-right:none}
@@ -125,6 +129,7 @@
     .ct-stat-label{font-size:9px;color:#6b7280;text-align:center;line-height:1.3}
     .ct-stat-sub{font-size:8px;color:#4b5563;text-align:center}
 
+    /* ── Detail panels ── */
     .detail-panel{position:absolute;top:68px;right:16px;bottom:84px;z-index:1000;width:296px;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.14);display:none;flex-direction:column;overflow:hidden}
     .detail-panel.open{display:flex}
     .detail-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid #f3f4f6;flex-shrink:0}
@@ -191,24 +196,19 @@
     .ct-stat-inline{display:flex;align-items:center;justify-content:space-between;padding:5px 16px;font-size:11px;color:#374151}
     .ct-stat-inline-val{font-weight:700;color:#0ea5e9}
 
-    .rkt-detail-panel{position:absolute;top:68px;right:16px;bottom:84px;z-index:1000;width:296px;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.18);display:none;flex-direction:column;overflow:hidden}
-    .rkt-detail-panel.open{display:flex}
-    .rkt-dp-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid #f3f4f6;flex-shrink:0;background:#1e3a5f}
-    .rkt-dp-title{font-size:12px;font-weight:700;color:#fff}
-    .rkt-dp-close{width:26px;height:26px;border-radius:6px;border:none;background:rgba(255,255,255,.1);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:15px;transition:all .15s}
-    .rkt-dp-close:hover{background:rgba(255,255,255,.2);color:#fff}
-    .rkt-dp-body{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
-
+    /* ── Zoom controls ── */
     .map-zoom{position:absolute;bottom:92px;right:16px;z-index:900;display:flex;flex-direction:column;gap:2px}
     .zoom-btn{width:32px;height:32px;background:#fff;border:1.5px solid #e8eaed;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:#374151;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:background .15s;font-weight:300;line-height:1}
     .zoom-btn:hover{background:#f9fafb}
 
+    /* ── Image modal ── */
     .img-modal{display:none;position:fixed;z-index:9999;inset:0;background:rgba(0,0,0,.9);justify-content:center;align-items:center}
     .img-modal img{max-width:90%;max-height:88%;border-radius:12px}
     .modal-close{position:absolute;top:18px;right:26px;color:#fff;font-size:28px;cursor:pointer;opacity:.7;transition:opacity .15s;line-height:1}
     .modal-close:hover{opacity:1}
     .loading-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);color:#fff;padding:12px 22px;border-radius:10px;font-size:12px;z-index:2000;display:none}
 
+    /* ── Basemap picker ── */
     .basemap-panel{position:absolute;bottom:84px;left:284px;z-index:900;display:flex;flex-direction:column;gap:6px}
     .basemap-label-row{font-size:8px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.7px;padding-left:2px}
     .basemap-pills{display:flex;gap:5px;flex-wrap:wrap}
@@ -219,6 +219,7 @@
     .bm-thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block}
     .bm-name{font-size:8px;font-weight:600;color:#374151;background:rgba(255,255,255,.88);padding:2px 5px;border-radius:4px;line-height:1.3;text-align:center;max-width:46px;backdrop-filter:blur(4px)}
 
+    /* ── GFW cluster overrides ── */
     .marker-cluster-small,.marker-cluster-medium,.marker-cluster-large{background:rgba(239,68,68,.18)!important}
     .marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{background:rgba(239,68,68,.72)!important;color:#fff!important;font-family:'Montserrat',sans-serif!important;font-weight:700!important;font-size:10px!important}
     .leaflet-cluster-anim .leaflet-marker-icon,.leaflet-cluster-anim .leaflet-marker-shadow{transition:transform .3s ease,opacity .3s ease!important}
@@ -226,8 +227,9 @@
 </head>
 <body>
 <div id="map"></div>
-<div class="loading-overlay" id="loadingOverlay">Loading data…</div>
+<div class="loading-overlay" id="loadingOverlay">Loading camera trap data…</div>
 
+<!-- Top bar -->
 <div class="top-bar">
   <div class="top-bar-left">
     <img src="./data/CMI-Brandmark-FullColor-BlackBG.png" alt="CMI" class="logo-img">
@@ -263,30 +265,42 @@
   </div>
 </div>
 
+<!-- Sidebar -->
 <div class="sidebar">
   <div class="sidebar-body">
 
+    <!-- PATROL SIDEBAR -->
     <div id="patrolSidebar">
-
       <div class="sidebar-section-header" onclick="toggleSection('secLayers','chev1')">
         <span class="sidebar-section-title">Map Layers</span>
         <span class="sidebar-chevron open" id="chev1">▲</span>
       </div>
       <div id="secLayers">
-
         <div class="layer-item">
           <div class="layer-item-left"><div class="layer-icon-bd"></div><span class="layer-label">Project Area</span></div>
           <label class="cb-wrap"><input type="checkbox" id="toggleBoundary" checked><div class="cb-box"></div></label>
         </div>
-
+        <div style="padding:5px 16px 2px"><span style="font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">Landcover</span></div>
+        <div class="layer-item" style="padding-left:28px">
+          <div class="layer-item-left"><div class="layer-icon-sq" style="background:#4CAF50"></div><span class="layer-label">LULC 2023</span></div>
+          <label class="switch"><input type="checkbox" id="toggleLulc" checked><span class="sw-track"></span></label>
+        </div>
+        <div class="layer-item" style="padding-left:28px">
+          <div class="layer-item-left"><div class="layer-icon-sq" style="background:#00BCD4"></div><span class="layer-label">LULC 2025</span></div>
+          <label class="switch"><input type="checkbox" id="toggleLulc2025"><span class="sw-track"></span></label>
+        </div>
+        <div class="layer-item" style="padding-left:28px">
+          <div class="layer-item-left"><div class="layer-icon-sq" style="background:#FF9800"></div><span class="layer-label">Landsat 2024</span></div>
+          <label class="switch"><input type="checkbox" id="toggleLandsat2024"><span class="sw-track"></span></label>
+        </div>
+        <div class="layer-item" style="padding-left:28px">
+          <div class="layer-item-left"><div class="layer-icon-sq" style="background:#F44336"></div><span class="layer-label">Landsat 2025</span></div>
+          <label class="switch"><input type="checkbox" id="toggleLandsat2025"><span class="sw-track"></span></label>
+        </div>
         <div class="layer-item">
-          <div class="layer-item-left">
-            <div style="width:14px;height:14px;border-radius:50%;background:#f5a623;border:2px solid #fff;box-shadow:0 0 0 1.5px #f5a623;flex-shrink:0"></div>
-            <span class="layer-label">Patrol Points</span>
-          </div>
+          <div class="layer-item-left"><div class="layer-icon-sq" style="background:#f5a623;border-radius:50%"></div><span class="layer-label">Patrol Points</span></div>
           <label class="switch"><input type="checkbox" id="togglePoints" checked><span class="sw-track"></span></label>
         </div>
-
         <div class="layer-item">
           <div class="layer-item-left">
             <div style="width:14px;height:14px;border-radius:50%;background:#ef4444;border:2px solid #fff;box-shadow:0 0 0 1.5px #ef4444;flex-shrink:0"></div>
@@ -294,76 +308,53 @@
           </div>
           <label class="switch"><input type="checkbox" id="toggleGfw"><span class="sw-track"></span></label>
         </div>
-
-        <div class="layer-item">
-          <div class="layer-item-left">
-            <div style="width:14px;height:14px;border-radius:2px;background:#3b82f6;opacity:.7;flex-shrink:0;border:1px solid rgba(0,0,0,.15)"></div>
-            <span class="layer-label">Grid Patrol (RKT)</span>
-          </div>
-          <label class="switch"><input type="checkbox" id="toggleRktGrid" checked><span class="sw-track"></span></label>
-        </div>
-
-        <div style="border-top:1px solid #f3f4f6;margin-top:2px">
-          <div class="sidebar-section-header" onclick="toggleSection('secLandcover','chevLc')" style="padding:8px 16px 8px;border-bottom:none">
-            <div style="display:flex;align-items:center;gap:8px">
-              <div class="layer-icon-sq" style="background:#4CAF50"></div>
-              <span class="layer-label" style="font-size:11px;font-weight:600;color:#374151">Landcover</span>
-            </div>
-            <span class="sidebar-chevron open" id="chevLc" style="font-size:9px">▲</span>
-          </div>
-          <div id="secLandcover">
-            <div class="layer-item" style="padding-left:28px">
-              <div class="layer-item-left"><div class="layer-icon-sq" style="background:#4CAF50"></div><span class="layer-label">LULC 2023</span></div>
-              <label class="switch"><input type="checkbox" id="toggleLulc" checked><span class="sw-track"></span></label>
-            </div>
-            <div class="layer-item" style="padding-left:28px">
-              <div class="layer-item-left"><div class="layer-icon-sq" style="background:#00BCD4"></div><span class="layer-label">LULC 2025</span></div>
-              <label class="switch"><input type="checkbox" id="toggleLulc2025"><span class="sw-track"></span></label>
-            </div>
-            <div class="layer-item" style="padding-left:28px">
-              <div class="layer-item-left"><div class="layer-icon-sq" style="background:#FF9800"></div><span class="layer-label">Landsat 2024</span></div>
-              <label class="switch"><input type="checkbox" id="toggleLandsat2024"><span class="sw-track"></span></label>
-            </div>
-            <div class="layer-item" style="padding-left:28px">
-              <div class="layer-item-left"><div class="layer-icon-sq" style="background:#F44336"></div><span class="layer-label">Landsat 2025</span></div>
-              <label class="switch"><input type="checkbox" id="toggleLandsat2025"><span class="sw-track"></span></label>
-            </div>
-          </div>
-        </div>
-
-        <div style="border-top:1px solid #f3f4f6;margin-top:2px">
-          <div class="sidebar-section-header" onclick="toggleSection('secTracks','chevTrack')" style="padding:8px 16px 8px;border-bottom:none">
-            <div style="display:flex;align-items:center;gap:8px">
-              <div class="track-line-swatch" style="background:#3b82f6"></div>
-              <span class="layer-label" style="font-size:11px;font-weight:600;color:#374151">Patrol Track</span>
-            </div>
-            <span class="sidebar-chevron" id="chevTrack" style="font-size:9px">▼</span>
-          </div>
-          <div id="secTracks" style="display:none">
-            <div class="layer-item" style="padding-left:28px">
-              <div class="layer-item-left"><div class="track-line-swatch" style="background:#3b82f6"></div><span class="layer-label">February</span></div>
-              <label class="switch"><input type="checkbox" id="trackFeb"><span class="sw-track"></span></label>
-            </div>
-            <div class="layer-item" style="padding-left:28px">
-              <div class="layer-item-left"><div class="track-line-swatch" style="background:#f97316"></div><span class="layer-label">March</span></div>
-              <label class="switch"><input type="checkbox" id="trackMaret"><span class="sw-track"></span></label>
-            </div>
-            <div class="layer-item" style="padding-left:28px">
-              <div class="layer-item-left"><div class="track-line-swatch" style="background:#a855f7"></div><span class="layer-label">April</span></div>
-              <label class="switch"><input type="checkbox" id="trackApril"><span class="sw-track"></span></label>
-            </div>
-            <div class="layer-item" style="padding-left:28px">
-              <div class="layer-item-left"><div class="track-line-swatch" style="background:#22c55e"></div><span class="layer-label">May</span></div>
-              <label class="switch"><input type="checkbox" id="trackMei"><span class="sw-track"></span></label>
-            </div>
-            <div style="padding:2px 16px 8px;font-size:9px;color:#9ca3af">Latest Patrol Track Update – 29 May 2026</div>
-          </div>
-        </div>
-
-      </div><!-- /secLayers -->
+      </div>
 
       <div class="divider"></div>
 
+      <!-- Patrol Track section -->
+      <div class="sidebar-section-header" onclick="toggleSection('secTracks','chevTrack')">
+        <span class="sidebar-section-title">Patrol Track</span>
+        <span class="sidebar-chevron" id="chevTrack">▲</span>
+      </div>
+
+      <div id="secTracks" style="display:none;">
+        <div style="padding:4px 0">
+          <div class="layer-item" style="padding-left:28px">
+            <div class="layer-item-left">
+              <div class="track-line-swatch" style="background:#3b82f6"></div>
+              <span class="layer-label">February</span>
+            </div>
+            <label class="switch"><input type="checkbox" id="trackFeb"><span class="sw-track"></span></label>
+          </div>
+          <div class="layer-item" style="padding-left:28px">
+            <div class="layer-item-left">
+              <div class="track-line-swatch" style="background:#f97316"></div>
+              <span class="layer-label">March</span>
+            </div>
+            <label class="switch"><input type="checkbox" id="trackMaret"><span class="sw-track"></span></label>
+          </div>
+          <div class="layer-item" style="padding-left:28px">
+            <div class="layer-item-left">
+              <div class="track-line-swatch" style="background:#a855f7"></div>
+              <span class="layer-label">April</span>
+            </div>
+            <label class="switch"><input type="checkbox" id="trackApril"><span class="sw-track"></span></label>
+          </div>
+          <div class="layer-item" style="padding-left:28px">
+            <div class="layer-item-left">
+              <div class="track-line-swatch" style="background:#22c55e"></div>
+              <span class="layer-label">May</span>
+            </div>
+            <label class="switch"><input type="checkbox" id="trackMei"><span class="sw-track"></span></label>
+          </div>
+        </div>
+        <div style="padding:2px 16px 8px;font-size:9px;color:#9ca3af">Latest Patrol Track Update – 29 May 2026</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- LULC legend -->
       <div class="sidebar-section-header" onclick="toggleSection('secLulcLeg','chev2')">
         <span class="sidebar-section-title">LULC Classification</span>
         <span class="sidebar-chevron open" id="chev2">▲</span>
@@ -383,19 +374,7 @@
 
       <div class="divider"></div>
 
-      <div id="secRktLegend">
-        <div class="sidebar-section-header" onclick="toggleSection('secRktLegBody','chevRkt')">
-          <span class="sidebar-section-title">Grid Patrol — Jumlah Visit</span>
-          <span class="sidebar-chevron open" id="chevRkt">▲</span>
-        </div>
-        <div id="secRktLegBody">
-          <div id="rktLegendItems"></div>
-          <div style="padding:2px 16px 8px;font-size:9px;color:#9ca3af">Klik grid untuk detail · Warna adaptif terhadap data</div>
-        </div>
-      </div>
-
-      <div class="divider"></div>
-
+      <!-- GFW Legend (hidden by default) -->
       <div id="secGfwLegend" style="display:none">
         <div class="sidebar-section-header" onclick="toggleSection('secGfwLegBody','chevGfw')">
           <span class="sidebar-section-title">GFW Disturbance Alert</span>
@@ -411,6 +390,7 @@
         <div class="divider"></div>
       </div>
 
+      <!-- Patrol findings -->
       <div class="sidebar-section-header" onclick="toggleSection('secFindings','chev3')">
         <span class="sidebar-section-title">Patrol Findings</span>
         <span class="sidebar-chevron open" id="chev3">▲</span>
@@ -420,8 +400,9 @@
         <div class="info-hint-icon">i</div>
         <span>Click on a point to view details. Click a category to highlight.</span>
       </div>
-    </div><!-- /patrolSidebar -->
+    </div>
 
+    <!-- CAMERA SIDEBAR -->
     <div id="cameraSidebar" style="display:none">
       <div class="sidebar-section-header" onclick="toggleSection('secCtLayers','chevCt1')">
         <span class="sidebar-section-title">Map Layers</span>
@@ -476,17 +457,19 @@
         <div class="info-hint-icon">i</div>
         <span>Click a grid cell to view detections. Click a camera point to see species list.</span>
       </div>
-    </div><!-- /cameraSidebar -->
+    </div>
 
   </div>
 </div>
 
+<!-- Filter panel -->
 <div class="filter-panel" id="filterPanel">
   <div class="filter-panel-head">
     <span class="filter-panel-title">Filter Data</span>
     <button class="filter-panel-close" id="filterClose">✕</button>
   </div>
   <div class="filter-panel-body">
+    <!-- PATROL FILTERS -->
     <div id="patrolFilters">
       <div class="f-group">
         <div class="f-label">Patrol — Quick Date</div>
@@ -520,6 +503,7 @@
         <div class="f-label">Finding</div>
         <select class="f-input" id="filterFinding"><option value="">All Findings</option></select>
       </div>
+      <!-- GFW filters -->
       <div style="border-top:1px solid #f3f4f6;margin-top:4px;padding-top:12px">
         <div class="f-group">
           <div class="f-label" style="color:#ef4444">GFW Alert — Quick Date</div>
@@ -552,6 +536,7 @@
       <button class="btn-clear-f" id="clearFilters">Clear All Filters</button>
     </div>
 
+    <!-- CAMERA FILTERS -->
     <div id="cameraFilters" style="display:none">
       <div class="f-group">
         <div class="f-label">Batch</div>
@@ -582,6 +567,7 @@
   </div>
 </div>
 
+<!-- Basemap panel -->
 <div class="basemap-panel" id="basemapPanel">
   <div class="basemap-label-row">Basemap</div>
   <div class="basemap-pills">
@@ -604,12 +590,14 @@
   </div>
 </div>
 
+<!-- Zoom controls -->
 <div class="map-zoom">
   <button class="zoom-btn" onclick="map.zoomIn()">+</button>
   <button class="zoom-btn" onclick="map.zoomOut()">−</button>
   <button class="zoom-btn" onclick="resetView()" style="font-size:12px">⌂</button>
 </div>
 
+<!-- Detail panel -->
 <div class="detail-panel" id="detailPanel">
   <div class="detail-header">
     <span class="detail-header-title" id="detailPanelTitle">Patrol Finding</span>
@@ -626,14 +614,7 @@
   <div class="gdp-body" id="gridDetailBody"></div>
 </div>
 
-<div class="rkt-detail-panel" id="rktDetailPanel">
-  <div class="rkt-dp-header">
-    <span class="rkt-dp-title">Grid Patrol — Detail</span>
-    <button class="rkt-dp-close" id="rktDetailClose">✕</button>
-  </div>
-  <div class="rkt-dp-body" id="rktDetailBody"></div>
-</div>
-
+<!-- Bottom bars -->
 <div class="bottom-bar" id="bottomBar"></div>
 <div class="ct-bottom-bar" id="ctBottomBar">
   <div class="ct-stat"><div class="ct-stat-val" id="ctStatCameras">–</div><div class="ct-stat-label">Camera Trap Location</div><div class="ct-stat-sub">Units</div></div>
@@ -643,6 +624,7 @@
   <div class="ct-stat"><div class="ct-stat-val" id="ctStatTrapNights">–</div><div class="ct-stat-label">Total Trap-Nights</div><div class="ct-stat-sub" id="ctStatTrapNightsSub"></div></div>
 </div>
 
+<!-- Image modal -->
 <div id="imageModal" class="img-modal">
   <span class="modal-close" id="closeModal">&times;</span>
   <img id="modalImage">
@@ -725,6 +707,7 @@ function getPresetRange(preset){
 }
 function setActiveQuickBtn(container,preset){container.querySelectorAll('.qd-btn').forEach(b=>b.classList.toggle('active',b.dataset.preset===preset));}
 
+/* ── Basemaps ── */
 const basemaps={
   esri_imagery:L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{opacity:0.85}),
   esri_topo:   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{opacity:1}),
@@ -744,6 +727,7 @@ function switchBasemap(id){
 
 const map=L.map('map',{center:[0.8,110.325],zoom:13,zoomControl:false,attributionControl:false});
 basemaps['esri_imagery'].addTo(map);
+
 const canvasRenderer=L.canvas({padding:0.5});
 
 const lulc        =L.tileLayer('./data/Tiles/{z}/{x}/{y}.png',{opacity:1}).addTo(map);
@@ -754,163 +738,17 @@ let boundaryLayer,mapBounds;
 const pointLayer  =L.layerGroup().addTo(map);
 const ctGridLayer =L.layerGroup();
 const ctPointLayer=L.layerGroup();
-const rktGridLayer=L.layerGroup().addTo(map); 
 let currentTab='patrol';
 
-const RKT_VISIT_URL='https://docs.google.com/spreadsheets/d/1JiApA3L8kARsX6kdqBgrjWXrRLqfM1LKCxFEzYrQYYw/export?format=csv&gid=0';
-const RKT_GRID_URL ='./data/rkt_lama.json';
-
-let rktVisitMap={};
-let rktGeoData=null;
-let rktLoaded=false;
-
-
-let RKT_SCALE={breaks:[],colors:[],opacities:[]};
-
-const RKT_COLOR_RAMP=[
-  {c:'transparent',o:0},          // 0 visits
-  {c:'#bfdbfe',o:0.55},           // very low  (light blue)
-  {c:'#60a5fa',o:0.65},           // low
-  {c:'#2563eb',o:0.72},           // medium
-  {c:'#1e3a8a',o:0.85},           // high
-  {c:'#172554',o:0.95},           // very high
-];
-
-function computeRktScale(visitValues){
-  if(!visitValues.length){RKT_SCALE={breaks:[0],colors:RKT_COLOR_RAMP.map(r=>r.c),opacities:RKT_COLOR_RAMP.map(r=>r.o)};return;}
-  const sorted=[...visitValues].sort((a,b)=>a-b);
-  const max=sorted[sorted.length-1];
-  function quantile(arr,q){const pos=(arr.length-1)*q;const base=Math.floor(pos);const rest=pos-base;return arr[base+1]!==undefined?arr[base]+rest*(arr[base+1]-arr[base]):arr[base];}
-  const q25=Math.round(quantile(sorted,.25));
-  const q50=Math.round(quantile(sorted,.50));
-  const q75=Math.round(quantile(sorted,.75));
-
-  const breaks=[0,Math.max(1,q25),Math.max(2,q50),Math.max(3,q75),max];
-  RKT_SCALE={breaks,colors:RKT_COLOR_RAMP.map(r=>r.c),opacities:RKT_COLOR_RAMP.map(r=>r.o)};
-}
-
-function rktVisitStyle(visits){
-  if(!visits||visits<=0)return{color:'transparent',fillColor:'transparent',fillOpacity:0,weight:0.6,opacity:0.4};
-  const b=RKT_SCALE.breaks;
-  let idx=1;
-  for(let i=0;i<b.length-1;i++){if(visits<=b[i+1]){idx=i+1;break;}else{idx=b.length;}}
-  idx=Math.min(idx,RKT_COLOR_RAMP.length-1);
-  return{
-    fillColor:RKT_COLOR_RAMP[idx].c,
-    fillOpacity:RKT_COLOR_RAMP[idx].o,
-    color:'#1e40af',
-    weight:0.8,
-    opacity:0.7
-  };
-}
-
-function buildRktLegend(){
-  const el=document.getElementById('rktLegendItems');
-  if(!el)return;
-  const b=RKT_SCALE.breaks;
-  let html='';
-
-  html+=`<div class="rkt-legend-item"><div class="rkt-legend-swatch" style="background:transparent;border:1px solid #aaa"></div><span>Belum dikunjungi</span></div>`;
-  if(b.length>=2){
-    const ranges=[
-      [1,b[1]],
-      [b[1]+1,b[2]],
-      [b[2]+1,b[3]],
-      [b[3]+1,b[4]],
-    ];
-    ranges.forEach(([lo,hi],i)=>{
-      if(lo>hi)return;
-      const idx=i+1;
-      if(idx>=RKT_COLOR_RAMP.length)return;
-      const label=lo===hi?`${lo} visit`:`${lo} – ${hi} visit`;
-      html+=`<div class="rkt-legend-item"><div class="rkt-legend-swatch" style="background:${RKT_COLOR_RAMP[idx].c};opacity:${RKT_COLOR_RAMP[idx].o}"></div><span>${label}</span></div>`;
-    });
-
-    const lastIdx=Math.min(5,RKT_COLOR_RAMP.length-1);
-    if(b[4]>b[3]+1){
-      html+=`<div class="rkt-legend-item"><div class="rkt-legend-swatch" style="background:${RKT_COLOR_RAMP[lastIdx].c};opacity:${RKT_COLOR_RAMP[lastIdx].o}"></div><span>&gt; ${b[3]} visit</span></div>`;
-    }
-  }
-  el.innerHTML=html;
-}
-
-function buildRktGrid(){
-  rktGridLayer.clearLayers();
-  if(!rktGeoData)return;
-  rktGeoData.features.forEach(feat=>{
-    const pk=(feat.properties.PETAKKERJA||feat.properties.petakkerja||'').toString().trim();
-    const visits=rktVisitMap[pk]||0;
-    const style=rktVisitStyle(visits);
-    const layer=L.geoJSON(feat,{style:{...style,interactive:true}});
-    if(visits>0){
-      const center=layer.getBounds().getCenter();
-      const labelHtml=`<div style="font-size:9px;font-weight:700;color:#fff;text-shadow:0 0 3px rgba(0,0,0,.9);pointer-events:none;text-align:center;white-space:nowrap">${visits}</div>`;
-      L.marker(center,{icon:L.divIcon({html:labelHtml,className:'',iconSize:[30,12],iconAnchor:[15,6]}),interactive:false}).addTo(rktGridLayer);
-    }
-    layer.on('click',()=>openRktDetail(pk,visits,feat));
-    layer.addTo(rktGridLayer);
-  });
-}
-
-function openRktDetail(pk,visits,feat){
-  const props=feat.properties||{};
-
-  const skipKeys=['PETAKKERJA','petakkerja'];
-  const extraRows=Object.entries(props).filter(([k])=>!skipKeys.includes(k)).slice(0,8)
-    .map(([k,v])=>`<div class="detail-row"><span class="detail-key">${k}</span><span class="detail-val">${v??'-'}</span></div>`).join('');
-  const levelLabel=visits===0?'Belum Dikunjungi':visits<=RKT_SCALE.breaks[1]?'Sangat Rendah':visits<=RKT_SCALE.breaks[2]?'Rendah':visits<=RKT_SCALE.breaks[3]?'Sedang':visits<=RKT_SCALE.breaks[4]?'Tinggi':'Sangat Tinggi';
-  const levelColor=visits===0?'#94a3b8':visits<=RKT_SCALE.breaks[1]?'#bfdbfe':visits<=RKT_SCALE.breaks[2]?'#60a5fa':visits<=RKT_SCALE.breaks[3]?'#2563eb':visits<=RKT_SCALE.breaks[4]?'#1e3a8a':'#172554';
-  document.getElementById('rktDetailBody').innerHTML=`
-    <div style="padding:16px 16px 12px;border-bottom:1px solid #f3f4f6">
-      <div style="font-size:22px;font-weight:800;color:#1e3a8a;line-height:1">${visits}</div>
-      <div style="font-size:11px;color:#6b7280;margin-top:2px">Jumlah Visit</div>
-      <span style="display:inline-block;margin-top:6px;background:${levelColor};color:#fff;font-size:9px;font-weight:700;padding:2px 9px;border-radius:10px">${levelLabel}</span>
-    </div>
-    <div class="detail-row"><span class="detail-key">Petak Kerja</span><span class="detail-val" style="font-weight:700;color:#1e3a8a">${pk||'-'}</span></div>
-    ${extraRows}
-    <div style="height:10px"></div>`;
-  document.getElementById('rktDetailPanel').classList.add('open');
-  document.getElementById('detailPanel').classList.remove('open');
-  document.getElementById('gridDetailPanel').classList.remove('open');
-}
-document.getElementById('rktDetailClose').onclick=()=>document.getElementById('rktDetailPanel').classList.remove('open');
-
-function loadRktData(){
-  if(rktLoaded)return;
-  const pGeo=fetch(RKT_GRID_URL).then(r=>{if(!r.ok)throw new Error('rkt_lama.json not found');return r.json();}).then(j=>{rktGeoData=j;}).catch(e=>console.warn('RKT grid:',e));
-  const pVisit=new Promise(resolve=>{
-    Papa.parse(RKT_VISIT_URL,{
-      download:true,header:true,skipEmptyLines:true,
-      complete:(res)=>{
-        const visitValues=[];
-        res.data.forEach(row=>{
-          const pk=(row['Petak Kerja']||row['petak_kerja']||row['PETAKKERJA']||'').toString().trim();
-          const vis=parseInt(row['Jumlah Visit']||row['jumlah_visit']||0)||0;
-          if(pk&&vis>0){rktVisitMap[pk]=vis;visitValues.push(vis);}
-        });
-        computeRktScale(visitValues);
-        resolve();
-      },
-      error:()=>{console.warn('RKT visit sheet failed');resolve();}
-    });
-  });
-  Promise.all([pGeo,pVisit]).then(()=>{
-    rktLoaded=true;
-    buildRktGrid();
-    buildRktLegend();
-  });
-}
-
-loadRktData();
-
+/* ── Patrol Track layers — one per month, all OFF by default ── */
 const TRACK_CONFIG=[
   {id:'trackFeb',  file:'track_feb.geojson',   color:'#3b82f6', label:'February'},
   {id:'trackMaret',file:'track_maret.geojson', color:'#f97316', label:'March'},
   {id:'trackApril',file:'track_april.geojson', color:'#a855f7', label:'April'},
   {id:'trackMei',  file:'track_mei.geojson',   color:'#22c55e', label:'May'},
 ];
-const trackLayers={};
-const trackLoaded={};
+const trackLayers={};  // key → L.layerGroup (lazy-loaded)
+const trackLoaded={};  // key → boolean
 
 function loadTrackLayer(cfg){
   return new Promise(resolve=>{
@@ -921,7 +759,7 @@ function loadTrackLayer(cfg){
         const lg=L.layerGroup();
         L.geoJSON(geojson,{
           style:{color:cfg.color,weight:2.5,opacity:0.85,fillOpacity:0},
-          pointToLayer:()=>null
+          pointToLayer:()=>null  // skip any point features
         }).addTo(lg);
         trackLayers[cfg.id]=lg;
         trackLoaded[cfg.id]=true;
@@ -929,7 +767,7 @@ function loadTrackLayer(cfg){
       })
       .catch(err=>{
         console.warn(`Track not loaded (${cfg.file}):`,err);
-        trackLoaded[cfg.id]=true;
+        trackLoaded[cfg.id]=true; // mark so we don't retry endlessly
         resolve();
       });
   });
@@ -947,6 +785,7 @@ function bindTrackToggle(cfg){
 }
 TRACK_CONFIG.forEach(bindTrackToggle);
 
+/* ── GFW cluster ── */
 const gfwCluster=L.markerClusterGroup({
   maxClusterRadius:25,
   disableClusteringAtZoom:16,
@@ -961,7 +800,7 @@ const gfwCluster=L.markerClusterGroup({
     });
   }
 });
-  
+
 fetch('data/CMI.json').then(r=>r.json()).then(j=>{
   boundaryLayer=L.geoJSON(j,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'8 4'}}).addTo(map);
   mapBounds=boundaryLayer.getBounds();
@@ -981,20 +820,17 @@ function switchTab(tab){
   document.getElementById('ctBottomBar').style.display    =tab==='camera'?'flex':'none';
   document.getElementById('detailPanel').classList.remove('open');
   document.getElementById('gridDetailPanel').classList.remove('open');
-  document.getElementById('rktDetailPanel').classList.remove('open');
   if(tab==='patrol'){
     map.addLayer(pointLayer);
     if(document.getElementById('toggleGfw').checked)map.addLayer(gfwCluster);
-    if(document.getElementById('toggleRktGrid').checked)map.addLayer(rktGridLayer);
+    // restore checked track layers
     TRACK_CONFIG.forEach(cfg=>{
       if(document.getElementById(cfg.id).checked&&trackLayers[cfg.id])map.addLayer(trackLayers[cfg.id]);
     });
-    map.removeLayer(ctGridLayer);
-    map.removeLayer(ctPointLayer);
+    map.removeLayer(ctGridLayer);map.removeLayer(ctPointLayer);
   } else {
-    map.removeLayer(pointLayer);
-    map.removeLayer(gfwCluster);
-    map.removeLayer(rktGridLayer);
+    map.removeLayer(pointLayer);map.removeLayer(gfwCluster);
+    // hide track layers when switching to camera tab
     TRACK_CONFIG.forEach(cfg=>{if(trackLayers[cfg.id])map.removeLayer(trackLayers[cfg.id]);});
     if(document.getElementById('ctToggleGrid').checked)map.addLayer(ctGridLayer);
     if(document.getElementById('ctTogglePoints').checked)map.addLayer(ctPointLayer);
@@ -1089,7 +925,6 @@ function openGfwDetail(r,lat,lon){
     <div class="detail-row"><span class="detail-key">Koordinat</span><span class="detail-val" style="font-size:9px">${lat.toFixed(5)}, ${lon.toFixed(5)}</span></div>
     <div style="height:10px"></div>`;
   document.getElementById('detailPanel').classList.add('open');
-  document.getElementById('rktDetailPanel').classList.remove('open');
 }
 
 function updateGfwLegendVisibility(){
@@ -1235,7 +1070,6 @@ function openDetail(r){
     ${imgs.length?`<div class="detail-photos-section"><div class="detail-photos-title">Photos <span class="detail-photos-count">${imgs.length}</span></div><div class="detail-photos-grid">${imgs.map(s=>`<img class="detail-thumb" src="${s}" onclick="openModal('${s}')">`).join('')}</div></div>`:''}
     <div style="height:10px"></div>`;
   document.getElementById('detailPanel').classList.add('open');
-  document.getElementById('rktDetailPanel').classList.remove('open');
 }
 document.getElementById('detailClose').onclick=()=>document.getElementById('detailPanel').classList.remove('open');
 
@@ -1402,6 +1236,7 @@ function updateCtStats(){
   const totalDet=filtered.reduce((s,r)=>s+r.Indep,0);
   const totalSp=new Set(filtered.filter(r=>r.Indep>0).map(r=>r.Species).filter(Boolean)).size;
   const totalCam=new Set(filtered.map(r=>r.CameraID).filter(Boolean)).size;
+  const totalLok=new Set(filtered.map(r=>`${r.Latitude.toFixed(4)}_${r.Longitude.toFixed(4)}`)).size;
   const klassCounts={};
   filtered.forEach(r=>{if(r.Class)klassCounts[r.Class]=(klassCounts[r.Class]||0)+r.Indep;});
   const{total:trapNights,detail:tnDetail}=calcTrapNights(filtered);
@@ -1415,7 +1250,7 @@ function updateCtStats(){
       if(det>topCount){topCount=det;topGrid=`G-${String(fi).padStart(3,'0')}`;}
     });
   }
-  document.getElementById('ctSummaryBody').innerHTML=`<div class="ct-stat-inline"><span>Total individuals recorded</span><span class="ct-stat-inline-val">${totalDet}</span></div><div class="ct-stat-inline"><span>Species Recorded</span><span class="ct-stat-inline-val">${totalSp}</span></div><div class="ct-stat-inline"><span>Cameras Deployed</span><span class="ct-stat-inline-val">${totalCam}</span></div><div class="ct-stat-inline"><span>Avg Events / Camera</span><span class="ct-stat-inline-val">${totalCam?Math.round(totalDet/totalCam):0}</span></div><div class="ct-stat-inline"><span>Total Trap-Nights</span><span class="ct-stat-inline-val">${trapNights}</span></div><div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">By Class</div>${Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="ct-stat-inline"><span>${k}</span><span class="ct-stat-inline-val">${v} (${totalDet?Math.round(v/totalDet*100):0}%)</span></div>`).join('')}`;
+  document.getElementById('ctSummaryBody').innerHTML=`<div class="ct-stat-inline"><span>Total individuals recorded</span><span class="ct-stat-inline-val">${totalDet}</span></div><div class="ct-stat-inline"><span>Species Recorded</span><span class="ct-stat-inline-val">${totalSp}</span></div><div class="ct-stat-inline"><span>Cameras Deployed</span><span class="ct-stat-inline-val">${totalCam}</span></div><div class="ct-stat-inline"><span>Avg Events / Camera</span><span class="ct-stat-inline-val">${totalCam?Math.round(totalDet/totalCam):0}</span></div><div class="ct-stat-inline"><span>Monitoring Locations</span><span class="ct-stat-inline-val">${totalLok}</span></div><div class="ct-stat-inline"><span>Total Trap-Nights</span><span class="ct-stat-inline-val">${trapNights}</span></div><div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">By Class</div>${Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="ct-stat-inline"><span>${k}</span><span class="ct-stat-inline-val">${v} (${totalDet?Math.round(v/totalDet*100):0}%)</span></div>`).join('')}`;
   document.getElementById('ctStatCameras').textContent=totalCam;
   document.getElementById('ctStatDetections').textContent=totalDet;
   document.getElementById('ctStatDetSub').textContent=`${totalSp} species recorded`;
@@ -1434,6 +1269,9 @@ function updateLulcLegendVisibility(){
   sec.style.opacity=on?'':'0.35';sec.style.pointerEvents=on?'':'none';
   sec.previousElementSibling.style.opacity=on?'':'0.35';
 }
+function updateGfwLegendVisibility(){
+  document.getElementById('secGfwLegend').style.display=document.getElementById('toggleGfw').checked?'':'none';
+}
 
 document.getElementById('toggleLulc').onchange=e=>{e.target.checked?map.addLayer(lulc):map.removeLayer(lulc);updateLulcLegendVisibility();};
 document.getElementById('toggleLulc2025').onchange=e=>{e.target.checked?map.addLayer(lulc2025):map.removeLayer(lulc2025);updateLulcLegendVisibility();};
@@ -1449,12 +1287,6 @@ document.getElementById('toggleGfw').onchange=e=>{
   if(e.target.checked){map.addLayer(gfwCluster);}else{map.removeLayer(gfwCluster);}
   updateGfwLegendVisibility();
 };
-document.getElementById('toggleRktGrid').onchange=e=>{
-  if(e.target.checked){map.addLayer(rktGridLayer);}else{map.removeLayer(rktGridLayer);}
-  const sec=document.getElementById('secRktLegend');
-  sec.style.opacity=e.target.checked?'':'0.35';
-  sec.style.pointerEvents=e.target.checked?'':'none';
-};
 document.getElementById('ctToggleBoundary').onchange=e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
 document.getElementById('ctToggleLulc').onchange=e=>e.target.checked?map.addLayer(lulc):map.removeLayer(lulc);
 document.getElementById('ctToggleGrid').onchange=e=>{
@@ -1464,7 +1296,7 @@ document.getElementById('ctToggleGrid').onchange=e=>{
   sec.previousElementSibling.style.opacity=e.target.checked?'':'0.35';
 };
 document.getElementById('ctTogglePoints').onchange=e=>e.target.checked?map.addLayer(ctPointLayer):map.removeLayer(ctPointLayer);
-  
+
 document.getElementById('startDate').addEventListener('change',e=>{PF.start=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('patrolQuickDates'),'');applyPatrolFilters();});
 document.getElementById('endDate').addEventListener('change',e=>{PF.end=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('patrolQuickDates'),'');applyPatrolFilters();});
 document.getElementById('filterOfficer').addEventListener('change',e=>{PF.officer=e.target.value;applyPatrolFilters();});
@@ -1497,13 +1329,7 @@ document.getElementById('ctClearFilters').onclick=()=>{
   applyCtFilters();
 };
 
-function toggleSection(id,chevId){
-  const el=document.getElementById(id),ch=document.getElementById(chevId);
-  const hidden=el.style.display==='none';
-  el.style.display=hidden?'':'none';
-  ch.classList.toggle('open',hidden);
-  ch.textContent=hidden?'▲':'▼';
-}
+function toggleSection(id,chevId){const el=document.getElementById(id),ch=document.getElementById(chevId);const hidden=el.style.display==='none';el.style.display=hidden?'':'none';ch.classList.toggle('open',hidden);ch.textContent=hidden?'▲':'▼';}
 function openModal(src){imageModal.style.display='flex';modalImage.src=src;}
 document.getElementById('closeModal').onclick=()=>imageModal.style.display='none';
 imageModal.onclick=e=>{if(e.target===imageModal)imageModal.style.display='none';};
