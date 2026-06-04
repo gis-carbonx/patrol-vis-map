@@ -75,7 +75,6 @@
     .grid-legend-swatch{width:18px;height:14px;border-radius:2px;flex-shrink:0;border:1px solid rgba(0,0,0,.1)}
     .track-line-swatch{width:22px;height:4px;border-radius:2px;flex-shrink:0}
 
-    /* RKT Grid legend */
     .rkt-legend-item{display:flex;align-items:center;gap:8px;padding:3px 16px;font-size:11px;color:#4b5563}
     .rkt-legend-swatch{width:18px;height:14px;border-radius:2px;flex-shrink:0;border:1px solid rgba(0,0,0,.12)}
 
@@ -192,7 +191,6 @@
     .ct-stat-inline{display:flex;align-items:center;justify-content:space-between;padding:5px 16px;font-size:11px;color:#374151}
     .ct-stat-inline-val{font-weight:700;color:#0ea5e9}
 
-    /* RKT detail panel */
     .rkt-detail-panel{position:absolute;top:68px;right:16px;bottom:84px;z-index:1000;width:296px;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.18);display:none;flex-direction:column;overflow:hidden}
     .rkt-detail-panel.open{display:flex}
     .rkt-dp-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid #f3f4f6;flex-shrink:0;background:#1e3a5f}
@@ -230,7 +228,6 @@
 <div id="map"></div>
 <div class="loading-overlay" id="loadingOverlay">Loading data…</div>
 
-<!-- Top bar -->
 <div class="top-bar">
   <div class="top-bar-left">
     <img src="./data/CMI-Brandmark-FullColor-BlackBG.png" alt="CMI" class="logo-img">
@@ -266,27 +263,22 @@
   </div>
 </div>
 
-<!-- Sidebar -->
 <div class="sidebar">
   <div class="sidebar-body">
 
-    <!-- PATROL SIDEBAR -->
     <div id="patrolSidebar">
 
-      <!-- Map Layers header -->
       <div class="sidebar-section-header" onclick="toggleSection('secLayers','chev1')">
         <span class="sidebar-section-title">Map Layers</span>
         <span class="sidebar-chevron open" id="chev1">▲</span>
       </div>
       <div id="secLayers">
 
-        <!-- Project boundary -->
         <div class="layer-item">
           <div class="layer-item-left"><div class="layer-icon-bd"></div><span class="layer-label">Project Area</span></div>
           <label class="cb-wrap"><input type="checkbox" id="toggleBoundary" checked><div class="cb-box"></div></label>
         </div>
 
-        <!-- 1. Patrol Points -->
         <div class="layer-item">
           <div class="layer-item-left">
             <div style="width:14px;height:14px;border-radius:50%;background:#f5a623;border:2px solid #fff;box-shadow:0 0 0 1.5px #f5a623;flex-shrink:0"></div>
@@ -295,7 +287,6 @@
           <label class="switch"><input type="checkbox" id="togglePoints" checked><span class="sw-track"></span></label>
         </div>
 
-        <!-- 2. GFW Alert -->
         <div class="layer-item">
           <div class="layer-item-left">
             <div style="width:14px;height:14px;border-radius:50%;background:#ef4444;border:2px solid #fff;box-shadow:0 0 0 1.5px #ef4444;flex-shrink:0"></div>
@@ -304,7 +295,6 @@
           <label class="switch"><input type="checkbox" id="toggleGfw"><span class="sw-track"></span></label>
         </div>
 
-        <!-- 3. RKT Patrol Grid -->
         <div class="layer-item">
           <div class="layer-item-left">
             <div style="width:14px;height:14px;border-radius:2px;background:#3b82f6;opacity:.7;flex-shrink:0;border:1px solid rgba(0,0,0,.15)"></div>
@@ -313,7 +303,6 @@
           <label class="switch"><input type="checkbox" id="toggleRktGrid" checked><span class="sw-track"></span></label>
         </div>
 
-        <!-- 4. Landcover — collapsible sub-section -->
         <div style="border-top:1px solid #f3f4f6;margin-top:2px">
           <div class="sidebar-section-header" onclick="toggleSection('secLandcover','chevLc')" style="padding:8px 16px 8px;border-bottom:none">
             <div style="display:flex;align-items:center;gap:8px">
@@ -342,7 +331,6 @@
           </div>
         </div>
 
-        <!-- 5. Patrol Track — collapsible sub-section -->
         <div style="border-top:1px solid #f3f4f6;margin-top:2px">
           <div class="sidebar-section-header" onclick="toggleSection('secTracks','chevTrack')" style="padding:8px 16px 8px;border-bottom:none">
             <div style="display:flex;align-items:center;gap:8px">
@@ -376,7 +364,6 @@
 
       <div class="divider"></div>
 
-      <!-- LULC Classification Legend (collapsible) -->
       <div class="sidebar-section-header" onclick="toggleSection('secLulcLeg','chev2')">
         <span class="sidebar-section-title">LULC Classification</span>
         <span class="sidebar-chevron open" id="chev2">▲</span>
@@ -396,7 +383,6 @@
 
       <div class="divider"></div>
 
-      <!-- RKT Grid Legend (adaptive) -->
       <div id="secRktLegend">
         <div class="sidebar-section-header" onclick="toggleSection('secRktLegBody','chevRkt')">
           <span class="sidebar-section-title">Grid Patrol — Jumlah Visit</span>
@@ -410,7 +396,6 @@
 
       <div class="divider"></div>
 
-      <!-- GFW Legend -->
       <div id="secGfwLegend" style="display:none">
         <div class="sidebar-section-header" onclick="toggleSection('secGfwLegBody','chevGfw')">
           <span class="sidebar-section-title">GFW Disturbance Alert</span>
@@ -426,7 +411,6 @@
         <div class="divider"></div>
       </div>
 
-      <!-- Patrol findings -->
       <div class="sidebar-section-header" onclick="toggleSection('secFindings','chev3')">
         <span class="sidebar-section-title">Patrol Findings</span>
         <span class="sidebar-chevron open" id="chev3">▲</span>
@@ -438,7 +422,6 @@
       </div>
     </div><!-- /patrolSidebar -->
 
-    <!-- CAMERA SIDEBAR -->
     <div id="cameraSidebar" style="display:none">
       <div class="sidebar-section-header" onclick="toggleSection('secCtLayers','chevCt1')">
         <span class="sidebar-section-title">Map Layers</span>
@@ -498,7 +481,6 @@
   </div>
 </div>
 
-<!-- Filter panel -->
 <div class="filter-panel" id="filterPanel">
   <div class="filter-panel-head">
     <span class="filter-panel-title">Filter Data</span>
@@ -600,7 +582,6 @@
   </div>
 </div>
 
-<!-- Basemap panel -->
 <div class="basemap-panel" id="basemapPanel">
   <div class="basemap-label-row">Basemap</div>
   <div class="basemap-pills">
@@ -623,14 +604,12 @@
   </div>
 </div>
 
-<!-- Zoom controls -->
 <div class="map-zoom">
   <button class="zoom-btn" onclick="map.zoomIn()">+</button>
   <button class="zoom-btn" onclick="map.zoomOut()">−</button>
   <button class="zoom-btn" onclick="resetView()" style="font-size:12px">⌂</button>
 </div>
 
-<!-- Detail panel (patrol) -->
 <div class="detail-panel" id="detailPanel">
   <div class="detail-header">
     <span class="detail-header-title" id="detailPanelTitle">Patrol Finding</span>
