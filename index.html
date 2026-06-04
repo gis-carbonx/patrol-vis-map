@@ -16,6 +16,8 @@
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%;overflow:hidden;font-family:'Montserrat',sans-serif;background:#f4f6f8}
+
+    /* ── Top bar ── */
     .top-bar{position:absolute;top:0;left:0;right:0;z-index:1200;height:56px;background:#111;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
     .top-bar-left{display:flex;align-items:center;gap:14px}
     .logo-img{height:30px;width:auto;display:block}
@@ -33,7 +35,11 @@
     .tab-btn svg{width:13px;height:13px}
     .tab-btn.active{background:#2d6a2d;color:#fff}
     .tab-btn:not(.active):hover{background:#252525;color:#ccc}
+
+    /* ── Map & layout ── */
     #map{position:absolute;top:56px;left:268px;right:0;bottom:0}
+
+    /* ── Sidebar ── */
     .sidebar{position:absolute;top:56px;left:0;bottom:0;z-index:1000;width:268px;background:#fff;border-right:1px solid #e8eaed;display:flex;flex-direction:column;overflow:hidden}
     .sidebar-body{flex:1;overflow-y:auto;padding-bottom:16px;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
     .sidebar-body::-webkit-scrollbar{width:3px}
@@ -70,7 +76,11 @@
     .info-hint-icon{flex-shrink:0;width:15px;height:15px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:8px;color:#6b7280;margin-top:1px}
     .grid-legend-item{display:flex;align-items:center;gap:8px;padding:3px 16px;font-size:11px;color:#4b5563}
     .grid-legend-swatch{width:18px;height:14px;border-radius:2px;flex-shrink:0;border:1px solid rgba(0,0,0,.1)}
+
+    /* ── Track line legend ── */
     .track-line-swatch{width:22px;height:4px;border-radius:2px;flex-shrink:0}
+
+    /* ── Filter panel ── */
     .filter-panel{position:absolute;top:64px;right:16px;z-index:1300;width:320px;background:#fff;border-radius:14px;border:1px solid #e8eaed;box-shadow:0 8px 32px rgba(0,0,0,.16);display:none;flex-direction:column;max-height:calc(100vh - 80px);overflow:hidden}
     .filter-panel.open{display:flex}
     .filter-panel-head{padding:14px 16px 12px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff}
@@ -100,9 +110,8 @@
     .btn-clear-f:hover{border-color:#ef4444;color:#ef4444}
     .icon-btn-wrap{position:relative}
     .filter-badge{display:none;position:absolute;top:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#ef4444;font-size:8px;font-weight:700;color:#fff;align-items:center;justify-content:center}
-    .f-section-divider{border-top:1.5px solid #f3f4f6;margin:4px 0 8px;padding-top:10px}
-    .f-section-label{font-size:10px;font-weight:700;color:#374151;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-    .f-section-label .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+    /* ── Bottom bars ── */
     .bottom-bar{position:absolute;bottom:0;left:268px;right:0;z-index:900;background:#fff;border-top:1px solid #e8eaed;display:flex;align-items:center;height:72px;overflow:hidden}
     .bottom-cat{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 6px;border-right:1px solid #f3f4f6;cursor:pointer;transition:background .15s;height:100%}
     .bottom-cat:last-child{border-right:none}
@@ -119,6 +128,8 @@
     .ct-stat-val{font-size:17px;font-weight:700;color:#fff;line-height:1}
     .ct-stat-label{font-size:9px;color:#6b7280;text-align:center;line-height:1.3}
     .ct-stat-sub{font-size:8px;color:#4b5563;text-align:center}
+
+    /* ── Detail panels ── */
     .detail-panel{position:absolute;top:68px;right:16px;bottom:84px;z-index:1000;width:296px;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.14);display:none;flex-direction:column;overflow:hidden}
     .detail-panel.open{display:flex}
     .detail-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid #f3f4f6;flex-shrink:0}
@@ -184,14 +195,20 @@
     .gdp-sp-iucn{font-size:9px;padding:1px 5px;border-radius:4px;font-weight:600;margin-left:4px}
     .ct-stat-inline{display:flex;align-items:center;justify-content:space-between;padding:5px 16px;font-size:11px;color:#374151}
     .ct-stat-inline-val{font-weight:700;color:#0ea5e9}
+
+    /* ── Zoom controls ── */
     .map-zoom{position:absolute;bottom:92px;right:16px;z-index:900;display:flex;flex-direction:column;gap:2px}
     .zoom-btn{width:32px;height:32px;background:#fff;border:1.5px solid #e8eaed;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:#374151;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:background .15s;font-weight:300;line-height:1}
     .zoom-btn:hover{background:#f9fafb}
+
+    /* ── Image modal ── */
     .img-modal{display:none;position:fixed;z-index:9999;inset:0;background:rgba(0,0,0,.9);justify-content:center;align-items:center}
     .img-modal img{max-width:90%;max-height:88%;border-radius:12px}
     .modal-close{position:absolute;top:18px;right:26px;color:#fff;font-size:28px;cursor:pointer;opacity:.7;transition:opacity .15s;line-height:1}
     .modal-close:hover{opacity:1}
     .loading-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);color:#fff;padding:12px 22px;border-radius:10px;font-size:12px;z-index:2000;display:none}
+
+    /* ── Basemap picker ── */
     .basemap-panel{position:absolute;bottom:84px;left:284px;z-index:900;display:flex;flex-direction:column;gap:6px}
     .basemap-label-row{font-size:8px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.7px;padding-left:2px}
     .basemap-pills{display:flex;gap:5px;flex-wrap:wrap}
@@ -201,12 +218,11 @@
     .bm-thumb-wrap{width:44px;height:36px;border-radius:8px;overflow:hidden;border:1.5px solid rgba(255,255,255,.7);box-shadow:0 1px 4px rgba(0,0,0,.22);opacity:.82;transition:all .15s}
     .bm-thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block}
     .bm-name{font-size:8px;font-weight:600;color:#374151;background:rgba(255,255,255,.88);padding:2px 5px;border-radius:4px;line-height:1.3;text-align:center;max-width:46px;backdrop-filter:blur(4px)}
+
+    /* ── GFW cluster overrides ── */
     .marker-cluster-small,.marker-cluster-medium,.marker-cluster-large{background:rgba(239,68,68,.18)!important}
     .marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{background:rgba(239,68,68,.72)!important;color:#fff!important;font-family:'Montserrat',sans-serif!important;font-weight:700!important;font-size:10px!important}
     .leaflet-cluster-anim .leaflet-marker-icon,.leaflet-cluster-anim .leaflet-marker-shadow{transition:transform .3s ease,opacity .3s ease!important}
-    /* Fire cluster overrides */
-    .fire-cluster-small,.fire-cluster-medium,.fire-cluster-large{background:rgba(251,146,60,.18)!important}
-    .fire-cluster div{background:rgba(239,68,68,.85)!important;color:#fff!important;font-family:'Montserrat',sans-serif!important;font-weight:700!important;font-size:10px!important}
   </style>
 </head>
 <body>
@@ -273,6 +289,14 @@
           <div class="layer-item-left"><div class="layer-icon-sq" style="background:#00BCD4"></div><span class="layer-label">LULC 2025</span></div>
           <label class="switch"><input type="checkbox" id="toggleLulc2025"><span class="sw-track"></span></label>
         </div>
+        <div class="layer-item" style="padding-left:28px">
+          <div class="layer-item-left"><div class="layer-icon-sq" style="background:#FF9800"></div><span class="layer-label">Landsat 2024</span></div>
+          <label class="switch"><input type="checkbox" id="toggleLandsat2024"><span class="sw-track"></span></label>
+        </div>
+        <div class="layer-item" style="padding-left:28px">
+          <div class="layer-item-left"><div class="layer-icon-sq" style="background:#F44336"></div><span class="layer-label">Landsat 2025</span></div>
+          <label class="switch"><input type="checkbox" id="toggleLandsat2025"><span class="sw-track"></span></label>
+        </div>
         <div class="layer-item">
           <div class="layer-item-left"><div class="layer-icon-sq" style="background:#f5a623;border-radius:50%"></div><span class="layer-label">Patrol Points</span></div>
           <label class="switch"><input type="checkbox" id="togglePoints" checked><span class="sw-track"></span></label>
@@ -284,13 +308,6 @@
           </div>
           <label class="switch"><input type="checkbox" id="toggleGfw"><span class="sw-track"></span></label>
         </div>
-        <div class="layer-item">
-          <div class="layer-item-left">
-            <div style="width:14px;height:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px">🔥</div>
-            <span class="layer-label">Fire Event</span>
-          </div>
-          <label class="switch"><input type="checkbox" id="toggleFire"><span class="sw-track"></span></label>
-        </div>
       </div>
 
       <div class="divider"></div>
@@ -298,24 +315,37 @@
       <!-- Patrol Track section -->
       <div class="sidebar-section-header" onclick="toggleSection('secTracks','chevTrack')">
         <span class="sidebar-section-title">Patrol Track</span>
-        <span class="sidebar-chevron open" id="chevTrack">▲</span>
+        <span class="sidebar-chevron" id="chevTrack">▲</span>
       </div>
-      <div id="secTracks">
+
+      <div id="secTracks" style="display:none;">
         <div style="padding:4px 0">
           <div class="layer-item" style="padding-left:28px">
-            <div class="layer-item-left"><div class="track-line-swatch" style="background:#3b82f6"></div><span class="layer-label">February</span></div>
+            <div class="layer-item-left">
+              <div class="track-line-swatch" style="background:#3b82f6"></div>
+              <span class="layer-label">February</span>
+            </div>
             <label class="switch"><input type="checkbox" id="trackFeb"><span class="sw-track"></span></label>
           </div>
           <div class="layer-item" style="padding-left:28px">
-            <div class="layer-item-left"><div class="track-line-swatch" style="background:#f97316"></div><span class="layer-label">March</span></div>
+            <div class="layer-item-left">
+              <div class="track-line-swatch" style="background:#f97316"></div>
+              <span class="layer-label">March</span>
+            </div>
             <label class="switch"><input type="checkbox" id="trackMaret"><span class="sw-track"></span></label>
           </div>
           <div class="layer-item" style="padding-left:28px">
-            <div class="layer-item-left"><div class="track-line-swatch" style="background:#a855f7"></div><span class="layer-label">April</span></div>
+            <div class="layer-item-left">
+              <div class="track-line-swatch" style="background:#a855f7"></div>
+              <span class="layer-label">April</span>
+            </div>
             <label class="switch"><input type="checkbox" id="trackApril"><span class="sw-track"></span></label>
           </div>
           <div class="layer-item" style="padding-left:28px">
-            <div class="layer-item-left"><div class="track-line-swatch" style="background:#22c55e"></div><span class="layer-label">May</span></div>
+            <div class="layer-item-left">
+              <div class="track-line-swatch" style="background:#22c55e"></div>
+              <span class="layer-label">May</span>
+            </div>
             <label class="switch"><input type="checkbox" id="trackMei"><span class="sw-track"></span></label>
           </div>
         </div>
@@ -324,7 +354,7 @@
 
       <div class="divider"></div>
 
-      <!-- LULC legend — collapsible, default open -->
+      <!-- LULC legend -->
       <div class="sidebar-section-header" onclick="toggleSection('secLulcLeg','chev2')">
         <span class="sidebar-section-title">LULC Classification</span>
         <span class="sidebar-chevron open" id="chev2">▲</span>
@@ -344,7 +374,7 @@
 
       <div class="divider"></div>
 
-      <!-- GFW Legend -->
+      <!-- GFW Legend (hidden by default) -->
       <div id="secGfwLegend" style="display:none">
         <div class="sidebar-section-header" onclick="toggleSection('secGfwLegBody','chevGfw')">
           <span class="sidebar-section-title">GFW Disturbance Alert</span>
@@ -356,19 +386,6 @@
             <span>Disturbance Point</span>
           </div>
           <div style="padding:4px 16px 2px;font-size:9px;color:#9ca3af">Showing data from the last 30 days by default</div>
-        </div>
-        <div class="divider"></div>
-      </div>
-
-      <!-- Fire Legend -->
-      <div id="secFireLegend" style="display:none">
-        <div class="sidebar-section-header" onclick="toggleSection('secFireLegBody','chevFire')">
-          <span class="sidebar-section-title">Fire Event</span>
-          <span class="sidebar-chevron open" id="chevFire">▲</span>
-        </div>
-        <div id="secFireLegBody">
-          <div class="legend-item"><span style="font-size:13px;line-height:1">🔥</span><span>Fire Detection Point</span></div>
-          <div style="padding:3px 16px 2px;font-size:9px;color:#9ca3af">Source: VIIRS satellite detection</div>
         </div>
         <div class="divider"></div>
       </div>
@@ -486,12 +503,10 @@
         <div class="f-label">Finding</div>
         <select class="f-input" id="filterFinding"><option value="">All Findings</option></select>
       </div>
-
       <!-- GFW filters -->
-      <div class="f-section-divider">
-        <div class="f-section-label"><span class="dot" style="background:#ef4444"></span>GFW Disturbance Alert</div>
+      <div style="border-top:1px solid #f3f4f6;margin-top:4px;padding-top:12px">
         <div class="f-group">
-          <div class="f-label">Quick Date</div>
+          <div class="f-label" style="color:#ef4444">GFW Alert — Quick Date</div>
           <div class="quick-date-row" id="gfwQuickDates">
             <button class="qd-btn" data-preset="today" onclick="applyGfwQuickDate(this)">Today</button>
             <button class="qd-btn" data-preset="1w" onclick="applyGfwQuickDate(this)">1W</button>
@@ -503,58 +518,17 @@
           </div>
         </div>
         <div class="f-group">
-          <div class="f-label">Custom Range</div>
+          <div class="f-label">GFW — Custom Range</div>
           <div class="f-date-row">
             <input type="date" class="f-input date-input" id="gfwStartDate">
             <input type="date" class="f-input date-input" id="gfwEndDate">
           </div>
         </div>
         <div class="f-group">
-          <div class="f-label">Confidence</div>
+          <div class="f-label">GFW Confidence</div>
           <select class="f-input" id="filterGfwConf"><option value="">All Confidence</option></select>
         </div>
       </div>
-
-      <!-- Fire Event filters -->
-      <div class="f-section-divider">
-        <div class="f-section-label"><span style="font-size:12px;line-height:1">🔥</span>Fire Event</div>
-        <div class="f-group">
-          <div class="f-label">Quick Date</div>
-          <div class="quick-date-row" id="fireQuickDates">
-            <button class="qd-btn" data-preset="today" onclick="applyFireQuickDate(this)">Today</button>
-            <button class="qd-btn" data-preset="1w" onclick="applyFireQuickDate(this)">1W</button>
-            <button class="qd-btn" data-preset="1m" onclick="applyFireQuickDate(this)">1M</button>
-            <button class="qd-btn" data-preset="3m" onclick="applyFireQuickDate(this)">3M</button>
-            <button class="qd-btn" data-preset="6m" onclick="applyFireQuickDate(this)">6M</button>
-            <button class="qd-btn" data-preset="1y" onclick="applyFireQuickDate(this)">1Y</button>
-            <button class="qd-btn active" data-preset="all" onclick="applyFireQuickDate(this)">All</button>
-          </div>
-        </div>
-        <div class="f-group">
-          <div class="f-label">Custom Range</div>
-          <div class="f-date-row">
-            <input type="date" class="f-input date-input" id="fireStartDate">
-            <input type="date" class="f-input date-input" id="fireEndDate">
-          </div>
-        </div>
-        <div class="f-group">
-          <div class="f-label">Satellite</div>
-          <select class="f-input" id="filterFireSatellite"><option value="">All Satellites</option></select>
-        </div>
-        <div class="f-group">
-          <div class="f-label">Owner</div>
-          <select class="f-input" id="filterFireOwner"><option value="">All Owners</option></select>
-        </div>
-        <div class="f-group">
-          <div class="f-label">Desa</div>
-          <select class="f-input" id="filterFireDesa"><option value="">All Desa</option></select>
-        </div>
-        <div class="f-group">
-          <div class="f-label">Penutup Lahan</div>
-          <select class="f-input" id="filterFireLahan"><option value="">All Land Cover</option></select>
-        </div>
-      </div>
-
       <div class="f-active-box" id="patrolActivePills" style="display:none">
         <div class="f-active-label">Active Filters</div>
         <div class="f-pills" id="patrolPillsWrap"></div>
@@ -657,6 +631,7 @@
 </div>
 
 <script>
+
 const PALETTE=['#3b82f6','#22c55e','#ef4444','#f59e0b','#a855f7','#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6'];
 const catColorMap={};
 function catColor(cat){if(!catColorMap[cat])catColorMap[cat]=PALETTE[Object.keys(catColorMap).length%PALETTE.length];return catColorMap[cat];}
@@ -695,7 +670,15 @@ function parseBatchLabel(label){
   const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
   const parts=label.trim().split(/\s*[-–]+\s*/);
   if(parts.length<2)return null;
-  function parseToken(tok){tok=tok.trim();const m=tok.match(/^([A-Za-z]{3})\s*(\d{2,4})$/);if(!m)return null;const mon=MON[m[1].charAt(0).toUpperCase()+m[1].slice(1).toLowerCase()];if(mon===undefined)return null;const yr=m[2].length===2?(+m[2]<=50?2000+ +m[2]:1900+ +m[2]):+m[2];return{mon,yr};}
+  function parseToken(tok){
+    tok=tok.trim();
+    const m=tok.match(/^([A-Za-z]{3})\s*(\d{2,4})$/);
+    if(!m)return null;
+    const mon=MON[m[1].charAt(0).toUpperCase()+m[1].slice(1).toLowerCase()];
+    if(mon===undefined)return null;
+    const yr=m[2].length===2?(+m[2]<=50?2000+ +m[2]:1900+ +m[2]):+m[2];
+    return{mon,yr};
+  }
   const s=parseToken(parts[0]),e=parseToken(parts[parts.length-1]);
   if(!s||!e)return null;
   const startDate=toMidnight(s.yr,s.mon,1),endDate=toMidnight(e.yr,e.mon+1,0);
@@ -744,24 +727,29 @@ function switchBasemap(id){
 
 const map=L.map('map',{center:[0.8,110.325],zoom:13,zoomControl:false,attributionControl:false});
 basemaps['esri_imagery'].addTo(map);
+
 const canvasRenderer=L.canvas({padding:0.5});
 
-const lulc    =L.tileLayer('./data/Tiles/{z}/{x}/{y}.png',{opacity:1}).addTo(map);
-const lulc2025=L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',{opacity:1});
+const lulc        =L.tileLayer('./data/Tiles/{z}/{x}/{y}.png',{opacity:1}).addTo(map);
+const lulc2025    =L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',{opacity:1});
+const landsat2024 =L.tileLayer('./data/landsat-2024/{z}/{x}/{y}.png',{opacity:1});
+const landsat2025 =L.tileLayer('./data/landsat-2025/{z}/{x}/{y}.png',{opacity:1});
 let boundaryLayer,mapBounds;
 const pointLayer  =L.layerGroup().addTo(map);
 const ctGridLayer =L.layerGroup();
 const ctPointLayer=L.layerGroup();
 let currentTab='patrol';
 
-/* ── Patrol Track layers ── */
+/* ── Patrol Track layers — one per month, all OFF by default ── */
 const TRACK_CONFIG=[
-  {id:'trackFeb',  file:'track_feb.geojson',   color:'#3b82f6'},
-  {id:'trackMaret',file:'track_maret.geojson', color:'#f97316'},
-  {id:'trackApril',file:'track_april.geojson', color:'#a855f7'},
-  {id:'trackMei',  file:'track_mei.geojson',   color:'#22c55e'},
+  {id:'trackFeb',  file:'track_feb.geojson',   color:'#3b82f6', label:'February'},
+  {id:'trackMaret',file:'track_maret.geojson', color:'#f97316', label:'March'},
+  {id:'trackApril',file:'track_april.geojson', color:'#a855f7', label:'April'},
+  {id:'trackMei',  file:'track_mei.geojson',   color:'#22c55e', label:'May'},
 ];
-const trackLayers={},trackLoaded={};
+const trackLayers={};  // key → L.layerGroup (lazy-loaded)
+const trackLoaded={};  // key → boolean
+
 function loadTrackLayer(cfg){
   return new Promise(resolve=>{
     if(trackLoaded[cfg.id]){resolve();return;}
@@ -769,34 +757,47 @@ function loadTrackLayer(cfg){
       .then(r=>r.ok?r.json():Promise.reject(r.status))
       .then(geojson=>{
         const lg=L.layerGroup();
-        L.geoJSON(geojson,{style:{color:cfg.color,weight:2.5,opacity:0.85,fillOpacity:0},pointToLayer:()=>null}).addTo(lg);
-        trackLayers[cfg.id]=lg;trackLoaded[cfg.id]=true;resolve();
-      }).catch(err=>{console.warn(`Track not loaded (${cfg.file}):`,err);trackLoaded[cfg.id]=true;resolve();});
+        L.geoJSON(geojson,{
+          style:{color:cfg.color,weight:2.5,opacity:0.85,fillOpacity:0},
+          pointToLayer:()=>null  // skip any point features
+        }).addTo(lg);
+        trackLayers[cfg.id]=lg;
+        trackLoaded[cfg.id]=true;
+        resolve();
+      })
+      .catch(err=>{
+        console.warn(`Track not loaded (${cfg.file}):`,err);
+        trackLoaded[cfg.id]=true; // mark so we don't retry endlessly
+        resolve();
+      });
   });
 }
+
 function bindTrackToggle(cfg){
   document.getElementById(cfg.id).addEventListener('change',async function(){
-    if(this.checked){await loadTrackLayer(cfg);if(trackLayers[cfg.id]&&currentTab==='patrol')map.addLayer(trackLayers[cfg.id]);}
-    else{if(trackLayers[cfg.id])map.removeLayer(trackLayers[cfg.id]);}
+    if(this.checked){
+      await loadTrackLayer(cfg);
+      if(trackLayers[cfg.id]&&currentTab==='patrol')map.addLayer(trackLayers[cfg.id]);
+    } else {
+      if(trackLayers[cfg.id])map.removeLayer(trackLayers[cfg.id]);
+    }
   });
 }
 TRACK_CONFIG.forEach(bindTrackToggle);
 
 /* ── GFW cluster ── */
 const gfwCluster=L.markerClusterGroup({
-  maxClusterRadius:25,disableClusteringAtZoom:16,spiderfyOnMaxZoom:true,showCoverageOnHover:false,
+  maxClusterRadius:25,
+  disableClusteringAtZoom:16,
+  spiderfyOnMaxZoom:true,
+  showCoverageOnHover:false,
   iconCreateFunction:function(cluster){
-    const n=cluster.getChildCount(),sz=n<10?28:n<50?34:38;
-    return L.divIcon({html:`<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:rgba(239,68,68,.8);border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;font-family:'Montserrat',sans-serif;box-shadow:0 2px 6px rgba(0,0,0,.3)">${n}</div>`,className:'',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]});
-  }
-});
-
-/* ── Fire Event cluster ── */
-const fireCluster=L.markerClusterGroup({
-  maxClusterRadius:30,disableClusteringAtZoom:15,spiderfyOnMaxZoom:true,showCoverageOnHover:false,
-  iconCreateFunction:function(cluster){
-    const n=cluster.getChildCount(),sz=n<10?28:n<50?34:38;
-    return L.divIcon({html:`<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:rgba(234,88,12,.88);border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;font-family:'Montserrat',sans-serif;box-shadow:0 2px 6px rgba(0,0,0,.3)">🔥${n}</div>`,className:'',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]});
+    const n=cluster.getChildCount();
+    const sz=n<10?28:n<50?34:38;
+    return L.divIcon({
+      html:`<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:rgba(239,68,68,.8);border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;font-family:'Montserrat',sans-serif;box-shadow:0 2px 6px rgba(0,0,0,.3)">${n}</div>`,
+      className:'',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]
+    });
   }
 });
 
@@ -822,11 +823,14 @@ function switchTab(tab){
   if(tab==='patrol'){
     map.addLayer(pointLayer);
     if(document.getElementById('toggleGfw').checked)map.addLayer(gfwCluster);
-    if(document.getElementById('toggleFire').checked)map.addLayer(fireCluster);
-    TRACK_CONFIG.forEach(cfg=>{if(document.getElementById(cfg.id).checked&&trackLayers[cfg.id])map.addLayer(trackLayers[cfg.id]);});
+    // restore checked track layers
+    TRACK_CONFIG.forEach(cfg=>{
+      if(document.getElementById(cfg.id).checked&&trackLayers[cfg.id])map.addLayer(trackLayers[cfg.id]);
+    });
     map.removeLayer(ctGridLayer);map.removeLayer(ctPointLayer);
   } else {
-    map.removeLayer(pointLayer);map.removeLayer(gfwCluster);map.removeLayer(fireCluster);
+    map.removeLayer(pointLayer);map.removeLayer(gfwCluster);
+    // hide track layers when switching to camera tab
     TRACK_CONFIG.forEach(cfg=>{if(trackLayers[cfg.id])map.removeLayer(trackLayers[cfg.id]);});
     if(document.getElementById('ctToggleGrid').checked)map.addLayer(ctGridLayer);
     if(document.getElementById('ctTogglePoints').checked)map.addLayer(ctPointLayer);
@@ -840,11 +844,10 @@ filterToggleBtn.addEventListener('click',e=>{e.stopPropagation();filterPanel.cla
 document.getElementById('filterClose').addEventListener('click',()=>{filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');});
 document.addEventListener('click',e=>{if(filterPanel.classList.contains('open')&&!filterPanel.contains(e.target)&&e.target!==filterToggleBtn){filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');}});
 
-/* ════════════════════════════════
-   GFW
-════════════════════════════════ */
 const GFW_SHEET_URL='https://docs.google.com/spreadsheets/d/1UW3uOFcLr4AQFBp_VMbEXk37_Vb5DekHU-_9QSkskCo/export?format=csv&gid=0';
-let gfwRawData=[],allGfwConf=[];
+let gfwRawData=[];
+let allGfwConf=[];
+
 const{start:gfw1mStart,end:gfw1mEnd}=getPresetRange('1m');
 const GFW={start:gfw1mStart,end:gfw1mEnd,conf:''};
 document.getElementById('gfwStartDate').value=gfw1mStart?toInputStr(gfw1mStart):'';
@@ -858,6 +861,7 @@ function applyGfwQuickDate(btn){
   setActiveQuickBtn(document.getElementById('gfwQuickDates'),btn.dataset.preset);
   updateGfwLayer();updatePatrolFilterUI();
 }
+
 Papa.parse(GFW_SHEET_URL,{download:true,header:true,skipEmptyLines:true,complete:(res)=>{
   gfwRawData=res.data.filter(r=>(r['Note']||'').trim()==='Titik'&&r['latitude']&&r['longitude']);
   const confSet=new Set();
@@ -868,30 +872,47 @@ Papa.parse(GFW_SHEET_URL,{download:true,header:true,skipEmptyLines:true,complete
   allGfwConf.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
   updateGfwLayer();
 }});
+
 function getGfwFiltered(){
   return gfwRawData.filter(r=>{
     const rawDate=(r['Date']||r['date']||'').trim();
-    if(rawDate&&(GFW.start||GFW.end)){const d=parseDateStr(rawDate,'ymd');if(GFW.start&&d&&d<GFW.start)return false;if(GFW.end&&d&&d>GFW.end)return false;}
+    if(rawDate&&(GFW.start||GFW.end)){
+      const d=parseDateStr(rawDate,'ymd');
+      if(GFW.start&&d&&d<GFW.start)return false;
+      if(GFW.end&&d&&d>GFW.end)return false;
+    }
     if(GFW.conf&&(r['Conf_Integrate']||'').trim()!==GFW.conf)return false;
     return true;
   });
 }
+
 function updateGfwLayer(){
   gfwCluster.clearLayers();
   const filtered=getGfwFiltered();
   const markers=[];
   filtered.forEach(r=>{
-    const lat=parseFloat(r['latitude']),lon=parseFloat(r['longitude']);
+    const lat=parseFloat(r['latitude']);
+    const lon=parseFloat(r['longitude']);
     if(isNaN(lat)||isNaN(lon))return;
-    const mk=L.circleMarker([lat,lon],{renderer:canvasRenderer,radius:5,fillColor:'#ef4444',color:'#fff',weight:1.5,fillOpacity:0.9});
+    const mk=L.circleMarker([lat,lon],{
+      renderer:canvasRenderer,radius:5,
+      fillColor:'#ef4444',color:'#fff',weight:1.5,fillOpacity:0.9
+    });
+    mk._gfwRow=r;
     mk.on('click',()=>openGfwDetail(r,lat,lon));
     markers.push(mk);
   });
   gfwCluster.addLayers(markers);
 }
+
 function openGfwDetail(r,lat,lon){
   document.getElementById('detailPanelTitle').textContent='GFW Disturbance Alert';
-  const conf=(r['Conf_Integrate']||'-').trim(),date=(r['Date']||r['date']||'-').trim(),desa=(r['Desa']||'-').trim(),owner=(r['Owner']||'-').trim(),blok=(r['Blok']||'-').trim(),penutup=(r['Penutup_Lahan']||'-').trim();
+  const conf=(r['Conf_Integrate']||'-').trim();
+  const date=(r['Date']||r['date']||'-').trim();
+  const desa=(r['Desa']||'-').trim();
+  const owner=(r['Owner']||'-').trim();
+  const blok=(r['Blok']||'-').trim();
+  const penutup=(r['Penutup_Lahan']||'-').trim();
   document.getElementById('detailBody').innerHTML=`
     <div class="detail-cat-row"><div class="detail-cat-dot" style="background:#ef4444"></div><span class="detail-cat-name">Disturbance Alert</span></div>
     <div style="height:6px"></div>
@@ -906,128 +927,13 @@ function openGfwDetail(r,lat,lon){
   document.getElementById('detailPanel').classList.add('open');
 }
 
-/* ════════════════════════════════
-   FIRE EVENT
-════════════════════════════════ */
-const FIRE_SHEET_URL='https://docs.google.com/spreadsheets/d/1QRsiwK-3vlEU8991xsFsFvWdmyeuMTvSnATxxWRZEfk/export?format=csv&gid=0';
-let fireRawData=[];
-const FIRE={start:null,end:null,satellite:'',owner:'',desa:'',lahan:''};
-
-function applyFireQuickDate(btn){
-  const{start,end}=getPresetRange(btn.dataset.preset);
-  FIRE.start=start;FIRE.end=end;
-  document.getElementById('fireStartDate').value=start?toInputStr(start):'';
-  document.getElementById('fireEndDate').value=end?toInputStr(end):'';
-  setActiveQuickBtn(document.getElementById('fireQuickDates'),btn.dataset.preset);
-  updateFireLayer();updatePatrolFilterUI();
+function updateGfwLegendVisibility(){
+  document.getElementById('secGfwLegend').style.display=document.getElementById('toggleGfw').checked?'':'none';
 }
 
-Papa.parse(FIRE_SHEET_URL,{download:true,header:true,skipEmptyLines:true,complete:(res)=>{
-  fireRawData=res.data.filter(r=>{
-    const lat=parseFloat(r['latitude']||r['Latitude']);
-    const lon=parseFloat(r['longitude']||r['Longitude']);
-    return !isNaN(lat)&&!isNaN(lon);
-  });
-  // Populate fire filter dropdowns
-  const satSet=new Set(),ownerSet=new Set(),desaSet=new Set(),lahanSet=new Set();
-  fireRawData.forEach(r=>{
-    if(r['satellite']||r['Satellite']){satSet.add((r['satellite']||r['Satellite']).trim());}
-    if(r['Owner']||r['owner']){ownerSet.add((r['Owner']||r['owner']).trim());}
-    if(r['Desa']||r['desa']){desaSet.add((r['Desa']||r['desa']).trim());}
-    if(r['Penutup Lahan']||r['Penutup_Lahan']){lahanSet.add((r['Penutup Lahan']||r['Penutup_Lahan']).trim());}
-  });
-  function fillSel(id,set,placeholder){
-    const sel=document.getElementById(id);
-    sel.innerHTML=`<option value="">${placeholder}</option>`;
-    [...set].sort().forEach(v=>{if(!v)return;const o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o);});
-  }
-  fillSel('filterFireSatellite',satSet,'All Satellites');
-  fillSel('filterFireOwner',ownerSet,'All Owners');
-  fillSel('filterFireDesa',desaSet,'All Desa');
-  fillSel('filterFireLahan',lahanSet,'All Land Cover');
-  // don't auto-show; only render when toggle is ON
-}});
-
-function getFireFiltered(){
-  return fireRawData.filter(r=>{
-    const rawDate=(r['Tanggal']||r['tanggal']||r['Date']||r['date']||'').trim();
-    if(rawDate&&(FIRE.start||FIRE.end)){
-      const d=parseDateStr(rawDate,'ymd');
-      if(FIRE.start&&d&&d<FIRE.start)return false;
-      if(FIRE.end&&d&&d>FIRE.end)return false;
-    }
-    const sat=(r['satellite']||r['Satellite']||'').trim();
-    if(FIRE.satellite&&sat!==FIRE.satellite)return false;
-    const owner=(r['Owner']||r['owner']||'').trim();
-    if(FIRE.owner&&owner!==FIRE.owner)return false;
-    const desa=(r['Desa']||r['desa']||'').trim();
-    if(FIRE.desa&&desa!==FIRE.desa)return false;
-    const lahan=(r['Penutup Lahan']||r['Penutup_Lahan']||'').trim();
-    if(FIRE.lahan&&lahan!==FIRE.lahan)return false;
-    return true;
-  });
-}
-
-function updateFireLayer(){
-  fireCluster.clearLayers();
-  if(!document.getElementById('toggleFire').checked)return;
-  const filtered=getFireFiltered();
-  const markers=[];
-  filtered.forEach(r=>{
-    const lat=parseFloat(r['latitude']||r['Latitude']);
-    const lon=parseFloat(r['longitude']||r['Longitude']);
-    if(isNaN(lat)||isNaN(lon))return;
-    const mk=L.marker([lat,lon],{icon:L.divIcon({
-      html:`<div style="font-size:14px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))">🔥</div>`,
-      className:'',iconSize:[18,18],iconAnchor:[9,9]
-    })});
-    mk.on('click',()=>openFireDetail(r,lat,lon));
-    markers.push(mk);
-  });
-  fireCluster.addLayers(markers);
-}
-
-function openFireDetail(r,lat,lon){
-  document.getElementById('detailPanelTitle').textContent='Fire Event';
-  const tanggal=(r['Tanggal']||r['tanggal']||r['Date']||r['date']||'-').trim();
-  const jam=(r['Jam']||r['jam']||r['Time']||'-').trim();
-  const satellite=(r['satellite']||r['Satellite']||'-').trim();
-  const instrument=(r['instrument']||r['Instrument']||'-').trim();
-  const owner=(r['Owner']||r['owner']||'-').trim();
-  const desa=(r['Desa']||r['desa']||'-').trim();
-  const lahan=(r['Penutup Lahan']||r['Penutup_Lahan']||'-').trim();
-  const blok=(r['Blok']||r['blok']||'-').trim();
-  const ket=(r['Ket']||r['ket']||'-').trim();
-
-  document.getElementById('detailBody').innerHTML=`
-    <div class="detail-cat-row">
-      <div style="font-size:16px;line-height:1">🔥</div>
-      <span class="detail-cat-name" style="color:#ea580c">Fire Detection</span>
-    </div>
-    <div style="height:6px"></div>
-    <div class="detail-row"><span class="detail-key">Tanggal</span><span class="detail-val">${tanggal}</span></div>
-    <div class="detail-row"><span class="detail-key">Jam</span><span class="detail-val">${jam}</span></div>
-    <div class="detail-row"><span class="detail-key">Satellite</span><span class="detail-val">${satellite}</span></div>
-    <div class="detail-row"><span class="detail-key">Instrument</span><span class="detail-val">${instrument}</span></div>
-    <div class="detail-row"><span class="detail-key">Owner</span><span class="detail-val">${owner}</span></div>
-    <div class="detail-row"><span class="detail-key">Desa</span><span class="detail-val">${desa}</span></div>
-    <div class="detail-row"><span class="detail-key">Penutup Lahan</span><span class="detail-val">${lahan}</span></div>
-    <div class="detail-row"><span class="detail-key">Blok</span><span class="detail-val">${blok}</span></div>
-    ${ket&&ket!=='-'?`<div class="detail-row"><span class="detail-key">Keterangan</span><span class="detail-val">${ket}</span></div>`:''}
-    <div class="detail-row"><span class="detail-key">Koordinat</span><span class="detail-val" style="font-size:9px">${lat.toFixed(5)}, ${lon.toFixed(5)}</span></div>
-    <div style="height:10px"></div>`;
-  document.getElementById('detailPanel').classList.add('open');
-}
-
-function updateFireLegendVisibility(){
-  document.getElementById('secFireLegend').style.display=document.getElementById('toggleFire').checked?'':'none';
-}
-
-/* ════════════════════════════════
-   PATROL
-════════════════════════════════ */
 const PATROL_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 let rawData=[],highlightCat=null;
+
 const{start:p1mStart,end:p1mEnd}=getPresetRange('1m');
 const PF={start:p1mStart,end:p1mEnd,officer:'',category:'',finding:''};
 document.getElementById('startDate').value=p1mStart?toInputStr(p1mStart):'';
@@ -1047,6 +953,7 @@ function applyPatrolQuickDate(btn){
   setActiveQuickBtn(document.getElementById('patrolQuickDates'),btn.dataset.preset);
   applyPatrolFilters();
 }
+
 function patrolSubset(excludeField){
   return rawData.filter(r=>{
     if(!r['data-coordinate']||!r['data-coordinate'].trim())return false;
@@ -1058,6 +965,7 @@ function patrolSubset(excludeField){
   });
 }
 function getActiveFiltered(){return patrolSubset(null);}
+
 let allOfficers=[],allCategories=[],allFindings=[];
 function initPatrolDropdowns(){
   const o=new Set(),c=new Set(),f=new Set();
@@ -1099,11 +1007,6 @@ function updatePatrolFilterUI(){
   if(PF.finding) pills.push({label:fmtLabel(PF.finding), clear:`clearPatrolField('finding')`});
   if(GFW.start||GFW.end)pills.push({label:`GFW: ${fmtDate(GFW.start)} – ${fmtDate(GFW.end)}`,clear:`clearGfwDateFilter()`});
   if(GFW.conf)   pills.push({label:`GFW Conf: ${GFW.conf}`,clear:`clearGfwField('conf')`});
-  if(FIRE.start||FIRE.end)pills.push({label:`Fire: ${fmtDate(FIRE.start)} – ${fmtDate(FIRE.end)}`,clear:`clearFireDateFilter()`});
-  if(FIRE.satellite)pills.push({label:`Sat: ${FIRE.satellite}`,clear:`clearFireField('satellite')`});
-  if(FIRE.owner)    pills.push({label:`Owner: ${FIRE.owner}`,clear:`clearFireField('owner')`});
-  if(FIRE.desa)     pills.push({label:`Desa: ${FIRE.desa}`,clear:`clearFireField('desa')`});
-  if(FIRE.lahan)    pills.push({label:`Lahan: ${FIRE.lahan}`,clear:`clearFireField('lahan')`});
   buildPills(pills,'patrolPillsWrap','patrolActivePills');
   document.getElementById('filterBadge').style.display=pills.length?'flex':'none';
 }
@@ -1111,8 +1014,6 @@ function clearPatrolDateFilter(){PF.start=null;PF.end=null;document.getElementBy
 function clearPatrolField(f){if(f==='officer'){PF.officer='';document.getElementById('filterOfficer').value='';}if(f==='category'){PF.category='';document.getElementById('filterCategory').value='';}if(f==='finding'){PF.finding='';document.getElementById('filterFinding').value='';}applyPatrolFilters();}
 function clearGfwDateFilter(){GFW.start=null;GFW.end=null;document.getElementById('gfwStartDate').value='';document.getElementById('gfwEndDate').value='';setActiveQuickBtn(document.getElementById('gfwQuickDates'),'all');updateGfwLayer();updatePatrolFilterUI();}
 function clearGfwField(f){if(f==='conf'){GFW.conf='';document.getElementById('filterGfwConf').value='';}updateGfwLayer();updatePatrolFilterUI();}
-function clearFireDateFilter(){FIRE.start=null;FIRE.end=null;document.getElementById('fireStartDate').value='';document.getElementById('fireEndDate').value='';setActiveQuickBtn(document.getElementById('fireQuickDates'),'all');updateFireLayer();updatePatrolFilterUI();}
-function clearFireField(f){FIRE[f]='';document.getElementById({satellite:'filterFireSatellite',owner:'filterFireOwner',desa:'filterFireDesa',lahan:'filterFireLahan'}[f]).value='';updateFireLayer();updatePatrolFilterUI();}
 
 function makeIcon(color,faded=false){return L.divIcon({html:`<div style="width:12px;height:12px;border-radius:50%;background:${color};border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);opacity:${faded?0.18:1}"></div>`,className:'',iconSize:[12,12],iconAnchor:[6,6]});}
 function updateMap(){
@@ -1172,9 +1073,6 @@ function openDetail(r){
 }
 document.getElementById('detailClose').onclick=()=>document.getElementById('detailPanel').classList.remove('open');
 
-/* ════════════════════════════════
-   CAMERA TRAP
-════════════════════════════════ */
 const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
 const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
 const CT_GRID_URL='./data/grid.geojson';
@@ -1282,7 +1180,8 @@ function buildCtGrid(){
     const layer=L.geoJSON(feat,{style:{fillColor:totalCount>0?color:'transparent',fillOpacity:opacity,color:totalCount>0?color:'#444',weight:totalCount>0?1.5:0.8,opacity:0.9}});
     if(totalCount>0){
       const center=layer.getBounds().getCenter();
-      const numCams=camsInCell.size,avgPerCam=numCams>1?Math.round(totalCount/numCams):null;
+      const numCams=camsInCell.size;
+      const avgPerCam=numCams>1?Math.round(totalCount/numCams):null;
       const labelHtml=avgPerCam!==null
         ?`<div style="font-size:10px;font-weight:800;color:#fff;text-shadow:0 0 4px rgba(0,0,0,1);pointer-events:none;white-space:nowrap;text-align:center;line-height:1.3">${totalCount}<br><span style="font-size:8px;font-weight:600;opacity:.9">${avgPerCam}/cam</span></div>`
         :`<div style="font-size:10px;font-weight:800;color:#fff;text-shadow:0 0 4px rgba(0,0,0,1);pointer-events:none;white-space:nowrap;text-align:center">${totalCount}</div>`;
@@ -1341,7 +1240,8 @@ function updateCtStats(){
   const klassCounts={};
   filtered.forEach(r=>{if(r.Class)klassCounts[r.Class]=(klassCounts[r.Class]||0)+r.Indep;});
   const{total:trapNights,detail:tnDetail}=calcTrapNights(filtered);
-  const totalBatches=tnDetail.length,totalCamsAcrossBatches=tnDetail.reduce((s,d)=>s+d.cams,0);
+  const totalBatches=tnDetail.length;
+  const totalCamsAcrossBatches=tnDetail.reduce((s,d)=>s+d.cams,0);
   const tnSub=totalBatches>0?`${totalBatches} batch${totalBatches>1?'es':''} · ${totalCamsAcrossBatches} cam-deployments`:'';
   let topGrid='–',topCount=0;
   if(ctGridGeo){
@@ -1363,7 +1263,6 @@ function updateCtStats(){
 }
 function applyCtFilters(){rebuildCtSelects();buildCtGrid();buildCtPoints();updateCtStats();updateCtFilterUI();}
 
-/* ── Layer toggles ── */
 function updateLulcLegendVisibility(){
   const on=document.getElementById('toggleLulc').checked||document.getElementById('toggleLulc2025').checked;
   const sec=document.getElementById('secLulcLeg');
@@ -1376,6 +1275,8 @@ function updateGfwLegendVisibility(){
 
 document.getElementById('toggleLulc').onchange=e=>{e.target.checked?map.addLayer(lulc):map.removeLayer(lulc);updateLulcLegendVisibility();};
 document.getElementById('toggleLulc2025').onchange=e=>{e.target.checked?map.addLayer(lulc2025):map.removeLayer(lulc2025);updateLulcLegendVisibility();};
+document.getElementById('toggleLandsat2024').onchange=e=>e.target.checked?map.addLayer(landsat2024):map.removeLayer(landsat2024);
+document.getElementById('toggleLandsat2025').onchange=e=>e.target.checked?map.addLayer(landsat2025):map.removeLayer(landsat2025);
 document.getElementById('toggleBoundary').onchange=e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
 document.getElementById('togglePoints').onchange=e=>{
   e.target.checked?map.addLayer(pointLayer):map.removeLayer(pointLayer);
@@ -1385,11 +1286,6 @@ document.getElementById('togglePoints').onchange=e=>{
 document.getElementById('toggleGfw').onchange=e=>{
   if(e.target.checked){map.addLayer(gfwCluster);}else{map.removeLayer(gfwCluster);}
   updateGfwLegendVisibility();
-};
-document.getElementById('toggleFire').onchange=e=>{
-  if(e.target.checked){map.addLayer(fireCluster);updateFireLayer();}
-  else{map.removeLayer(fireCluster);}
-  updateFireLegendVisibility();
 };
 document.getElementById('ctToggleBoundary').onchange=e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
 document.getElementById('ctToggleLulc').onchange=e=>e.target.checked?map.addLayer(lulc):map.removeLayer(lulc);
@@ -1401,7 +1297,6 @@ document.getElementById('ctToggleGrid').onchange=e=>{
 };
 document.getElementById('ctTogglePoints').onchange=e=>e.target.checked?map.addLayer(ctPointLayer):map.removeLayer(ctPointLayer);
 
-/* ── Patrol filter events ── */
 document.getElementById('startDate').addEventListener('change',e=>{PF.start=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('patrolQuickDates'),'');applyPatrolFilters();});
 document.getElementById('endDate').addEventListener('change',e=>{PF.end=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('patrolQuickDates'),'');applyPatrolFilters();});
 document.getElementById('filterOfficer').addEventListener('change',e=>{PF.officer=e.target.value;applyPatrolFilters();});
@@ -1413,30 +1308,16 @@ document.getElementById('clearFilters').onclick=()=>{
   GFW.start=null;GFW.end=null;GFW.conf='';
   document.getElementById('gfwStartDate').value='';document.getElementById('gfwEndDate').value='';
   document.getElementById('filterGfwConf').value='';
-  FIRE.start=null;FIRE.end=null;FIRE.satellite='';FIRE.owner='';FIRE.desa='';FIRE.lahan='';
-  document.getElementById('fireStartDate').value='';document.getElementById('fireEndDate').value='';
-  ['filterFireSatellite','filterFireOwner','filterFireDesa','filterFireLahan'].forEach(id=>document.getElementById(id).value='');
   highlightCat=null;
   setActiveQuickBtn(document.getElementById('patrolQuickDates'),'all');
   setActiveQuickBtn(document.getElementById('gfwQuickDates'),'all');
-  setActiveQuickBtn(document.getElementById('fireQuickDates'),'all');
-  updateGfwLayer();updateFireLayer();applyPatrolFilters();
+  updateGfwLayer();applyPatrolFilters();
 };
 
-/* ── GFW filter events ── */
 document.getElementById('gfwStartDate').addEventListener('change',e=>{GFW.start=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('gfwQuickDates'),'');updateGfwLayer();updatePatrolFilterUI();});
 document.getElementById('gfwEndDate').addEventListener('change',e=>{GFW.end=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('gfwQuickDates'),'');updateGfwLayer();updatePatrolFilterUI();});
 document.getElementById('filterGfwConf').addEventListener('change',e=>{GFW.conf=e.target.value;updateGfwLayer();updatePatrolFilterUI();});
 
-/* ── Fire filter events ── */
-document.getElementById('fireStartDate').addEventListener('change',e=>{FIRE.start=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('fireQuickDates'),'');updateFireLayer();updatePatrolFilterUI();});
-document.getElementById('fireEndDate').addEventListener('change',e=>{FIRE.end=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('fireQuickDates'),'');updateFireLayer();updatePatrolFilterUI();});
-document.getElementById('filterFireSatellite').addEventListener('change',e=>{FIRE.satellite=e.target.value;updateFireLayer();updatePatrolFilterUI();});
-document.getElementById('filterFireOwner').addEventListener('change',e=>{FIRE.owner=e.target.value;updateFireLayer();updatePatrolFilterUI();});
-document.getElementById('filterFireDesa').addEventListener('change',e=>{FIRE.desa=e.target.value;updateFireLayer();updatePatrolFilterUI();});
-document.getElementById('filterFireLahan').addEventListener('change',e=>{FIRE.lahan=e.target.value;updateFireLayer();updatePatrolFilterUI();});
-
-/* ── Camera trap filter events ── */
 document.getElementById('ctFilterBatch').addEventListener('change',e=>{CTF.batch=e.target.value;applyCtFilters();});
 document.getElementById('ctFilterSite').addEventListener('change',e=>{CTF.site=e.target.value;applyCtFilters();});
 document.getElementById('ctFilterClass').addEventListener('change',e=>{CTF.kelas=e.target.value;applyCtFilters();});
@@ -1453,11 +1334,9 @@ function openModal(src){imageModal.style.display='flex';modalImage.src=src;}
 document.getElementById('closeModal').onclick=()=>imageModal.style.display='none';
 imageModal.onclick=e=>{if(e.target===imageModal)imageModal.style.display='none';};
 
-/* ── Init ── */
 document.getElementById('ctBottomBar').style.display='none';
 updateLulcLegendVisibility();
 updateGfwLegendVisibility();
-updateFireLegendVisibility();
 </script>
 </body>
 </html>
