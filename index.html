@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>---draft---</title>
+  <title>---draft 1---</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -951,8 +951,11 @@ function updateGfwLayer(){
   filtered.forEach(r=>{
     const lat=parseFloat(r['latitude']),lon=parseFloat(r['longitude']);
     if(isNaN(lat)||isNaN(lon))return;
-    const mk=L.circleMarker([lat,lon],{renderer:canvasRenderer,radius:5,fillColor:'#ef4444',color:'#fff',weight:1.5,fillOpacity:0.9});
-    mk.bindPopup(buildGfwPopup(r,lat,lon),{maxWidth:280,className:'gfw-leaflet-popup'});
+    const mk=L.marker([lat,lon],{icon:L.divIcon({
+      html:`<div style="width:12px;height:12px;border-radius:50%;background:#ef4444;border:2px solid #fff;box-shadow:0 0 0 1.5px #ef4444"></div>`,
+      className:'',iconSize:[12,12],iconAnchor:[6,6]
+    })});
+    mk.bindPopup(buildGfwPopup(r,lat,lon),{maxWidth:280});
     markers.push(mk);
   });
   gfwCluster.addLayers(markers);
