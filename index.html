@@ -906,22 +906,7 @@ function applyGfwQuickDate(btn){
 function buildGfwPopup(r, lat, lon){
   const date=(r['Date']||r['date']||'-').trim();
   const conf=(r['Conf_Integrated']||'-').trim();
-  const desa=(r['Desa']||'-').trim();
-  const owner=(r['Owner']||'-').trim();
-  const blok=(r['Blok']||'-').trim();
-  const penutup=(r['Penutup_Lahan']||'-').trim();
   const coord=`${lat.toFixed(5)}, ${lon.toFixed(5)}`;
-
-  const confBadge=conf&&conf!=='-'
-    ?`<span class="gfw-conf-badge">${conf}</span>`
-    :conf;
-
-  const rows=[
-    ['Owner',       owner],
-    ['Desa',        desa],
-    penutup&&penutup!=='-'?['Land Cover', penutup]:null,
-    blok&&blok!=='-'?['Blok', blok]:null,
-  ].filter(Boolean);
 
   return `<div class="gfw-popup">
     <div class="gfw-popup-head">
@@ -933,9 +918,8 @@ function buildGfwPopup(r, lat, lon){
     </div>
     <div class="gfw-popup-row">
       <span class="gfw-popup-key">Confidence</span>
-      <span class="gfw-popup-val">${confBadge}</span>
+      <span class="gfw-popup-val"><span class="gfw-conf-badge">${conf}</span></span>
     </div>
-    ${rows.map(([k,v])=>`<div class="gfw-popup-row"><span class="gfw-popup-key">${k}</span><span class="gfw-popup-val">${v}</span></div>`).join('')}
     <div class="gfw-popup-coord">${coord}</div>
   </div>`;
 }
@@ -955,7 +939,7 @@ function getGfwFiltered(){
   return gfwRawData.filter(r=>{
     const rawDate=(r['Date']||r['date']||'').trim();
     if(rawDate&&(GFW.start||GFW.end)){const d=parseDateStr(rawDate,'ymd');if(GFW.start&&d&&d<GFW.start)return false;if(GFW.end&&d&&d>GFW.end)return false;}
-    if(GFW.conf&&(r['Conf_Integrate']||'').trim()!==GFW.conf)return false;
+    if(GFW.conf&&(r['Conf_Integrated']||'').trim()!==GFW.conf)return false;
     return true;
   });
 }
