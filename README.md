@@ -1,4 +1,4 @@
-# Wildlife Monitoring Web GIS
+# Digital Map Patrol Monitoring
 
 Interactive digital map for patrol monitoring, camera trap management, forest disturbance alerts, and fire event monitoring.
 
