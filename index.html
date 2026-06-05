@@ -910,7 +910,6 @@ function buildGfwPopup(r, lat, lon){
 
   return `<div class="gfw-popup">
     <div class="gfw-popup-head">
-      <div class="gfw-popup-icon">🚨</div>
       <div>
         <div class="gfw-popup-title">GFW Disturbance Alert</div>
         <div class="gfw-popup-date">${date}</div>
@@ -1067,7 +1066,6 @@ function buildFirePopup(r){
   ].filter(Boolean);
   return `<div class="fire-popup">
     <div class="fire-popup-head">
-      <div class="fire-popup-icon">🔥</div>
       <div>
         <div class="fire-popup-title">Fire Detection</div>
         <div class="fire-popup-date">${tanggal}${jam?' · '+jam:''}</div>
