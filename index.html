@@ -1442,14 +1442,17 @@ function updateLulcLegendVisibility(){
 function updateGfwLegendVisibility(){
   document.getElementById('secGfwLegend').style.display=document.getElementById('toggleGfw').checked?'':'none';
 }
+function updateFindingsLegendVisibility(){
+  const on=document.getElementById('togglePoints').checked;
+  document.getElementById('secFindings').previousElementSibling.style.display=on?'':'none';
+  document.getElementById('secFindings').style.display=on?'':'none';
+  document.querySelector('#patrolSidebar .info-hint').style.display=on?'':'none';
+}
 
 document.getElementById('toggleLulc').onchange=e=>{e.target.checked?map.addLayer(lulc):map.removeLayer(lulc);updateLulcLegendVisibility();};
 document.getElementById('toggleLulc2025').onchange=e=>{e.target.checked?map.addLayer(lulc2025):map.removeLayer(lulc2025);updateLulcLegendVisibility();};
 document.getElementById('toggleBoundary').onchange=e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
-document.getElementById('togglePoints').onchange=e=>{
-  e.target.checked?map.addLayer(pointLayer):map.removeLayer(pointLayer);
-  const sec=document.getElementById('secFindings');
-  sec.style.opacity=e.target.checked?'':'0.35';sec.style.pointerEvents=e.target.checked?'':'none';
+document.getElementById('togglePoints').onchange=e=>{e.target.checked?map.addLayer(pointLayer):map.removeLayer(pointLayer);updateFindingsLegendVisibility();
 };
 document.getElementById('toggleGfw').onchange=e=>{
   if(e.target.checked){map.addLayer(gfwCluster);}else{map.removeLayer(gfwCluster);}
@@ -1522,6 +1525,7 @@ document.getElementById('ctBottomBar').style.display='none';
 updateLulcLegendVisibility();
 updateGfwLegendVisibility();
 updateFireLegendVisibility();
+updateFindingsLegendVisibility();
 </script>
 </body>
 </html>
