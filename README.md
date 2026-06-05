@@ -6,9 +6,9 @@ Interactive map for patrol monitoring, camera trap management, forest disturbanc
 
 ## Overview
 
-This application integrates field patrol data, camera trap observations, forest disturbance alerts, and fire detections into a single web-based monitoring platform.
+This application integrates field patrol data, camera trap observations, forest disturbance alerts, and fire detections into a single digital map platform.
 
-The system supports sanggala corridor project implementation.
+The system supports the implementation of the Sanggala Corridor Project.
 
 ---
 
