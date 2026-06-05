@@ -43,7 +43,6 @@
     .sidebar-chevron{color:#9ca3af;font-size:10px;transition:transform .2s}
     .sidebar-chevron.open{transform:rotate(180deg)}
 
-    /* ── Sub-group accordion inside sidebar ── */
     .sub-group-header{display:flex;align-items:center;justify-content:space-between;padding:6px 16px 6px 16px;cursor:pointer;background:#f9fafb;border-bottom:1px solid #f0f1f3;border-top:1px solid #f0f1f3;user-select:none}
     .sub-group-header:hover{background:#f3f4f6}
     .sub-group-title{font-size:10px;font-weight:700;color:#6b7280;letter-spacing:.35px;text-transform:uppercase;display:flex;align-items:center;gap:6px}
@@ -51,7 +50,6 @@
     .sub-group-chevron.open{transform:rotate(180deg)}
     .sub-group-body{overflow:hidden}
 
-    /* Year sub-header inside track dropdown */
     .year-sub-header{display:flex;align-items:center;justify-content:space-between;padding:5px 16px 5px 28px;cursor:pointer;background:#fff;border-bottom:1px solid #f9fafb;user-select:none}
     .year-sub-header:hover{background:#f9fafb}
     .year-sub-title{font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:5px}
@@ -225,7 +223,6 @@
     .fire-cluster-small,.fire-cluster-medium,.fire-cluster-large{background:rgba(251,146,60,.18)!important}
     .fire-cluster div{background:rgba(239,68,68,.85)!important;color:#fff!important;font-family:'Montserrat',sans-serif!important;font-weight:700!important;font-size:10px!important}
 
-    /* ── Shared popup style (Fire & GFW) ── */
     .fire-popup,.gfw-popup{font-family:'Montserrat',sans-serif;width:240px}
     .fire-popup-head,.gfw-popup-head{display:flex;align-items:center;gap:8px;padding-bottom:8px;margin-bottom:8px;border-bottom:1px solid #f3f4f6}
     .fire-popup-icon,.gfw-popup-icon{font-size:18px;line-height:1}
@@ -245,7 +242,6 @@
 <div id="map"></div>
 <div class="loading-overlay" id="loadingOverlay">Loading camera trap data…</div>
 
-<!-- Top bar -->
 <div class="top-bar">
   <div class="top-bar-left">
     <img src="./data/CMI-Brandmark-FullColor-BlackBG.png" alt="CMI" class="logo-img">
@@ -281,27 +277,22 @@
   </div>
 </div>
 
-<!-- Sidebar -->
 <div class="sidebar">
   <div class="sidebar-body">
 
-    <!-- PATROL SIDEBAR -->
     <div id="patrolSidebar">
 
-      <!-- ═══ MAP LAYERS (main accordion) ═══ -->
       <div class="sidebar-section-header" onclick="toggleSection('secLayers','chev1')">
         <span class="sidebar-section-title">Map Layers</span>
         <span class="sidebar-chevron open" id="chev1">▲</span>
       </div>
       <div id="secLayers">
 
-        <!-- Project Area -->
         <div class="layer-item">
           <div class="layer-item-left"><div class="layer-icon-bd"></div><span class="layer-label">Project Area</span></div>
           <label class="cb-wrap"><input type="checkbox" id="toggleBoundary" checked><div class="cb-box"></div></label>
         </div>
 
-        <!-- Patrol Points -->
         <div class="layer-item">
           <div class="layer-item-left">
             <div style="width:12px;height:12px;border-radius:50%;background:#f5a623;flex-shrink:0"></div>
@@ -310,7 +301,6 @@
           <label class="switch"><input type="checkbox" id="togglePoints" checked><span class="sw-track"></span></label>
         </div>
 
-        <!-- GFW Alert -->
         <div class="layer-item">
           <div class="layer-item-left">
             <div style="width:12px;height:12px;border-radius:50%;background:#ef4444;border:2px solid #fff;box-shadow:0 0 0 1.5px #ef4444;flex-shrink:0"></div>
@@ -319,7 +309,6 @@
           <label class="switch"><input type="checkbox" id="toggleGfw"><span class="sw-track"></span></label>
         </div>
 
-        <!-- Fire Event -->
         <div class="layer-item">
           <div class="layer-item-left">
             <div style="width:14px;height:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px">🔥</div>
@@ -328,7 +317,6 @@
           <label class="switch"><input type="checkbox" id="toggleFire"><span class="sw-track"></span></label>
         </div>
 
-        <!-- ── Landcover sub-group (default collapsed) ── -->
         <div class="sub-group-header" onclick="toggleSubGroup('sgLandcover','sgChevLandcover')">
           <span class="sub-group-title">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
@@ -347,7 +335,6 @@
           </div>
         </div>
 
-        <!-- ── Patrol Track sub-group (default collapsed) ── -->
         <div class="sub-group-header" onclick="toggleSubGroup('sgTrack','sgChevTrack')">
           <span class="sub-group-title">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
@@ -356,7 +343,7 @@
           <span class="sub-group-chevron" id="sgChevTrack">▼</span>
         </div>
         <div class="sub-group-body" id="sgTrack" style="display:none">
-          <!-- Year 2026 sub-header (default collapsed) -->
+ 
           <div class="year-sub-header" onclick="toggleSubGroup('sgTrack2026','sgChev2026')">
             <span class="year-sub-title">
               <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -383,14 +370,14 @@
             </div>
             <div style="padding:2px 16px 6px 40px;font-size:9px;color:#9ca3af">Latest update – 29 May 2026</div>
           </div>
-          <!-- Future years can be added here as new year-sub-header blocks -->
+
         </div>
 
-      </div><!-- /secLayers -->
+      </div>
 
       <div class="divider"></div>
 
-      <!-- ── LULC Legend (visible only when a LULC layer is on) ── -->
+
       <div id="secLulcLegWrap" style="display:none">
         <div class="sidebar-section-header" onclick="toggleSection('secLulcLeg','chev2')">
           <span class="sidebar-section-title">LULC Classification</span>
@@ -440,7 +427,6 @@
         <div class="divider"></div>
       </div>
 
-      <!-- Patrol findings -->
       <div class="sidebar-section-header" onclick="toggleSection('secFindings','chev3')">
         <span class="sidebar-section-title">Patrol Findings</span>
         <span class="sidebar-chevron open" id="chev3">▲</span>
@@ -452,7 +438,6 @@
       </div>
     </div>
 
-    <!-- CAMERA SIDEBAR -->
     <div id="cameraSidebar" style="display:none">
       <div class="sidebar-section-header" onclick="toggleSection('secCtLayers','chevCt1')">
         <span class="sidebar-section-title">Map Layers</span>
@@ -512,14 +497,12 @@
   </div>
 </div>
 
-<!-- Filter panel -->
 <div class="filter-panel" id="filterPanel">
   <div class="filter-panel-head">
     <span class="filter-panel-title">Filter Data</span>
     <button class="filter-panel-close" id="filterClose">✕</button>
   </div>
   <div class="filter-panel-body">
-    <!-- PATROL FILTERS -->
     <div id="patrolFilters">
       <div class="f-group">
         <div class="f-label">Patrol — Quick Date</div>
@@ -554,7 +537,6 @@
         <select class="f-input" id="filterFinding"><option value="">All Findings</option></select>
       </div>
 
-      <!-- GFW filters -->
       <div class="f-section-divider">
         <div class="f-section-label"><span class="dot" style="background:#ef4444"></span>GFW Disturbance Alert</div>
         <div class="f-group">
@@ -582,7 +564,6 @@
         </div>
       </div>
 
-      <!-- Fire Event filters -->
       <div class="f-section-divider">
         <div class="f-section-label"><span style="font-size:12px;line-height:1">🔥</span>Fire Event</div>
         <div class="f-group">
@@ -629,7 +610,6 @@
       <button class="btn-clear-f" id="clearFilters">Clear All Filters</button>
     </div>
 
-    <!-- CAMERA FILTERS -->
     <div id="cameraFilters" style="display:none">
       <div class="f-group">
         <div class="f-label">Batch</div>
@@ -660,7 +640,6 @@
   </div>
 </div>
 
-<!-- Basemap panel -->
 <div class="basemap-panel" id="basemapPanel">
   <div class="basemap-label-row">Basemap</div>
   <div class="basemap-pills">
@@ -683,14 +662,12 @@
   </div>
 </div>
 
-<!-- Zoom controls -->
 <div class="map-zoom">
   <button class="zoom-btn" onclick="map.zoomIn()">+</button>
   <button class="zoom-btn" onclick="map.zoomOut()">−</button>
   <button class="zoom-btn" onclick="resetView()" style="font-size:12px">⌂</button>
 </div>
 
-<!-- Detail panel -->
 <div class="detail-panel" id="detailPanel">
   <div class="detail-header">
     <span class="detail-header-title" id="detailPanelTitle">Patrol Finding</span>
@@ -707,7 +684,6 @@
   <div class="gdp-body" id="gridDetailBody"></div>
 </div>
 
-<!-- Bottom bars -->
 <div class="bottom-bar" id="bottomBar"></div>
 <div class="ct-bottom-bar" id="ctBottomBar">
   <div class="ct-stat"><div class="ct-stat-val" id="ctStatCameras">–</div><div class="ct-stat-label">Camera Trap Location</div><div class="ct-stat-sub">Units</div></div>
@@ -717,7 +693,6 @@
   <div class="ct-stat"><div class="ct-stat-val" id="ctStatTrapNights">–</div><div class="ct-stat-label">Total Trap-Nights</div><div class="ct-stat-sub" id="ctStatTrapNightsSub"></div></div>
 </div>
 
-<!-- Image modal -->
 <div id="imageModal" class="img-modal">
   <span class="modal-close" id="closeModal">&times;</span>
   <img id="modalImage">
@@ -791,7 +766,6 @@ function getPresetRange(preset){
 }
 function setActiveQuickBtn(container,preset){container.querySelectorAll('.qd-btn').forEach(b=>b.classList.toggle('active',b.dataset.preset===preset));}
 
-/* ── Sub-group accordion toggle ── */
 function toggleSubGroup(bodyId, chevId){
   const body=document.getElementById(bodyId);
   const chev=document.getElementById(chevId);
@@ -801,7 +775,6 @@ function toggleSubGroup(bodyId, chevId){
   chev.textContent=hidden?'▲':'▼';
 }
 
-/* ── Basemaps ── */
 const basemaps={
   esri_imagery:L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{opacity:0.85}),
   esri_topo:   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{opacity:1}),
@@ -823,7 +796,6 @@ const map=L.map('map',{center:[0.8,110.325],zoom:13,zoomControl:false,attributio
 basemaps['esri_imagery'].addTo(map);
 const canvasRenderer=L.canvas({padding:0.5});
 
-// LULC layers — NOT added to map by default (off)
 const lulc    =L.tileLayer('./data/Tiles/{z}/{x}/{y}.png',{opacity:1});
 const lulc2025=L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',{opacity:1});
 let boundaryLayer,mapBounds;
@@ -832,7 +804,6 @@ const ctGridLayer =L.layerGroup();
 const ctPointLayer=L.layerGroup();
 let currentTab='patrol';
 
-/* ── Patrol Track layers ── */
 const TRACK_CONFIG=[
   {id:'trackFeb',  file:'track_feb.geojson',   color:'#3b82f6'},
   {id:'trackMaret',file:'track_maret.geojson', color:'#f97316'},
@@ -860,7 +831,6 @@ function bindTrackToggle(cfg){
 }
 TRACK_CONFIG.forEach(bindTrackToggle);
 
-/* ── GFW cluster ── */
 const gfwCluster=L.markerClusterGroup({
   maxClusterRadius:25,disableClusteringAtZoom:16,spiderfyOnMaxZoom:true,showCoverageOnHover:false,
   iconCreateFunction:function(cluster){
@@ -869,7 +839,6 @@ const gfwCluster=L.markerClusterGroup({
   }
 });
 
-/* ── Fire Event cluster ── */
 const fireCluster=L.markerClusterGroup({
   maxClusterRadius:30,disableClusteringAtZoom:15,spiderfyOnMaxZoom:true,showCoverageOnHover:false,
   iconCreateFunction:function(cluster){
@@ -918,9 +887,6 @@ filterToggleBtn.addEventListener('click',e=>{e.stopPropagation();filterPanel.cla
 document.getElementById('filterClose').addEventListener('click',()=>{filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');});
 document.addEventListener('click',e=>{if(filterPanel.classList.contains('open')&&!filterPanel.contains(e.target)&&e.target!==filterToggleBtn){filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');}});
 
-/* ════════════════════════════════
-   GFW
-════════════════════════════════ */
 const GFW_SHEET_URL='https://docs.google.com/spreadsheets/d/1UW3uOFcLr4AQFBp_VMbEXk37_Vb5DekHU-_9QSkskCo/export?format=csv&gid=0';
 let gfwRawData=[],allGfwConf=[];
 const{start:gfw1mStart,end:gfw1mEnd}=getPresetRange('1m');
@@ -937,10 +903,9 @@ function applyGfwQuickDate(btn){
   updateGfwLayer();updatePatrolFilterUI();
 }
 
-/* ── GFW popup builder (identik dengan fire popup) ── */
 function buildGfwPopup(r, lat, lon){
   const date=(r['Date']||r['date']||'-').trim();
-  const conf=(r['Conf_Integrate']||'-').trim();
+  const conf=(r['Conf_Integrated']||'-').trim();
   const desa=(r['Desa']||'-').trim();
   const owner=(r['Owner']||'-').trim();
   const blok=(r['Blok']||'-').trim();
@@ -971,14 +936,14 @@ function buildGfwPopup(r, lat, lon){
       <span class="gfw-popup-val">${confBadge}</span>
     </div>
     ${rows.map(([k,v])=>`<div class="gfw-popup-row"><span class="gfw-popup-key">${k}</span><span class="gfw-popup-val">${v}</span></div>`).join('')}
-    <div class="gfw-popup-coord">📍 ${coord}</div>
+    <div class="gfw-popup-coord">${coord}</div>
   </div>`;
 }
 
 Papa.parse(GFW_SHEET_URL,{download:true,header:true,skipEmptyLines:true,complete:(res)=>{
   gfwRawData=res.data.filter(r=>(r['Note']||'').trim()==='Titik'&&r['latitude']&&r['longitude']);
   const confSet=new Set();
-  gfwRawData.forEach(r=>{const c=(r['Conf_Integrate']||'').trim();if(c)confSet.add(c);});
+  gfwRawData.forEach(r=>{const c=(r['Conf_Integrated']||'').trim();if(c)confSet.add(c);});
   allGfwConf=[...confSet].sort();
   const sel=document.getElementById('filterGfwConf');
   sel.innerHTML='<option value="">All Confidence</option>';
@@ -1003,16 +968,12 @@ function updateGfwLayer(){
     const lat=parseFloat(r['latitude']),lon=parseFloat(r['longitude']);
     if(isNaN(lat)||isNaN(lon))return;
     const mk=L.circleMarker([lat,lon],{renderer:canvasRenderer,radius:5,fillColor:'#ef4444',color:'#fff',weight:1.5,fillOpacity:0.9});
-    // Use bindPopup identical to fire hotspot pattern
     mk.bindPopup(buildGfwPopup(r,lat,lon),{maxWidth:280,className:'gfw-leaflet-popup'});
     markers.push(mk);
   });
   gfwCluster.addLayers(markers);
 }
 
-/* ════════════════════════════════
-   FIRE EVENT
-════════════════════════════════ */
 const FIRE_SHEET_URL='https://docs.google.com/spreadsheets/d/1QRsiwK-3vlEU8991xsFsFvWdmyeuMTvSnATxxWRZEfk/export?format=csv&gid=0';
 let fireRawData=[];
 
@@ -1126,7 +1087,7 @@ function buildFirePopup(r){
       </div>
     </div>
     ${rows.map(([k,v])=>`<div class="fire-popup-row"><span class="fire-popup-key">${k}</span><span class="fire-popup-val">${v}</span></div>`).join('')}
-    <div class="fire-popup-coord">📍 ${coord}</div>
+    <div class="fire-popup-coord">${coord}</div>
   </div>`;
 }
 
@@ -1150,9 +1111,6 @@ function updateFireLegendVisibility(){
   document.getElementById('secFireLegend').style.display=document.getElementById('toggleFire').checked?'':'none';
 }
 
-/* ════════════════════════════════
-   PATROL
-════════════════════════════════ */
 const PATROL_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
 let rawData=[],highlightCat=null;
 const{start:p1mStart,end:p1mEnd}=getPresetRange('1m');
@@ -1299,9 +1257,6 @@ function openDetail(r){
 }
 document.getElementById('detailClose').onclick=()=>document.getElementById('detailPanel').classList.remove('open');
 
-/* ════════════════════════════════
-   CAMERA TRAP
-════════════════════════════════ */
 const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
 const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
 const CT_GRID_URL='./data/grid.geojson';
@@ -1490,7 +1445,6 @@ function updateCtStats(){
 }
 function applyCtFilters(){rebuildCtSelects();buildCtGrid();buildCtPoints();updateCtStats();updateCtFilterUI();}
 
-/* ── Layer toggles ── */
 function updateLulcLegendVisibility(){
   const on=document.getElementById('toggleLulc').checked||document.getElementById('toggleLulc2025').checked;
   document.getElementById('secLulcLegWrap').style.display=on?'':'none';
@@ -1526,7 +1480,6 @@ document.getElementById('ctToggleGrid').onchange=e=>{
 };
 document.getElementById('ctTogglePoints').onchange=e=>e.target.checked?map.addLayer(ctPointLayer):map.removeLayer(ctPointLayer);
 
-/* ── Patrol filter events ── */
 document.getElementById('startDate').addEventListener('change',e=>{PF.start=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('patrolQuickDates'),'');applyPatrolFilters();});
 document.getElementById('endDate').addEventListener('change',e=>{PF.end=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('patrolQuickDates'),'');applyPatrolFilters();});
 document.getElementById('filterOfficer').addEventListener('change',e=>{PF.officer=e.target.value;applyPatrolFilters();});
@@ -1548,12 +1501,10 @@ document.getElementById('clearFilters').onclick=()=>{
   updateGfwLayer();updateFireLayer();applyPatrolFilters();
 };
 
-/* ── GFW filter events ── */
 document.getElementById('gfwStartDate').addEventListener('change',e=>{GFW.start=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('gfwQuickDates'),'');updateGfwLayer();updatePatrolFilterUI();});
 document.getElementById('gfwEndDate').addEventListener('change',e=>{GFW.end=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('gfwQuickDates'),'');updateGfwLayer();updatePatrolFilterUI();});
 document.getElementById('filterGfwConf').addEventListener('change',e=>{GFW.conf=e.target.value;updateGfwLayer();updatePatrolFilterUI();});
 
-/* ── Fire filter events ── */
 document.getElementById('fireStartDate').addEventListener('change',e=>{FIRE.start=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('fireQuickDates'),'');updateFireLayer();updatePatrolFilterUI();});
 document.getElementById('fireEndDate').addEventListener('change',e=>{FIRE.end=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('fireQuickDates'),'');updateFireLayer();updatePatrolFilterUI();});
 document.getElementById('filterFireSatellite').addEventListener('change',e=>{FIRE.satellite=e.target.value;updateFireLayer();updatePatrolFilterUI();});
@@ -1561,7 +1512,6 @@ document.getElementById('filterFireOwner').addEventListener('change',e=>{FIRE.ow
 document.getElementById('filterFireDesa').addEventListener('change',e=>{FIRE.desa=e.target.value;updateFireLayer();updatePatrolFilterUI();});
 document.getElementById('filterFireLahan').addEventListener('change',e=>{FIRE.lahan=e.target.value;updateFireLayer();updatePatrolFilterUI();});
 
-/* ── Camera trap filter events ── */
 document.getElementById('ctFilterBatch').addEventListener('change',e=>{CTF.batch=e.target.value;applyCtFilters();});
 document.getElementById('ctFilterSite').addEventListener('change',e=>{CTF.site=e.target.value;applyCtFilters();});
 document.getElementById('ctFilterClass').addEventListener('change',e=>{CTF.kelas=e.target.value;applyCtFilters();});
@@ -1578,7 +1528,6 @@ function openModal(src){imageModal.style.display='flex';modalImage.src=src;}
 document.getElementById('closeModal').onclick=()=>imageModal.style.display='none';
 imageModal.onclick=e=>{if(e.target===imageModal)imageModal.style.display='none';};
 
-/* ── Init ── */
 document.getElementById('ctBottomBar').style.display='none';
 updateLulcLegendVisibility();
 updateGfwLegendVisibility();
