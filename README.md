@@ -2,7 +2,7 @@
 
 Interactive map for patrol monitoring, camera trap management, forest disturbance alerts, and fire event monitoring.
 
-![Platform](docs/dashboard.png)
+<img width="1919" height="949" alt="image" src="https://github.com/user-attachments/assets/a2848d70-e8b8-49c2-8803-62588af71db6" />
 
 ## Overview
 
