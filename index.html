@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Draft</title>
+  <title>Patrol Activity Monitoring</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -635,7 +635,7 @@ const lulc2025=L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',{opacity:1});
 let boundaryLayer,mapBounds;
 const pointLayer  =L.layerGroup().addTo(map);
 
-const RKT_LABEL_MIN_ZOOM=14,RKT_LABEL_MAX_ZOOM=20;
+const RKT_LABEL_MIN_ZOOM=16,RKT_LABEL_MAX_ZOOM=20;
 const rktLayer=L.layerGroup();
 let rktLoaded=false,rktGeoJsonLayer=null;
 function updateRktLabelsVisibility(){
@@ -649,7 +649,7 @@ function updateRktLabelsVisibility(){
 }
 function loadRktLayer(){
   if(rktLoaded)return Promise.resolve();
-  return fetch('./data/rkt_lama.json')
+  return fetch('./data/rkt_baru.geojson')
     .then(r=>r.ok?r.json():Promise.reject(r.status))
     .then(geojson=>{
       rktGeoJsonLayer=L.geoJSON(geojson,{
@@ -664,7 +664,7 @@ function loadRktLayer(){
       rktLoaded=true;
       updateRktLabelsVisibility();
     })
-    .catch(err=>{console.warn('Petak RKT not loaded (data/rkt_lama.json):',err);rktLoaded=true;});
+    .catch(err=>{console.warn('Petak RKT not loaded (data/rkt_baru.geojson):',err);rktLoaded=true;});
 }
 loadRktLayer().then(()=>{if(document.getElementById('toggleRkt').checked)map.addLayer(rktLayer);});
 document.getElementById('toggleRkt').addEventListener('change',async function(){
