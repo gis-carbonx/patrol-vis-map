@@ -635,7 +635,7 @@ const lulc2025=L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',{opacity:1});
 let boundaryLayer,mapBounds;
 const pointLayer  =L.layerGroup().addTo(map);
 
-const RKT_LABEL_MIN_ZOOM=16,RKT_LABEL_MAX_ZOOM=20;
+const RKT_LABEL_MIN_ZOOM=14,RKT_LABEL_MAX_ZOOM=20;
 const rktLayer=L.layerGroup();
 let rktLoaded=false,rktGeoJsonLayer=null;
 function updateRktLabelsVisibility(){
