@@ -635,14 +635,24 @@ const lulc2025=L.tileLayer('./data/tiles-2025/{z}/{x}/{y}.png',{opacity:1});
 let boundaryLayer,mapBounds;
 const pointLayer  =L.layerGroup().addTo(map);
 
+const RKT_LABEL_MIN_ZOOM=16,RKT_LABEL_MAX_ZOOM=20;
 const rktLayer=L.layerGroup();
-let rktLoaded=false;
+let rktLoaded=false,rktGeoJsonLayer=null;
+function updateRktLabelsVisibility(){
+  if(!rktGeoJsonLayer)return;
+  const z=map.getZoom();
+  const show=z>=RKT_LABEL_MIN_ZOOM&&z<=RKT_LABEL_MAX_ZOOM;
+  rktGeoJsonLayer.eachLayer(featureLayer=>{
+    if(!featureLayer.getTooltip())return;
+    if(show)featureLayer.openTooltip();else featureLayer.closeTooltip();
+  });
+}
 function loadRktLayer(){
   if(rktLoaded)return Promise.resolve();
   return fetch('./data/rkt_lama.json')
     .then(r=>r.ok?r.json():Promise.reject(r.status))
     .then(geojson=>{
-      L.geoJSON(geojson,{
+      rktGeoJsonLayer=L.geoJSON(geojson,{
         style:{color:'#fbbf24',weight:1.5,opacity:0.9,fillColor:'#fbbf24',fillOpacity:0.05},
         onEachFeature:(feature,layer)=>{
           const label=(feature.properties&&(feature.properties['PETAKKERJA']??feature.properties['PETAKKERJA'.toLowerCase()]))||'';
@@ -652,14 +662,16 @@ function loadRktLayer(){
         }
       }).addTo(rktLayer);
       rktLoaded=true;
+      updateRktLabelsVisibility();
     })
     .catch(err=>{console.warn('Petak RKT not loaded (data/rkt_lama.json):',err);rktLoaded=true;});
 }
 loadRktLayer().then(()=>{if(document.getElementById('toggleRkt').checked)map.addLayer(rktLayer);});
 document.getElementById('toggleRkt').addEventListener('change',async function(){
-  if(this.checked){await loadRktLayer();map.addLayer(rktLayer);}
+  if(this.checked){await loadRktLayer();map.addLayer(rktLayer);updateRktLabelsVisibility();}
   else{map.removeLayer(rktLayer);}
 });
+map.on('zoomend',updateRktLabelsVisibility);
 
 const TRACK_CONFIG=[
   {id:'trackFeb',  file:'track_feb.geojson',   color:'#3b82f6'},
