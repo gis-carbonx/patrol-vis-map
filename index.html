@@ -206,6 +206,11 @@
   </div>
   <div style="display:flex;align-items:center;gap:10px">
     <div class="icon-btn-wrap">
+      <button class="icon-btn" title="Export Data" id="exportToggleBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
+    </div>
+    <div class="icon-btn-wrap">
       <button class="icon-btn" title="Filter" id="filterToggleBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
       </button>
@@ -509,6 +514,56 @@
       </div>
       <button class="btn-clear-f" id="clearFilters">Clear All Filters</button>
     </div>
+  </div>
+</div>
+
+<div class="filter-panel" id="exportPanel" style="width:290px">
+  <div class="filter-panel-head">
+    <span class="filter-panel-title">Export Data</span>
+    <button class="filter-panel-close" id="exportClose">✕</button>
+  </div>
+  <div class="filter-panel-body">
+    <div class="f-group">
+      <div class="f-label">Data yang diekspor mengikuti filter yang sedang aktif saat ini</div>
+    </div>
+
+    <div class="f-section-divider" style="border-top:none;margin-top:0;padding-top:0">
+      <label style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border:1.5px solid #e8eaed;border-radius:9px;cursor:pointer;margin-bottom:8px">
+        <span style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;color:#374151">
+          <span style="width:9px;height:9px;border-radius:50%;background:#f5a623;flex-shrink:0"></span>
+          Patrol Findings
+        </span>
+        <span style="display:flex;align-items:center;gap:8px">
+          <span id="exportPatrolCount" style="font-size:10px;color:#9ca3af;font-weight:600">0</span>
+          <input type="checkbox" id="exportPatrol" checked>
+        </span>
+      </label>
+
+      <label style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border:1.5px solid #e8eaed;border-radius:9px;cursor:pointer;margin-bottom:8px">
+        <span style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;color:#374151">
+          <span style="width:9px;height:9px;border-radius:50%;background:#ef4444;flex-shrink:0"></span>
+          GFW Disturbance Alert
+        </span>
+        <span style="display:flex;align-items:center;gap:8px">
+          <span id="exportGfwCount" style="font-size:10px;color:#9ca3af;font-weight:600">0</span>
+          <input type="checkbox" id="exportGfw">
+        </span>
+      </label>
+
+      <label style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border:1.5px solid #e8eaed;border-radius:9px;cursor:pointer">
+        <span style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;color:#374151">
+          <span style="font-size:12px;line-height:1">🔥</span>
+          Fire Event
+        </span>
+        <span style="display:flex;align-items:center;gap:8px">
+          <span id="exportFireCount" style="font-size:10px;color:#9ca3af;font-weight:600">0</span>
+          <input type="checkbox" id="exportFire">
+        </span>
+      </label>
+    </div>
+
+    <button class="btn-clear-f" id="btnDoExport" style="background:#2d6a2d;border-color:#2d6a2d;color:#fff">⬇ Download CSV</button>
+    <div id="exportEmptyNote" style="display:none;font-size:10px;color:#ef4444;text-align:center">Pilih minimal satu jenis data untuk diekspor.</div>
   </div>
 </div>
 
@@ -1153,6 +1208,97 @@ updateLulcLegendVisibility();
 updateGfwLegendVisibility();
 updateFireLegendVisibility();
 updateFindingsLegendVisibility();
+
+/* ===================== EXPORT ===================== */
+const exportToggleBtn=document.getElementById('exportToggleBtn');
+const exportPanel=document.getElementById('exportPanel');
+exportToggleBtn.addEventListener('click',e=>{
+  e.stopPropagation();
+  filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');
+  exportPanel.classList.toggle('open');
+  exportToggleBtn.classList.toggle('active',exportPanel.classList.contains('open'));
+  if(exportPanel.classList.contains('open'))updateExportCounts();
+});
+document.getElementById('exportClose').addEventListener('click',()=>{exportPanel.classList.remove('open');exportToggleBtn.classList.remove('active');});
+document.addEventListener('click',e=>{if(exportPanel.classList.contains('open')&&!exportPanel.contains(e.target)&&e.target!==exportToggleBtn){exportPanel.classList.remove('open');exportToggleBtn.classList.remove('active');}});
+filterToggleBtn.addEventListener('click',()=>{exportPanel.classList.remove('open');exportToggleBtn.classList.remove('active');});
+
+function updateExportCounts(){
+  document.getElementById('exportPatrolCount').textContent=getActiveFiltered().length;
+  document.getElementById('exportGfwCount').textContent=getGfwFiltered().length;
+  document.getElementById('exportFireCount').textContent=getFireFiltered().length;
+}
+
+function todayStamp(){
+  const d=new Date();
+  return`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function downloadCSV(filename,rows){
+  if(!rows.length){alert('Tidak ada data untuk diekspor pada filter saat ini.');return;}
+  const csv=Papa.unparse(rows);
+  const blob=new Blob(["\ufeff"+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function buildPatrolExportRows(){
+  return getActiveFiltered().map(r=>{
+    const pts=(r['data-coordinate']||'').split(',');
+    const lat=pts[0]?parseFloat(pts[0]):'',lon=pts[1]?parseFloat(pts[1]):'';
+    return{
+      'Patrol ID': r['_id']||r['id']||'',
+      'Date': r['data-start_date']||'',
+      'Officer': r['data-base_info-nama']||'',
+      'Category': fmtLabel(r['data-survey-categ']||''),
+      'Finding': fmtLabel(r['data-survey-finding']||''),
+      'Notes': r['data-survey-description']||'',
+      'Latitude': lat,
+      'Longitude': lon,
+      'Photo 1': convert(r['data-documentation-image_1'])||'',
+      'Photo 2': convert(r['data-documentation-image_2'])||''
+    };
+  });
+}
+function buildGfwExportRows(){
+  return getGfwFiltered().map(r=>({
+    'Date': (r['Date']||r['date']||'').trim(),
+    'Confidence': (r['Conf_Integrated']||'').trim(),
+    'Latitude': parseFloat(r['latitude'])||'',
+    'Longitude': parseFloat(r['longitude'])||''
+  }));
+}
+function buildFireExportRows(){
+  return getFireFiltered().map(r=>({
+    'Date': r.Tanggal||'',
+    'Time': r.Jam||'',
+    'Satellite': r.Satellite||'',
+    'Instrument': r.Instrument||'',
+    'Owner': r.Owner||'',
+    'Desa': r.Desa||'',
+    'Land Cover': r.Lahan||'',
+    'Blok': r.Blok||'',
+    'Keterangan': r.Ket||'',
+    'Latitude': r.Latitude,
+    'Longitude': r.Longitude
+  }));
+}
+
+document.getElementById('btnDoExport').addEventListener('click',()=>{
+  const doPatrol=document.getElementById('exportPatrol').checked;
+  const doGfw=document.getElementById('exportGfw').checked;
+  const doFire=document.getElementById('exportFire').checked;
+  const note=document.getElementById('exportEmptyNote');
+  if(!doPatrol&&!doGfw&&!doFire){note.style.display='block';return;}
+  note.style.display='none';
+  const stamp=todayStamp();
+  if(doPatrol)downloadCSV(`patrol_findings_${stamp}.csv`,buildPatrolExportRows());
+  if(doGfw)downloadCSV(`gfw_disturbance_alert_${stamp}.csv`,buildGfwExportRows());
+  if(doFire)downloadCSV(`fire_event_${stamp}.csv`,buildFireExportRows());
+});
 </script>
 </body>
 </html>
